@@ -7,6 +7,7 @@ links=( \
   "picom"
   "rofi"
   "vim"
+  "wal"
 )
 
 
