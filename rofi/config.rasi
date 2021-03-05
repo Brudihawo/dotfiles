@@ -1,0 +1,12 @@
+configuration {
+  modi: "run, drun, window, combi";
+  combi-modi: "run,drun,window";
+  width: 1280;
+  lines: 15;
+  columns: 1;
+  terminal: "st";
+  matching: "fuzzy";
+  levenstein-sort: true;
+}
+
+@import "~/.cache/wal/colors-rofi-dark"
