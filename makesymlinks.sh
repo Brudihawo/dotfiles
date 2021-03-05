@@ -4,6 +4,7 @@ config=( \
   "picom"
   "rofi"
   "vim"
+  "wal"
 )
 files=( \
   ".Xresources" 
