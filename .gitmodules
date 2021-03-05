@@ -1,0 +1,6 @@
+[submodule "awesome"]
+	path = awesome
+	url = https://github.com/brudihawo/awesome
+[submodule "vim"]
+	path = vim
+	url = https://github.com/brudihawo/vim

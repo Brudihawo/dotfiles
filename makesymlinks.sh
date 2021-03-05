@@ -1,17 +1,24 @@
-links=( \
-  ".Xresources" \
-  ".bashrc"
-  ".zshrc"
+config=( \
   "awesome"
   "nvim"
   "picom"
   "rofi"
   "vim"
 )
+files=( \
+  ".Xresources" 
+  ".bashrc"
+  ".zshrc"
+)
 
-
-for link in ${links[@]}; do
+for link in ${config[@]}; do
   echo "Linking $link"
   ln -srf ~/dotfiles/$link ~/.config/
-
 done
+
+for link in ${files[@]}; do
+  echo "Linking $link"
+  ln -srf ~/dotfiles/$link ~/
+done
+
+xrdb ~/.Xresources
