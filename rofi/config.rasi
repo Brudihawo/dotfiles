@@ -6,6 +6,8 @@ configuration {
   columns: 1;
   terminal: "termite -e 'wal -R'";
   matching: "fuzzy";
+  sort: true;
+  levenshtein-sort: true;
 }
 
 @import "~/.cache/wal/colors-rofi-dark"

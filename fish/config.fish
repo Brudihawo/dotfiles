@@ -4,3 +4,4 @@ set fish_greeting
 
 wal -R -q
 wal --preview
+set PATH $PATH /home/brudihawo/bin/

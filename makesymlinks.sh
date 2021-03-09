@@ -9,6 +9,7 @@ config=( \
   "wal"
   "fish"
   "qtile"
+  "termite"
 )
 files=( \
   ".Xresources" 
