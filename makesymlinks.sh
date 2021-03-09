@@ -1,3 +1,5 @@
+#!/bin/bash
+
 config=( \
   "awesome"
   "nvim"
@@ -5,6 +7,8 @@ config=( \
   "rofi"
   "vim"
   "wal"
+  "fish"
+  "qtile"
 )
 files=( \
   ".Xresources" 

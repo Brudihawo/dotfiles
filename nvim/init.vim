@@ -1,4 +1,4 @@
-set runtimepath^=~/dotfiles/vim 
-set runtimepath+=~/dotfiles/vim/after
+set runtimepath^=/home/brudihawo/dotfiles/vim 
+set runtimepath+=/home/brudihawo/dotfiles/vim/after
 let &packpath=&runtimepath
-exec "source ~/dotfiles/vim/.vimrc"
+source /home/brudihawo/dotfiles/vim/.vimrc

@@ -4,9 +4,8 @@ configuration {
   width: 1280;
   lines: 15;
   columns: 1;
-  terminal: "st";
+  terminal: "termite -e 'wal -R'";
   matching: "fuzzy";
-  levenstein-sort: true;
 }
 
 @import "~/.cache/wal/colors-rofi-dark"
