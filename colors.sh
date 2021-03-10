@@ -1,5 +1,9 @@
+#!/bin/bash
+
 xres_file="/home/brudihawo/.Xresources"
 theme_file="/home/brudihawo/.config/awesome/themes/wal_theme/theme.lua"
+qtile_file="/home/brudihawo/.config/qtile/config.py"
+dunst_file="/home/brudihawo/.config/dunst/dunstrc"
 
 . /home/brudihawo/.cache/wal/colors.sh
 
@@ -48,9 +52,11 @@ i=0
 while [ $i -lt 18 ]; do
   echo "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\""
   sed -i "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\"" $theme_file
-  sed -i "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\"" $xres_file
+  sed -i "/${color_names[$i]}"':/c\'"${color_names[$i]}: \"${colors[$i]}\"" $xres_file
+  sed -i "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $qtile_file
+  sed -i "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $dunst_file
   i=$(($i + 1))
 done
 
 xrdb $xres_file
-echo 'awesome.restart()' | awesome-client
+# echo 'awesome.restart()' | awesome-client

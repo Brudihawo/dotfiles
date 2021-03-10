@@ -1,44 +1,36 @@
-*.color0:	#0A192B
-*.color1:	#A0686A
-*.color2:	#C9766F
-*.color3:	#9F8A7E
-*.color4:	#9D9FA1
-*.color5:	#DCB8A1
-*.color6:	#E1CDA8
-*.color7:	#e9ded5
-*.color8:	#a39b95
-*.color9:	#A0686A
-*.color10:	#C9766F
-*.color11:	#9F8A7E
-*.color12:	#9D9FA1
-*.color13:	#DCB8A1
-*.color14:	#E1CDA8
-*.color15:	#e9ded5
-*.background:	#0A192B
-*.foreground:	#e9ded5
+color0: "#01070f"
+color1: "#562c5b"
+color2: "#a50e46"
+color3: "#1d6599"
+color4: "#4e6677"
+color5: "#448cc0"
+color6: "#75b1de"
+color7: "#9da8b7"
+color8: "#3b526f"
+color9: "#562c5b"
+color10: "#a50e46"
+color11: "#1d6599"
+color12: "#4e6677"
+color13: "#448cc0"
+color14: "#75b1de"
+color15: "#9da8b7"
+background: "#01070f"
+foreground: "#9da8b7"
 
-URxvt*background:	[100]#0A192B
 URxvt*borderColor:	[100]#0A192B
 URxvt*cursorColor:	#e9ded5
 URxvt*depth:	32
-URxvt*foreground:	#e9ded5
 URxvt.font:	Noto Sans Mono
 
-UXTerm*background:	#0A192B
 UXTerm*cursorColor:	#e9ded5
-UXTerm*foreground:	#e9ded5
 
-XClock*background:	#0A192B
-XClock*foreground:	#e9ded5
 XClock*hourColor:	rgba:e9/de/d5/ff
 XClock*majorColor:	rgba:e9/de/d5/ff
 XClock*minorColor:	rgba:e9/de/d5/ff
 XClock*minuteColor:	rgba:e9/de/d5/ff
 XClock*secondColor:	rgba:e9/de/d5/ff
 
-XTerm*background:	#0A192B
 XTerm*cursorColor:	#e9ded5
-XTerm*foreground:	#e9ded5
 Xterm*faceName:	iosevka
 xterm*faceName:	Noto Sans Mono
 xterm*faceSize:	15
@@ -47,4 +39,5 @@ xterm*renderFont:	true
 emacs*background:	#0A192B
 emacs*foreground:	#e9ded5
 
-st.font: Noto Sans Mono:pixelsize=16
+Xcursor.theme: Breeze-Adapta
+Xcursor.size: 16

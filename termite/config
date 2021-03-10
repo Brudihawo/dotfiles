@@ -1,3 +1,5 @@
+[options]
+font = NotoSansMono Nerd Font 14
 
 [colors]
 background=rgba(12,12,12,0.8)

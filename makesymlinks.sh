@@ -10,6 +10,8 @@ config=( \
   "fish"
   "qtile"
   "termite"
+  "Trolltech.conf"
+  "dunst"
 )
 files=( \
   ".Xresources" 
