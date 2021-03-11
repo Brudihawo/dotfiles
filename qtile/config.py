@@ -74,6 +74,7 @@ keys = [
     # Standard window Actions
     Key([win], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([alt], "F4", lazy.window.kill(), desc="Kill focused window"),
+    Key([win], "w", lazy.window.kill(), desc="Kill focused window"),
     Key([win], "space", lazy.layout.next(),
         desc="Move window focus to other window"),
     Key([alt], "Tab", lazy.layout.next(),
@@ -199,10 +200,8 @@ screens = [
                                 inactive=clr_color7,
                                 active=clr_color6),
                 spacer,
-                widget.WindowCount(),
+                widget.WindowCount(show_zero=True),
                 spacer,
-
-
                 widget.WindowName(foreground=clr_foreground),
                 
                 widget.Notify(background=clr_color2,
