@@ -24,6 +24,7 @@
 # SOFTWARE.
 
 import os 
+import re
 import subprocess
 
 from typing import List  # noqa: F401
@@ -115,14 +116,15 @@ keys = [
 
     # Qtile Management Actions
     Key([win, "control"], "r", lazy.restart(), desc="Restart Qtile"),
-    Key([win, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-
     # Launch Applications
     Key([win], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([win], "r", 
             lazy.spawn("rofi -modi drun,window,combi -combi-modi drun,window -show combi"),
             desc="launch rofi"),
     Key([win], "f", lazy.window.toggle_floating()),
+
+    # Show all windows in workspace
+    Key([win], "a", lazy.spawn("rofi -modi window -show window"), desc="Show all windows in rofi"),
 
     # sound control
     Key([alt], "F1", lazy.spawn("amixer -q sset Master toggle &")),
@@ -155,20 +157,7 @@ layouts = [
                    margin=5,
                    insert_position=1),
     layout.Max(margin=5),
-    # Try more layouts by unleashing below layouts.
-    # layout.Stack(num_stacks=2,
-                 # margin=8),
-    # layout.Bsp(),
-    # layout.Matrix(),
-    # layout.MonadTall(border_focus=clr_color2,
-                     # border_normal=clr_color4,
-                     # margin=8),
-    # layout.MonadWide(),
-    # layout.RatioTile(),
     layout.Tile(margin=8),
-    # layout.TreeTab(),
-    # layout.VerticalTile(),
-    # layout.Zoomy(),
 ]
 
 widget_defaults = dict(
@@ -185,8 +174,6 @@ screens = [
     Screen(
         top=bar.Bar(
             [
-                widget.CurrentLayoutIcon(scale=0.8,
-                                         background=clr_color7),
 
                 widget.Chord(foreground=clr_color2,
                              background=clr_color7),
@@ -209,7 +196,10 @@ screens = [
 
                 widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
                 spacer,
+                widget.Memory(),
+                spacer,
                 widget.CPU(format='CPU @ {freq_current} GHz {load_percent:03.1f}%'),
+                # widget.ThermalSensor(),
                 spacer,
                 widget.Net(format="{down}",
                            foreground=clr_color2,),
@@ -219,9 +209,13 @@ screens = [
                            foreground=clr_color6,),
                 spacer, 
                 widget.Volume(),
+                # widget.Open_Weather(cityid="Karlsruhe",
+                #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
                 widget.Clock(format=' %H:%M %a %d.%m.%Y',
                              foreground=clr_color2,
                              background=clr_color7),
+                widget.CurrentLayoutIcon(scale=0.8,
+                                         background=clr_color7),
             ],
             26,
             margin=[0, 0, 0, 0],
@@ -249,11 +243,12 @@ floating_layout = layout.Floating(float_rules=[
     # Run the utility of `xprop` to see the wm class and name of an X client.
     *layout.Floating.default_float_rules,
     Match(wm_class='confirmreset'),  # gitk
-    Match(wm_class='makebranch'),  # gitk
-    Match(wm_class='maketag'),  # gitk
-    Match(wm_class='ssh-askpass'),  # ssh-askpass
-    Match(title='branchdialog'),  # gitk
-    Match(title='pinentry'),  # GPG key password entry
+    Match(wm_class='makebranch'),    # gitk
+    Match(wm_class='maketag'),       # gitk
+    Match(wm_class='ssh-askpass'),   # ssh-askpass
+    Match(title='branchdialog'),     # gitk
+    Match(title='pinentry'),         # GPG key password entry
+    Match(title=re.compile('.*hourglass.*')),      # Hourglass timer
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
