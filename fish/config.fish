@@ -5,11 +5,13 @@ set fish_greeting
 wal -R -q
 wal --preview
 set PATH $PATH /home/brudihawo/bin/
+set -x MANPAGER 'nvim -c "set ft=man" -'
 
 alias jupyterlab='python -m jupyterlab'
 alias feh='feh --auto-zoom --scale-down'
 
-# alias fe='nvim (find -type f | fzf --preview "bat --style=numbers --color=always --line-range=:80 {}" -0)'
+# Add fzf key bindings
+# fzf_key_bindings
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
