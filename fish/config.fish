@@ -9,9 +9,9 @@ set -x MANPAGER 'nvim -c "set ft=man" -'
 
 alias jupyterlab='python -m jupyterlab'
 alias feh='feh --auto-zoom --scale-down'
+alias env='env | fzf'
 
-# Add fzf key bindings
-# fzf_key_bindings
+alias packlist="pacman -Q | awk '{ printf(\"%-30s %50s\\n\", \$1, \$2) }' | fzf"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
