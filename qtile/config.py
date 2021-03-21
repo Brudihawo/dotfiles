@@ -46,24 +46,24 @@ def reduce_brightness(hex_color, factor):
     return "#{}{}{}".format(red,green,blue)
 
 
-clr_foreground = "#9da8b7"
-clr_background = "#01070f"
-clr_color0 = "#01070f"
-clr_color1 = "#562c5b"
-clr_color2 = "#a50e46"
-clr_color3 = "#1d6599"
-clr_color4 = "#4e6677"
-clr_color5 = "#448cc0"
-clr_color6 = "#75b1de"
-clr_color7 = "#9da8b7"
-clr_color8 = "#3b526f"
-clr_color9 = "#562c5b"
-clr_color10 = "#a50e46"
-clr_color11 = "#1d6599"
-clr_color12 = "#4e6677"
-clr_color13 = "#448cc0"
-clr_color14 = "#75b1de"
-clr_color15 = "#9da8b7"
+clr_foreground = "#ebdbb2"
+clr_background = "#282828"
+clr_color0 = "#282828"
+clr_color1 = "#cc241d"
+clr_color2 = "#98971a"
+clr_color3 = "#d79921"
+clr_color4 = "#458588"
+clr_color5 = "#b16286"
+clr_color6 = "#689d6a"
+clr_color7 = "#a89984"
+clr_color8 = "#928374"
+clr_color9 = "#fb4934"
+clr_color10 = "#b8bb26"
+clr_color11 = "#fabd2f"
+clr_color12 = "#83a598"
+clr_color13 = "#d3869b"
+clr_color14 = "#8ec07c"
+clr_color15 = "#ebdbb2"
 
 # keys
 win = "mod4"
@@ -150,8 +150,8 @@ for i in groups:
     ])
 
 layouts = [
-    layout.Columns(border_focus=clr_color2,
-                   border_normal=clr_color4,
+    layout.Columns(border_focus=clr_color1,
+                   border_normal=clr_color2,
                    border_width=1,
                    grow_amount=2,
                    margin=5,
@@ -175,19 +175,20 @@ screens = [
         top=bar.Bar(
             [
 
-                widget.Chord(foreground=clr_color2,
-                             background=clr_color7),
+                widget.Chord(foreground=clr_color11,
+                             background=clr_color4),
                 # widget.CurrentLayout(foreground=clr_foreground),
 
                 widget.GroupBox(highlight_method='line',
-                                highlight_color=[reduce_brightness(clr_color2, 0.5)],
+                                highlight_color=[clr_color3],
                                 borderwidth=0,
                                 padding=7,
                                 # fmt="<span weight='bold>{}</span>",
-                                block_highlight_text_color=clr_color7,
+                                block_highlight_text_color=clr_background,
                                 disable_drag=True,
-                                inactive=clr_color7,
-                                active=clr_color2),
+                                inactive=clr_color11,
+                                active=clr_color5,
+                                hide_unused=True),
                 spacer,
                 widget.WindowCount(show_zero=True),
                 spacer,
@@ -204,24 +205,24 @@ screens = [
                 # widget.ThermalSensor(),
                 spacer,
                 widget.Net(format="{down}",
-                           foreground=clr_color2,),
+                           foreground=clr_color6,),
                 # widget.TextBox(text="\u2BAF | \u2BAC"),
                 widget.TextBox(text="\u21E9 |  \u21EA"),
                 widget.Net(format="{up}",
-                           foreground=clr_color6,),
+                           foreground=clr_color3,),
                 spacer, 
                 widget.Volume(),
                 # widget.Open_Weather(cityid="Karlsruhe",
                 #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
                 widget.Clock(format=' %H:%M %a %d.%m.%Y',
-                             foreground=clr_color2,
-                             background=clr_color7),
+                             foreground=clr_background,
+                             background=clr_color3),
                 widget.CurrentLayoutIcon(scale=0.8,
-                                         background=clr_color7),
+                                         background=clr_color3),
             ],
             26,
             margin=[0, 0, 0, 0],
-            background=reduce_brightness(clr_color11,0.5),
+            background=reduce_brightness(clr_color4,0.5),
         ),
     ),
 ]

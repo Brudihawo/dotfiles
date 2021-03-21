@@ -51,10 +51,10 @@ color_names=( \
 i=0
 while [ $i -lt 18 ]; do
   echo "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\""
-  sed -i "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\"" $theme_file
-  sed -i "/${color_names[$i]}"':/c\'"${color_names[$i]}: \"${colors[$i]}\"" $xres_file
-  sed -i "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $qtile_file
-  sed -i "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $dunst_file
+  sed -i --follow-symlinks "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\"" $theme_file
+  sed -i --follow-symlinks "/${color_names[$i]}"':/c\'"${color_names[$i]}: \"${colors[$i]}\"" $xres_file
+  sed -i --follow-symlinks "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $qtile_file
+  sed -i --follow-symlinks "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $dunst_file
   i=$(($i + 1))
 done
 
