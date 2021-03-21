@@ -10,4 +10,5 @@ configuration {
   levenshtein-sort: true;
 }
 
-@import "~/.cache/wal/colors-rofi-dark"
+/* @import "~/.cache/wal/colors-rofi-dark" */
+@import "gruvbox-dark.rasi"
