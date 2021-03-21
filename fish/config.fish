@@ -10,6 +10,9 @@ set -x MANPAGER 'nvim -c "set ft=man" -'
 alias jupyterlab='python -m jupyterlab'
 alias feh='feh --auto-zoom --scale-down'
 alias env='env | fzf'
+alias gstatus='git status'
+alias gpush='git push'
+alias gcommit='git commit'
 
 alias packlist="pacman -Q | awk '{ printf(\"%-30s %50s\\n\", \$1, \$2) }' | fzf"
 alias packup="pacman -Qu | awk '{ printf(\"%-30s %20s %s %s\\n\", \$1, \$2, \$3, \$4) }' | fzf"
