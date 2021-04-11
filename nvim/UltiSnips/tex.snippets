@@ -1,0 +1,52 @@
+snippet graph "Graphic Figure" b
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=${1:relwidth}\textwidth]{${2:path}}
+	\caption{${3:caption}}
+	\label{${4:label}}
+\end{figure}
+$5
+endsnippet
+
+snippet s "Section Header"
+\section{$1}
+$2
+endsnippet
+
+snippet ss "Subsection Header"
+\subsection{$1}
+$2
+endsnippet
+
+snippet sss "Subsubsection Header"
+\subsubsection{$1}
+$2
+endsnippet
+
+snippet p "Paragraph Header"
+\paragraph{$1}
+$2
+endsnippet
+
+snippet env "Environment" b
+\begin{$1}[${2:option}]
+${3:content}
+\end{$1}
+$4
+endsnippet
+
+snippet l "label"
+\label{$1} $2
+endsnippet
+
+snippet r "reference"
+\ref{$1} $2
+endsnippet
+
+snippet c "citation"
+\cite{$1} $2
+endsnippet
+
+snippet i "item"
+\item 
+endsnippet
