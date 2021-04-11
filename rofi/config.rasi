@@ -1,13 +1,14 @@
 configuration {
   modi: "run, drun, window, combi";
   combi-modi: "run,drun,window";
-  width: 1280;
-  lines: 15;
+  width: 1920;
+  lines: 24;
   columns: 1;
-  terminal: "termite -e 'wal -R'";
+  terminal: "termite";
   matching: "fuzzy";
   sort: true;
-  levenshtein-sort: true;
+  /* levenshtein-sort: true; */
+  font: "Noto Sans Mono 20";
 }
 
 /* @import "~/.cache/wal/colors-rofi-dark" */
