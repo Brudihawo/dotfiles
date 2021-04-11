@@ -45,14 +45,14 @@ esac
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/brudihawo/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('/home/hawo/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/brudihawo/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/brudihawo/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "/home/hawo/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/hawo/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/brudihawo/miniconda3/bin:$PATH"
+        export PATH="/home/hawo/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -61,7 +61,7 @@ unset __conda_setup
 check_conda_env ()
 {
     if [ ! -z "$CONDA_DEFAULT_ENV" ]; then
-      printf -- "%s" "($CONDA_DEFAULT_ENV)"
+      printf -- "%s" " ($CONDA_DEFAULT_ENV)"
     else
       printf -- "%s" ""
     fi
@@ -95,7 +95,7 @@ if ${use_color} ; then
   if [[ ${EUID} == 0 ]] ; then
     PS1='\[\033[01;33m\] ╭─ \[\033[00m\]\A \[\033[01;31m\]\h\[\033[01;36m\]: \w\[\033[01;31m\]\[\033[01;33m\]\n ╰─❯ \[\033[00m\]'
   else
-    PS1='\[\033[01;33m\] ╭─ \[\033[00;35m\] '"\$(check_conda_env)"' \[\033[00m\]\A \[\033[01;34m\]\u\[\033[01;33m\]@\h\[\033[01;37m\]: \w\[\033[01;32m\]\[\033[00m\]\n\[\033[01;33m\] ╰─❯ \[\033[00m\]'
+    PS1='\[\033[01;33m\] ╭─ \[\033[00;35m\]'"\$(check_conda_env)"' \[\033[00m\]\A \[\033[01;34m\]\u\[\033[01;33m\]@\h\[\033[01;37m\]: \w\[\033[01;32m\]\[\033[00m\]\n\[\033[01;33m\] ╰─❯ \[\033[00m\]'
   fi
 
   alias ls='ls --color=auto'
@@ -175,3 +175,8 @@ alias env='env | fzf --multi'
 alias gstatus='git status'
 alias gcommit='git commit'
 alias gpush='git push'
+alias hiwicd='cd ~/workspace/hiwi/mze_files'
+alias hiwiin='hiwicd && ./connect.sh'
+alias batv='bat --theme=gruvbox-dark'
+
+export PATH="$PATH:~/bin"
