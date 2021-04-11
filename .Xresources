@@ -16,6 +16,7 @@ color14: "#8ec07c"
 color15: "#ebdbb2"
 background: "#282828"
 foreground: "#ebdbb2"
+Xft.dpi: 163
 
 URxvt*borderColor:	[100]#0A192B
 URxvt*cursorColor:	#e9ded5
@@ -40,4 +41,4 @@ emacs*background:	#0A192B
 emacs*foreground:	#e9ded5
 
 Xcursor.theme: Breeze-Adapta
-Xcursor.size: 16
+Xcursor.size: 32
