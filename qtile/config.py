@@ -34,7 +34,14 @@ from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from libqtile import hook
+from libqtile.widget import base
 
+def move_to_next_screen(qtile):
+    active_win = qtile.current_window
+    next_screen = (qtile.current_screen.index + 1) % len(qtile.screens)
+    active_win.toscreen(next_screen)
+    qtile.focus_screen(next_screen)
+    active_win.focus(warp=True)
 
 # colors
 def reduce_brightness(hex_color, factor):
@@ -45,6 +52,43 @@ def reduce_brightness(hex_color, factor):
     blue  = f"{int(float(factor) * int(hex_color[5:7], 16)):#0{4}x}"[2:4]
     return "#{}{}{}".format(red,green,blue)
 
+
+class CapsNumLockIndicator_Nice(base.ThreadPoolText):
+    """A nicer Caps/Num Lock indicator."""
+
+    orientations = base.ORIENTATION_HORIZONTAL
+    defaults=[('update_interval', 0.25, 'Update Time in seconds.')]
+    def __init__(self, **config):
+        base.ThreadPoolText.__init__(self, "", **config)
+        self.add_defaults(CapsNumLockIndicator_Nice.defaults)
+
+    def get_indicators(self):
+        """Return a list with the current State"""
+        try: 
+            output = self.call_process(['xset', 'q'])
+        except subprocess.CalledProcessError as err:
+            output = err.output.decode()
+
+        if output.startswith("Keyboard"):
+            indicators = re.findall("(?:Caps|Num)\s+Lock:\s*(on|off)", output)
+            return indicators 
+
+    def poll(self):
+        """Poll content for the text box."""
+        sym = self.get_indicators()
+        out = ' '
+
+        if sym[0] == 'on':
+            out += u"\u21EA"
+        else: 
+            out += '_'
+
+        if sym[1] == 'on':
+            out += u"\u21ED"
+        else:
+            out += '_'
+
+        return out + " "
 
 clr_foreground = "#ebdbb2"
 clr_background = "#282828"
@@ -69,7 +113,7 @@ clr_color15 = "#ebdbb2"
 win = "mod4"
 alt = "mod1"
 
-terminal = "termite -e fish"
+terminal = "termite"
 
 keys = [
     # Standard window Actions
@@ -86,20 +130,27 @@ keys = [
     Key([win], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([win], "j", lazy.layout.down(), desc="Move focus down"),
     Key([win], "k", lazy.layout.up(), desc="Move focus up"),
+    Key([win], "n", lazy.next_screen(), desc="Move focus to next screen"),
+
 
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key([win, "shift"], "h", lazy.layout.shuffle_left(),
-        desc="Move window to the left"),
-    Key([win, "shift"], "l", lazy.layout.shuffle_right(),
-        desc="Move window to the right"),
-    Key([win, "shift"], "j", lazy.layout.shuffle_down(),
-        desc="Move window down"),
-    Key([win, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+    KeyChord([win, "shift"], 'm', [
+        Key([], "h", lazy.layout.shuffle_left(),
+            desc="Move window to the left"),
+        Key([], "l", lazy.layout.shuffle_right(),
+            desc="Move window to the right"),
+        Key([], "j", lazy.layout.shuffle_down(),
+            desc="Move window down"),
+        Key([], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+        Key([], "x", lazy.window.kill(), desc="Kill focused window"),
+    ], 
+    mode="MOVE"),
+
+    Key([win, 'shift'], 'n', lazy.function(move_to_next_screen)),
 
     # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
+    # Split = all windows displayed Unsplit = 1 window displayed, like Max layout, but still with
     # multiple stack panes
     Key([win, "shift"], "Return", lazy.layout.toggle_split(),
         desc="Toggle between split and unsplit sides of stack"),
@@ -111,17 +162,25 @@ keys = [
                 Key([], "j", lazy.layout.grow_down(), desc="Grow window down"),
                 Key([], "k", lazy.layout.grow_up(), desc="Grow window up"),
                 Key([], "n", lazy.layout.normalize(), desc="Reset window sizes"),
+                Key([], "x", lazy.window.kill(), desc="Kill focused window"),
             ],
-            mode=u"\U0001F589"),
+            mode="RESIZE"),
+            # mode=u"\U0001F589"),
+
+    Key([win], "f", lazy.window.toggle_floating()),
 
     # Qtile Management Actions
     Key([win, "control"], "r", lazy.restart(), desc="Restart Qtile"),
+
     # Launch Applications
     Key([win], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([win], "r", 
-            lazy.spawn("rofi -modi drun,window,combi -combi-modi drun,window -show combi"),
+            lazy.spawn("rofi -modi run,drun,window,combi -combi-modi drun,window -show combi"),
             desc="launch rofi"),
-    Key([win], "f", lazy.window.toggle_floating()),
+    Key([win], "e", lazy.spawn("pcmanfm")),
+    Key([win], 'v', lazy.spawn("termite -t 'openvpn_console' -e '/home/hawo/scripts/vpn_connect.sh'")), # VPN SELECTOR
+    Key([win, "shift"], 'v', lazy.spawn('/home/hawo/scripts/vpn_kill.sh'), desc="kill openvpn"),
+    Key([win, alt], 's', lazy.spawn("rofi -ssh-command 'termite -e \"ssh {host}\"' -modi ssh -show ssh"), desc="SSH Menu"),
 
     # Show all windows in workspace
     Key([win], "a", lazy.spawn("rofi -modi window -show window"), desc="Show all windows in rofi"),
@@ -130,18 +189,29 @@ keys = [
     Key([alt], "F1", lazy.spawn("amixer -q sset Master toggle &")),
     Key([alt], "F2", lazy.spawn("amixer -q sset Master 5%- &")),
     Key([alt], "F3", lazy.spawn("amixer -q sset Master 5%+ &")),
+
+    # Clipboard Manager
+    Key(['control', alt], 'c', lazy.spawn("rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'")), 
     
 ]
-
-groups = [Group(i) for i in "123456789"]
-for i in groups:
+groups = [
+        Group("main"),
+        Group("alt"),
+        Group("[www]", matches=[Match(wm_class="Firefox"),
+                                Match(wm_class="Opera")]),
+        Group("mail", matches=[Match(wm_class=["Mail", "Thunderbird"]),
+                               Match(wm_class=["Rocket.Chat"])]),
+        Group("comms", matches=[Match(wm_class="TelegramDesktop"),
+                                Match(wm_class="*whatsapp-nativefier*")]),
+        ]
+for n, i in enumerate(groups):
     keys.extend([
         # win + letter of group = switch to group
-        Key([win], i.name, lazy.group[i.name].toscreen(),
+        Key([win], str(n + 1), lazy.group[i.name].toscreen(),
             desc="Switch to group {}".format(i.name)),
 
         # win + shift + letter of group = switch to & move focused window to group
-        Key([win, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
+        Key([win, "shift"], str(n + 1), lazy.window.togroup(i.name, switch_group=True),
             desc="Switch to & move focused window to group {}".format(i.name)),
         # Or, use below if you prefer not to switch to that group.
         # # win + shift + letter of group = move focused window to group
@@ -152,17 +222,20 @@ for i in groups:
 layouts = [
     layout.Columns(border_focus=clr_color1,
                    border_normal=clr_color2,
-                   border_width=1,
+                   border_width=2,
                    grow_amount=2,
-                   margin=5,
-                   insert_position=1),
-    layout.Max(margin=5),
-    layout.Tile(margin=8),
+                   margin=16,
+                   insert_position=1,
+                   num_columns=4),
+    layout.Max(margin=16),
+    layout.Tile(margin=16,
+                border_width=2),
 ]
 
 widget_defaults = dict(
-    font='sans',
-    fontsize=16,
+    font='NotoSansMono Nerd Font Regular',
+    # font='sans',
+    fontsize=24,
     padding=4,
 )
 extension_defaults = widget_defaults.copy()
@@ -170,61 +243,70 @@ extension_defaults = widget_defaults.copy()
 spacer = widget.Sep(size_percent=80, padding=4,
                     linewidth=2,
                     foreground=clr_color5)
+
 screens = [
     Screen(
         top=bar.Bar(
             [
-
                 widget.Chord(foreground=clr_color11,
                              background=clr_color4),
                 # widget.CurrentLayout(foreground=clr_foreground),
 
-                widget.GroupBox(highlight_method='line',
-                                highlight_color=[clr_color3],
+                widget.GroupBox(highlight_method='block',
                                 borderwidth=0,
                                 padding=7,
                                 # fmt="<span weight='bold>{}</span>",
                                 block_highlight_text_color=clr_background,
+                                this_current_screen_border=clr_color14,
+                                this_screen_border=clr_color6,
+                                other_current_screen_border=clr_color11,
+                                other_screen_border=clr_color3,
+                                urgent_border=clr_foreground,
+                                urgent_text=clr_background,
                                 disable_drag=True,
-                                inactive=clr_color11,
+                                inactive=clr_color12,
                                 active=clr_color5,
-                                hide_unused=True),
+                                hide_unused=False),
                 spacer,
                 widget.WindowCount(show_zero=True),
                 spacer,
-                widget.WindowName(foreground=clr_foreground),
-                
-                widget.Notify(background=clr_color2,
-                              foreground=clr_foreground),
-
-                widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
+                widget.WindowName(font='sans', 
+                                  foreground=clr_foreground),
+                # widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
                 spacer,
-                widget.Memory(),
+                widget.Memory(foreground=clr_color6,
+                              format='RAM: {MemUsed: .0f} MB'),
                 spacer,
-                widget.CPU(format='CPU @ {freq_current} GHz {load_percent:03.1f}%'),
-                # widget.ThermalSensor(),
+                widget.CPU(foreground=clr_color3,
+                           format='CPU @ {freq_current} GHz {load_percent:3.0f}% ->'),
+               widget.ThermalSensor(foreground=clr_color10, 
+                                     foreground_alert=clr_color9),
                 spacer,
                 widget.Net(format="{down}",
                            foreground=clr_color6,),
-                # widget.TextBox(text="\u2BAF | \u2BAC"),
-                widget.TextBox(text="\u21E9 |  \u21EA"),
+                widget.TextBox(text=u"\u21D3 | \u21D1"),
                 widget.Net(format="{up}",
-                           foreground=clr_color3,),
+                           foreground=clr_color3),
                 spacer, 
                 widget.Volume(),
                 # widget.Open_Weather(cityid="Karlsruhe",
                 #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
+                CapsNumLockIndicator_Nice(background=clr_color3,
+                                          foreground=clr_background),
+                widget.Systray(padding=7,
+                               background=clr_color3),
                 widget.Clock(format=' %H:%M %a %d.%m.%Y',
                              foreground=clr_background,
                              background=clr_color3),
                 widget.CurrentLayoutIcon(scale=0.8,
                                          background=clr_color3),
             ],
-            26,
+            40,
             margin=[0, 0, 0, 0],
             background=reduce_brightness(clr_color4,0.5),
         ),
     ),
+    Screen(),
 ]
 
 # Drag floating layouts.
@@ -252,7 +334,10 @@ floating_layout = layout.Floating(float_rules=[
     Match(title='branchdialog'),     # gitk
     Match(title='pinentry'),         # GPG key password entry
     Match(title=re.compile('.*hourglass.*')),      # Hourglass timer
-])
+    Match(title='Picture in Picture'),
+    Match(title='openvpn_console'),
+],
+    border_focus=clr_color5)
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 

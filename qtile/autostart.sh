@@ -44,6 +44,8 @@ export background="$background"
 export foreground="$foreground"
 
 nitrogen --restore &
-picom --experimental-backends &
+picom &
+setxkbmap de &
 cat <(envsubst < ~/.config/dunst/dunstrc)
 dunst -config <(envsubst < ~/.config/dunst/dunstrc) &
+greenclip daemon &
