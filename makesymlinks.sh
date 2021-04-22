@@ -12,6 +12,7 @@ config=( \
   "termite"
   "Trolltech.conf"
   "dunst"
+  "zathura"
 )
 files=( \
   ".Xresources" 

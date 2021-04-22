@@ -1,0 +1,46 @@
+# General Options
+set selection-clipboard clipboard
+set adjust-open "width"
+set sandbox none
+set page-padding 8
+
+# Gui Options
+set guioptions "vs"
+set font "NotoSansMono Nerd Font Regular 14"
+
+# Colors: 
+set completion-bg "#3c3836"
+set completion-fg "#d79921"
+
+set completion-group-bg "#458588"
+set completion-group-fg "#d79921"
+
+set completion-highlight-bg "#d79921"
+set completion-highlight-fg "#3c3836"
+
+set default-fg "#b57614"
+set default-bg "#3c3836"
+
+set inputbar-fg "#d79921"
+set inputbar-bg "#3c3836"
+
+set notification-bg "#79740e"
+set notification-fg "#fbf1c7"
+
+set notification-error-bg "#9d0006"
+set notification-error-fg "#fbf1c7"
+
+set notification-warning-bg "#b57614"
+set notification-warning-fg "#3c3836"
+
+set statusbar-bg "#458588"
+set statusbar-fg "#fbf1c7"
+
+set highlight-color "#427b58"
+set highlight-active-color "#d79921"
+
+set index-fg "#d79921"
+set index-bg "#3c3836"
+
+set index-active-fg "#3c3836"
+set index-active-bg "#d79921"
