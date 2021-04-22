@@ -67,6 +67,18 @@ check_conda_env ()
     fi
 }
 
+modified_path () 
+{
+    dir=$(sed "s|$HOME|~|g" <<< $(pwd))
+    dead_len=$((9 + $(wc -m <<< "$(check_conda_env)$HOSTNAME@$USER: ")))
+    if [ $(wc -m <<< $dir) -gt $(($(stty -a | awk -F "[; ]" 'FNR == 1 {print $9}') - $dead_len )) ]; then
+      awk 'BEGIN { RS="/"; LF} { printf(substr($1, 0, 1)); printf "/" }'  <<< $dir
+      printf $(basename "$dir")
+    else
+      echo $dir
+    fi
+}
+
 use_color=true
 # Set colorful PS1 only on colorful terminals.
 # dircolors --print-database uses its own built-in database
@@ -93,9 +105,9 @@ if ${use_color} ; then
   fi
 
   if [[ ${EUID} == 0 ]] ; then
-    PS1='\[\033[01;33m\] ╭─ \[\033[00m\]\A \[\033[01;31m\]\h\[\033[01;36m\]: \w\[\033[01;31m\]\[\033[01;33m\]\n ╰─❯ \[\033[00m\]'
+    PS1='\[\033[01;33m\] ╭─ \[\033[00m\]\A \[\033[01;31m\]\h\[\033[01;36m\]: '"\$(modified_path)"'\[\033[01;31m\]\[\033[01;33m\]\n ╰─❯ \[\033[00m\]'
   else
-    PS1='\[\033[01;33m\] ╭─ \[\033[00;35m\]'"\$(check_conda_env)"' \[\033[00m\]\A \[\033[01;34m\]\u\[\033[01;33m\]@\h\[\033[01;37m\]: \w\[\033[01;32m\]\[\033[00m\]\n\[\033[01;33m\] ╰─❯ \[\033[00m\]'
+    PS1='\[\033[01;33m\] ╭─ \[\033[00;35m\]'"\$(check_conda_env)"' \[\033[00m\]\A \[\033[01;34m\]\u\[\033[01;33m\]@\h\[\033[01;37m\]: '"\$(modified_path)"'\[\033[01;32m\]\[\033[00m\]\n\[\033[01;33m\] ╰─❯ \[\033[00m\]'
   fi
 
   alias ls='ls --color=auto'
@@ -178,5 +190,7 @@ alias gpush='git push'
 alias hiwicd='cd ~/workspace/hiwi/mze_files'
 alias hiwiin='hiwicd && ./connect.sh'
 alias batv='bat --theme=gruvbox-dark'
+alias qlog='bat ~/.local/share/qtile/qtile.log'
 
 export PATH="$PATH:~/bin"
+export MATLABDIR="/home/hawo/local/MATLAB/"
