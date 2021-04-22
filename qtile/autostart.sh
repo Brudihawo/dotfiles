@@ -43,9 +43,15 @@ export color15="$color15"
 export background="$background"
 export foreground="$foreground"
 
+export EDITOR="$(if [[ -n $DISPLAY ]]; then echo 'termite -e nvim'; else echo 'nvim'; fi)"
+
 nitrogen --restore &
 picom &
 setxkbmap de &
 cat <(envsubst < ~/.config/dunst/dunstrc)
 dunst -config <(envsubst < ~/.config/dunst/dunstrc) &
 greenclip daemon &
+flameshot &
+pulseaudio &
+pacmd set-default-sink alsa_output.hw_2 &
+nextcloud --background &

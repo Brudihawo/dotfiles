@@ -43,14 +43,45 @@ def move_to_next_screen(qtile):
     qtile.focus_screen(next_screen)
     active_win.focus(warp=True)
 
-# colors
-def reduce_brightness(hex_color, factor):
-    if factor > 1.0:
-        factor = 1.0
-    red   = f"{int(float(factor) * int(hex_color[1:3], 16)):#0{4}x}"[2:4]
-    green = f"{int(float(factor) * int(hex_color[3:5], 16)):#0{4}x}"[2:4]
-    blue  = f"{int(float(factor) * int(hex_color[5:7], 16)):#0{4}x}"[2:4]
-    return "#{}{}{}".format(red,green,blue)
+
+def rofi_selector(qtile, option_string, prompt):
+    child_process = subprocess.Popen(['rofi', '-dmenu', '-p', prompt], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    child_process.stdin.write(option_string.encode('ascii'))
+    return child_process.communicate()[0].decode('ascii')
+
+
+def move_to_group_selector(qtile):
+    active_win = qtile.current_window
+    str_groups = '\n'.join([f"{index:4} -> {g.label}" for index, g in enumerate(qtile.groups, start=1)])
+    target = re.split(r" -> ", rofi_selector(qtile, str_groups, "chose group"))[-1]
+    active_win.cmd_togroup(target[:-1])
+    
+
+def group_switch_selector(qtile):
+    str_groups = '\n'.join([f"{index:4} -> {g.label}" for index, g in enumerate(qtile.groups, start=1)])
+    target = re.split(r" -> ", rofi_selector(qtile, str_groups, "chose group"))[0]
+    qtile.groups[int(target) - 1].cmd_toscreen()
+
+
+def shutdown_reboot_menu(qtile):
+    option_str = "\n".join(["shutdown", "reboot", "nothing"])
+    result = rofi_selector(qtile, option_str, "Shutdown Menu").strip("\n")
+    if result == "shutdown":
+        subprocess.call(["notify-send", "shutdown"])
+        subprocess.call(["shutdown", "0"])
+    elif result == "reboot":
+        subprocess.call(["notify-send", "reboot"])
+        subprocess.call(["reboot"])
+    else: 
+        subprocess.call(["notify-send", "no action"])
+
+
+def change_floating_size(qtile, dw, dh):
+    qtile.current_window.cmd_resize_floating(dw, dh)
+
+
+def move_floating(qtile, dw, dh):
+    qtile.current_window.cmd_move_floating(dw, dh)
 
 
 class CapsNumLockIndicator_Nice(base.ThreadPoolText):
@@ -90,6 +121,17 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
 
         return out + " "
 
+
+# colors
+def reduce_brightness(hex_color, factor):
+    if factor > 1.0:
+        factor = 1.0
+    red   = f"{int(float(factor) * int(hex_color[1:3], 16)):#0{4}x}"[2:4]
+    green = f"{int(float(factor) * int(hex_color[3:5], 16)):#0{4}x}"[2:4]
+    blue  = f"{int(float(factor) * int(hex_color[5:7], 16)):#0{4}x}"[2:4]
+    return "#{}{}{}".format(red,green,blue)
+
+
 clr_foreground = "#ebdbb2"
 clr_background = "#282828"
 clr_color0 = "#282828"
@@ -108,6 +150,10 @@ clr_color12 = "#83a598"
 clr_color13 = "#d3869b"
 clr_color14 = "#8ec07c"
 clr_color15 = "#ebdbb2"
+
+# constants
+FLOAT_RS_INC = 20
+FLOAT_MV_INC = 20 
 
 # keys
 win = "mod4"
@@ -155,7 +201,7 @@ keys = [
     Key([win, "shift"], "Return", lazy.layout.toggle_split(),
         desc="Toggle between split and unsplit sides of stack"),
 
-    # Window Resizing
+    # Window Resizing in Constrained Layout
     KeyChord([win, "shift"], "r", [
                 Key([], "h", lazy.layout.grow_left(), desc="Grow window left"),
                 Key([], "l", lazy.layout.grow_right(), desc="Grow window right"),
@@ -166,44 +212,72 @@ keys = [
             ],
             mode="RESIZE"),
             # mode=u"\U0001F589"),
+    
+    # Floating Window Resizing
+    KeyChord([win, "shift", alt], "r", [
+            Key([], "h", lazy.function(change_floating_size, -FLOAT_RS_INC, 0), desc="Decrease floating window width"),
+            Key([], "l", lazy.function(change_floating_size, FLOAT_RS_INC, 0), desc="Increase floating window width"),
+            Key([], "j", lazy.function(change_floating_size, 0, FLOAT_RS_INC), desc="Increase floating window height"),
+            Key([], "k", lazy.function(change_floating_size, 0, -FLOAT_RS_INC), desc="Decrease floating window height"),
+            Key([], "x", lazy.window.kill(), desc="Kill focused window"),
+        ],
+        mode="FLOAT RS"),
+
+    # Floating Window Moving
+    KeyChord([win, "shift", alt], "m", [
+            Key([], "h", lazy.function(move_floating, -FLOAT_MV_INC, 0), desc="Decrease floating window width"),
+            Key([], "l", lazy.function(move_floating, FLOAT_MV_INC, 0), desc="Increase floating window width"),
+            Key([], "j", lazy.function(move_floating, 0, FLOAT_MV_INC), desc="Increase floating window height"),
+            Key([], "k", lazy.function(move_floating, 0, -FLOAT_MV_INC), desc="Decrease floating window height"),
+            Key([], "x", lazy.window.kill(), desc="Kill focused window"),
+        ],
+        mode="FLOAT MV"),
 
     Key([win], "f", lazy.window.toggle_floating()),
 
     # Qtile Management Actions
     Key([win, "control"], "r", lazy.restart(), desc="Restart Qtile"),
+    Key(["control", "shift"], "Escape", lazy.function(shutdown_reboot_menu), desc="Start Shutdown/Reboot Menu with Rofi"),
 
     # Launch Applications
     Key([win], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([win], "r", 
-            lazy.spawn("rofi -modi run,drun,window,combi -combi-modi drun,window -show combi"),
+            lazy.spawn("rofi -show-icons -modi run,drun,window,combi -combi-modi drun,window -show combi"),
             desc="launch rofi"),
     Key([win], "e", lazy.spawn("pcmanfm")),
     Key([win], 'v', lazy.spawn("termite -t 'openvpn_console' -e '/home/hawo/scripts/vpn_connect.sh'")), # VPN SELECTOR
     Key([win, "shift"], 'v', lazy.spawn('/home/hawo/scripts/vpn_kill.sh'), desc="kill openvpn"),
-    Key([win, alt], 's', lazy.spawn("rofi -ssh-command 'termite -e \"ssh {host}\"' -modi ssh -show ssh"), desc="SSH Menu"),
+    Key([win, alt], 's', lazy.spawn("rofi -show-icons -ssh-command 'termite -e \"ssh {host}\"' -modi ssh -show ssh"), desc="SSH Menu"),
+    Key([win, "shift"], 's', lazy.spawn('flameshot gui'), desc="Screenshot"),
 
-    # Show all windows in workspace
-    Key([win], "a", lazy.spawn("rofi -modi window -show window"), desc="Show all windows in rofi"),
+    # Specific window Actions
+    Key([win], "a", lazy.spawn("rofi -show-icons -modi window -show window"), desc="Show all windows in rofi (allow to switch)"),
+    Key(['control', alt], 'm', lazy.function(move_to_group_selector), desc="Move current window to group using a rofi selector"),
+    Key([win], "g", lazy.function(group_switch_selector), desc="Switch to group using a rofi selector"),
 
     # sound control
-    Key([alt], "F1", lazy.spawn("amixer -q sset Master toggle &")),
-    Key([alt], "F2", lazy.spawn("amixer -q sset Master 5%- &")),
-    Key([alt], "F3", lazy.spawn("amixer -q sset Master 5%+ &")),
+    Key([alt], "F1", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")),
+    Key([alt], "F2", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")),
+    Key([alt], "F3", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")),
 
     # Clipboard Manager
-    Key(['control', alt], 'c', lazy.spawn("rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'")), 
+    Key(['control', alt], 'c', lazy.spawn("rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"), desc="Show clipboard contents"),
+
     
 ]
 groups = [
         Group("main"),
         Group("alt"),
-        Group("[www]", matches=[Match(wm_class="Firefox"),
-                                Match(wm_class="Opera")]),
+        Group("www", matches=[Match(wm_class="Firefox"),
+                              Match(wm_class="Opera")]),
         Group("mail", matches=[Match(wm_class=["Mail", "Thunderbird"]),
                                Match(wm_class=["Rocket.Chat"])]),
         Group("comms", matches=[Match(wm_class="TelegramDesktop"),
-                                Match(wm_class="*whatsapp-nativefier*")]),
+                                Match(wm_class=re.compile(".*whatsapp.*")),
+                                Match(wm_class="Signal")]),
+        Group("media", matches=Match(wm_class="Spotify")),
         ]
+
 for n, i in enumerate(groups):
     keys.extend([
         # win + letter of group = switch to group
@@ -270,8 +344,7 @@ screens = [
                 spacer,
                 widget.WindowCount(show_zero=True),
                 spacer,
-                widget.WindowName(font='sans', 
-                                  foreground=clr_foreground),
+                widget.WindowName(foreground=clr_foreground),
                 # widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
                 spacer,
                 widget.Memory(foreground=clr_color6,
@@ -336,6 +409,13 @@ floating_layout = layout.Floating(float_rules=[
     Match(title=re.compile('.*hourglass.*')),      # Hourglass timer
     Match(title='Picture in Picture'),
     Match(title='openvpn_console'),
+    Match(title='Generate Fonts'),
+    Match(title=re.compile("Settings"),
+          wm_class=re.compile("zoom")),
+    Match(title=re.compile("Polls"),
+          wm_class=re.compile("zoom")),
+    # Match(title=re.compile("Chat"),
+    #       wm_class=re.compile("zoom")),
 ],
     border_focus=clr_color5)
 auto_fullscreen = True
