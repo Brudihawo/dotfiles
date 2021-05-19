@@ -7,7 +7,7 @@ configuration {
   terminal: "termite";
   matching: "fuzzy";
   sort: true;
-  /* levenshtein-sort: true; */
+  sorting-method: "fzf";
   font: "Noto Sans Mono 20";
 }
 

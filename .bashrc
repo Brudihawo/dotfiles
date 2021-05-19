@@ -190,7 +190,12 @@ alias gpush='git push'
 alias hiwicd='cd ~/workspace/hiwi/mze_files'
 alias hiwiin='hiwicd && ./connect.sh'
 alias batv='bat --theme=gruvbox-dark'
-alias qlog='bat ~/.local/share/qtile/qtile.log'
+alias qlog='batv ~/.local/share/qtile/qtile.log'
+alias zooml='batv ~/Documents/Semester\ 3/links.txt'
+alias webcamview='mpv --profile=low-latency --untimed av://v4l2:/dev/video0 --demuxer-lavf-format=video4linux2 --demuxer-lavf-o-set=input_format=mjpeg'
+alias hue='python -m hue_controller.control -b hawos_bridge'
 
 export PATH="$PATH:~/bin"
 export MATLABDIR="/home/hawo/local/MATLAB/"
+complete -o bashdefault -o default -F _fzf_path_completion zathura
+

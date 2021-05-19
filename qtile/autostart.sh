@@ -1,7 +1,7 @@
 #!/bin/bash
 GRUVBOX_MODE=1
 
-if [ GRUVBOX_MODE -eq 0 ]; then
+if [ $GRUVBOX_MODE -eq 0 ]; then
   . ~/.cache/wal/colors.sh
 else
   background="#282828"
@@ -48,10 +48,11 @@ export EDITOR="$(if [[ -n $DISPLAY ]]; then echo 'termite -e nvim'; else echo 'n
 nitrogen --restore &
 picom &
 setxkbmap de &
-cat <(envsubst < ~/.config/dunst/dunstrc)
 dunst -config <(envsubst < ~/.config/dunst/dunstrc) &
 greenclip daemon &
 flameshot &
-pulseaudio &
+# pulseaudio &
+# pulseaudio --start &
 pacmd set-default-sink alsa_output.hw_2 &
 nextcloud --background &
+light-locker &

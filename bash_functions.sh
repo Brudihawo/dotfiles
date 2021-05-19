@@ -7,15 +7,14 @@ function putcmdline {
 
 # fuzzy find files for editing
 function fe {
-  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
+  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) 2> /dev/null | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
   if test $(wc -w <<< $FILES) -ne "0"; then
     nvim $FILES
   fi
 }
-
 # fuzzy change directory
 function fd {
-  DIR=$(find -L $* \( -type d,l \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) | fzf --preview 'tree {}')
+  DIR=$(find -L $* \( -type d,l \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) 2> /dev/null | fzf --preview 'tree {}')
   if test $(wc -w <<< $DIR) -ne "1";then
     cd $DIR
   fi
@@ -23,7 +22,7 @@ function fd {
 
 # fuzzy copy
 function fcp {
-  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
+  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \)  2> /dev/null | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
   if test $(wc -w <<< $FILES) -ne "0"; then 
     putcmdline cp $(echo $FILES | tr '\n' ' ')
   fi
@@ -31,7 +30,7 @@ function fcp {
 
 # fuzzy remove files
 function frm {
-  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
+  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) 2> /dev/null | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
   if test $(wc -w <<< $FILES) -ne "0";then
     putcmdline rm -f $(echo $FILES | tr '\n' ' ')
   fi
@@ -39,7 +38,7 @@ function frm {
 
 # fuzzy move files
 function fmv {
-  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
+  FILES=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) 2> /dev/null | fzf --preview 'bat --style=numbers --color=always --line-range=:200 {}' --multi)
   if test $(wc -w <<< $FILES) -ne "0";then
     putcmdline mv $(echo $FILES | tr '\n' ' ')
   fi
@@ -54,3 +53,11 @@ function fga {
     fi
   fi
 }
+
+function zathopen {
+  FILE=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) -a \( -wholename "*.pdf" \) 2> /dev/null | fzf)
+  if test $(wc -w <<< $FILE) -ne "0"; then 
+    zathura $FILE
+  fi
+}
+

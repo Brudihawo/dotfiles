@@ -27,6 +27,8 @@ import os
 import re
 import subprocess
 
+from hue_controller.hue_classes import HueBridge
+
 from typing import List  # noqa: F401
 
 from libqtile import bar, layout, widget
@@ -36,6 +38,22 @@ from libqtile.utils import guess_terminal
 from libqtile import hook
 from libqtile.widget import base
 
+
+def send_notification(message, app):
+    subprocess.call(["notify-send", "-a", f"{app}", f"{message}"])
+
+def toggle_lights(qtile):
+    # bridge = HueBridge("hawos_bridge")
+    # lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
+    # if not os.path.isfile(lockfile_path):
+    #     with open(lockfile_path, "w+") as lck_file:
+    #         lck_file.write("locked")
+    #     bridge.toggle_group("hawos_zimmer")
+    #     os.remove(lockfile_path)
+
+    send_notification("toggled lights", "")
+
+
 def move_to_next_screen(qtile):
     active_win = qtile.current_window
     next_screen = (qtile.current_screen.index + 1) % len(qtile.screens)
@@ -44,36 +62,36 @@ def move_to_next_screen(qtile):
     active_win.focus(warp=True)
 
 
-def rofi_selector(qtile, option_string, prompt):
-    child_process = subprocess.Popen(['rofi', '-dmenu', '-p', prompt], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+def rofi_selector(option_string, prompt):
+    child_process = subprocess.Popen(['rofi', '-dmenu', '-p', prompt, "-i"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     child_process.stdin.write(option_string.encode('ascii'))
-    return child_process.communicate()[0].decode('ascii')
+    return child_process.communicate()[0].decode('ascii').strip("\n")
 
 
 def move_to_group_selector(qtile):
     active_win = qtile.current_window
     str_groups = '\n'.join([f"{index:4} -> {g.label}" for index, g in enumerate(qtile.groups, start=1)])
-    target = re.split(r" -> ", rofi_selector(qtile, str_groups, "chose group"))[-1]
-    active_win.cmd_togroup(target[:-1])
-    
+    target = re.split(r" -> ", rofi_selector(str_groups, "chose group"))[-1]
+    active_win.cmd_togroup(target)
+
 
 def group_switch_selector(qtile):
     str_groups = '\n'.join([f"{index:4} -> {g.label}" for index, g in enumerate(qtile.groups, start=1)])
-    target = re.split(r" -> ", rofi_selector(qtile, str_groups, "chose group"))[0]
+    target = re.split(r" -> ", rofi_selector(str_groups, "chose group"))[0]
     qtile.groups[int(target) - 1].cmd_toscreen()
 
 
 def shutdown_reboot_menu(qtile):
     option_str = "\n".join(["shutdown", "reboot", "nothing"])
-    result = rofi_selector(qtile, option_str, "Shutdown Menu").strip("\n")
+    result = rofi_selector(option_str, "Shutdown Menu")
     if result == "shutdown":
-        subprocess.call(["notify-send", "shutdown"])
+        send_notification("shutdown", "")
         subprocess.call(["shutdown", "0"])
     elif result == "reboot":
-        subprocess.call(["notify-send", "reboot"])
+        send_notification("reboot", "")
         subprocess.call(["reboot"])
     else: 
-        subprocess.call(["notify-send", "no action"])
+        send_notification("no action", "")
 
 
 def change_floating_size(qtile, dw, dh):
@@ -84,14 +102,27 @@ def move_floating(qtile, dw, dh):
     qtile.current_window.cmd_move_floating(dw, dh)
 
 
+def audio_out_selector(qtile):
+    result = rofi_selector("HEADSET\nSPEAKER", "Audio Sink")
+    if result == "HEADSET":
+        subprocess.call(["pactl", "set-default-sink", "2"])
+        send_notification("HEADSET ACTIVATED", "sound control")
+    elif result == "SPEAKER":
+        subprocess.call(["pactl", "set-default-sink", "1"])
+        send_notification("SPEAKER ACTIVATED", "sound control")
+
+
 class CapsNumLockIndicator_Nice(base.ThreadPoolText):
     """A nicer Caps/Num Lock indicator."""
 
     orientations = base.ORIENTATION_HORIZONTAL
     defaults=[('update_interval', 0.25, 'Update Time in seconds.')]
+
+
     def __init__(self, **config):
         base.ThreadPoolText.__init__(self, "", **config)
         self.add_defaults(CapsNumLockIndicator_Nice.defaults)
+
 
     def get_indicators(self):
         """Return a list with the current State"""
@@ -103,6 +134,7 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
         if output.startswith("Keyboard"):
             indicators = re.findall("(?:Caps|Num)\s+Lock:\s*(on|off)", output)
             return indicators 
+
 
     def poll(self):
         """Poll content for the text box."""
@@ -170,8 +202,7 @@ keys = [
         desc="Move window focus to other window"),
     Key([alt], "Tab", lazy.layout.next(),
         desc="Move window focus to other window"),
-
-    # Switch between windows
+# Switch between windows
     Key([win], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([win], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([win], "j", lazy.layout.down(), desc="Move focus down"),
@@ -193,7 +224,7 @@ keys = [
     ], 
     mode="MOVE"),
 
-    Key([win, 'shift'], 'n', lazy.function(move_to_next_screen)),
+    Key([win, 'shift'], 'n', lazy.function(move_to_next_screen), desc="Move window to other Screen"),
 
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed Unsplit = 1 window displayed, like Max layout, but still with
@@ -219,6 +250,10 @@ keys = [
             Key([], "l", lazy.function(change_floating_size, FLOAT_RS_INC, 0), desc="Increase floating window width"),
             Key([], "j", lazy.function(change_floating_size, 0, FLOAT_RS_INC), desc="Increase floating window height"),
             Key([], "k", lazy.function(change_floating_size, 0, -FLOAT_RS_INC), desc="Decrease floating window height"),
+            Key(["shift"], "h", lazy.function(change_floating_size, -4 * FLOAT_RS_INC, 0), desc="Decrease floating window width"),
+            Key(["shift"], "l", lazy.function(change_floating_size, 4 * FLOAT_RS_INC, 0), desc="Increase floating window width"),
+            Key(["shift"], "j", lazy.function(change_floating_size, 0, 4 * FLOAT_RS_INC), desc="Increase floating window height"),
+            Key(["shift"], "k", lazy.function(change_floating_size, 0, -4 * FLOAT_RS_INC), desc="Decrease floating window height"),
             Key([], "x", lazy.window.kill(), desc="Kill focused window"),
         ],
         mode="FLOAT RS"),
@@ -229,6 +264,10 @@ keys = [
             Key([], "l", lazy.function(move_floating, FLOAT_MV_INC, 0), desc="Increase floating window width"),
             Key([], "j", lazy.function(move_floating, 0, FLOAT_MV_INC), desc="Increase floating window height"),
             Key([], "k", lazy.function(move_floating, 0, -FLOAT_MV_INC), desc="Decrease floating window height"),
+            Key(["shift"], "h", lazy.function(move_floating, -4 * FLOAT_MV_INC, 0), desc="Decrease floating window width"),
+            Key(["shift"], "l", lazy.function(move_floating, 4 * FLOAT_MV_INC, 0), desc="Increase floating window width"),
+            Key(["shift"], "j", lazy.function(move_floating, 0, 4 * FLOAT_MV_INC), desc="Increase floating window height"),
+            Key(["shift"], "k", lazy.function(move_floating, 0, -4 * FLOAT_MV_INC), desc="Decrease floating window height"),
             Key([], "x", lazy.window.kill(), desc="Kill focused window"),
         ],
         mode="FLOAT MV"),
@@ -238,14 +277,16 @@ keys = [
     # Qtile Management Actions
     Key([win, "control"], "r", lazy.restart(), desc="Restart Qtile"),
     Key(["control", "shift"], "Escape", lazy.function(shutdown_reboot_menu), desc="Start Shutdown/Reboot Menu with Rofi"),
+    Key([win, "control"], "s", lazy.spawn("feh ~/Pictures/qtile_layout/"), desc="View Qtile Key Map"),
+    Key([win, "shift"], "l", lazy.spawn("xscreensaver-command -lock"), desc="Lock Session"),
 
     # Launch Applications
     Key([win], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key([win], "r", 
             lazy.spawn("rofi -show-icons -modi run,drun,window,combi -combi-modi drun,window -show combi"),
             desc="launch rofi"),
-    Key([win], "e", lazy.spawn("pcmanfm")),
-    Key([win], 'v', lazy.spawn("termite -t 'openvpn_console' -e '/home/hawo/scripts/vpn_connect.sh'")), # VPN SELECTOR
+    Key([win], "e", lazy.spawn("pcmanfm"), desc="Open File Manager"),
+    Key([win], 'v', lazy.spawn("termite -t 'openvpn_console' -e '/home/hawo/scripts/vpn_connect.sh'"), desc="Start VPN connection"), # VPN SELECTOR
     Key([win, "shift"], 'v', lazy.spawn('/home/hawo/scripts/vpn_kill.sh'), desc="kill openvpn"),
     Key([win, alt], 's', lazy.spawn("rofi -show-icons -ssh-command 'termite -e \"ssh {host}\"' -modi ssh -show ssh"), desc="SSH Menu"),
     Key([win, "shift"], 's', lazy.spawn('flameshot gui'), desc="Screenshot"),
@@ -256,12 +297,23 @@ keys = [
     Key([win], "g", lazy.function(group_switch_selector), desc="Switch to group using a rofi selector"),
 
     # sound control
-    Key([alt], "F1", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")),
-    Key([alt], "F2", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")),
-    Key([alt], "F3", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")),
+    Key([alt], "F1", lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle"), desc="Mute Audio Out"),
+    Key([alt], "F2", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%"), desc="Decrease Volume"),
+    Key([alt], "F3", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%"), desc="Increase Volume"),
+
+    Key([], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -2%"), desc="Decrease Volume"),
+    Key([], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +2%"), desc="Increase Volume"),
+    Key([], "XF86AudioPlay", lazy.spawn("playerctl play-pause"), desc="Play/Pause Media"),
+    Key([], "XF86AudioNext", lazy.spawn("playerctl next"), desc="Next Track"),
+    Key([], "XF86AudioPrev", lazy.spawn("playerctl previous"), desc="Previous Track"),
+
+    Key([alt, "shift"], "o", lazy.function(audio_out_selector), desc="Select pulseaudio sink"),
 
     # Clipboard Manager
     Key(['control', alt], 'c', lazy.spawn("rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"), desc="Show clipboard contents"),
+    Key(['control', alt], 'e', lazy.spawn('/home/hawo/dotfiles/qtile/emoji_select.sh --rofi'), desc="Emoji Selector using rofi"),
+
+    Key([win], 'l', lazy.function(toggle_lights), desc="Turn on Lights"),
 
     
 ]
@@ -296,7 +348,7 @@ for n, i in enumerate(groups):
 layouts = [
     layout.Columns(border_focus=clr_color1,
                    border_normal=clr_color2,
-                   border_width=2,
+                   border_width=3,
                    grow_amount=2,
                    margin=16,
                    insert_position=1,
@@ -383,12 +435,14 @@ screens = [
 ]
 
 # Drag floating layouts.
+# Button 4 -> Scroll Up
+# Button 5 -> Scroll Down
 mouse = [
     Drag([win], "Button1", lazy.window.set_position_floating(),
          start=lazy.window.get_position()),
     Drag([win], "Button3", lazy.window.set_size_floating(),
          start=lazy.window.get_size()),
-    Click([win], "Button2", lazy.window.bring_to_front())
+    Click([win], "Button2", lazy.window.bring_to_front()),
 ]
 
 dgroups_key_binder = None
@@ -396,7 +450,7 @@ dgroups_app_rules = []  # type: List
 main = None  # WARNING: this is deprecated and will be removed soon
 follow_mouse_focus = True
 bring_front_click = False
-cursor_warp = False
+cursor_warp = True
 floating_layout = layout.Floating(float_rules=[
     # Run the utility of `xprop` to see the wm class and name of an X client.
     *layout.Floating.default_float_rules,

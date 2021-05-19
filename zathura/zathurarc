@@ -3,6 +3,11 @@ set selection-clipboard clipboard
 set adjust-open "width"
 set sandbox none
 set page-padding 8
+set scroll-step 400
+
+# Mappings
+map <PageUp> scroll half-up
+map <PageDown> scroll half-down
 
 # Gui Options
 set guioptions "vs"
