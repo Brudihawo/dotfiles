@@ -225,7 +225,7 @@
 
     # Ignore the dbus closeNotification message.
     # Useful to enforce the timeout set by dunst configuration. Without this
-    # parameter, an application may close the notification sent before the 
+    # parameter, an application may close the notification sent before the
     # user defined timeout.
     ignore_dbusclose = false
 
@@ -373,8 +373,8 @@ foreground = "${color0}"
 #        If the notification is already drawn, it won't get undrawn.
 # pushback: same as delay, but when switching into fullscreen, the notification will get
 #           withdrawn from screen again and will get delayed like a new notification
-#[fullscreen_delay_everything]
-#    fullscreen = delay
+# [fullscreen_show_all]
+   # fullscreen = show
 #[fullscreen_show_critical]
 #    msg_urgency = critical
 #    fullscreen = show
