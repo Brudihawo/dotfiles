@@ -35,8 +35,8 @@ colors() {
 
 # Change the window title of X terminals
 case ${TERM} in
-  xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
-    PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"'
+  xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*|alacritty)
+    PROMPT_COMMAND='echo -ne "\033]0;Alacritty - ${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"'
     ;;
   screen*)
     PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
@@ -70,10 +70,11 @@ check_conda_env ()
 modified_path () 
 {
     dir=$(sed "s|$HOME|~|g" <<< $(pwd))
+    bname=$(basename "$(pwd)")
     dead_len=$((9 + $(wc -m <<< "$(check_conda_env)$HOSTNAME@$USER: ")))
     if [ $(wc -m <<< $dir) -gt $(($(stty -a | awk -F "[; ]" 'FNR == 1 {print $9}') - $dead_len )) ]; then
-      awk 'BEGIN { RS="/"; LF} { printf(substr($1, 0, 1)); printf "/" }'  <<< $dir
-      printf $(basename "$dir")
+      awk 'BEGIN { RS="/"; LF} { printf(substr($1, 0, 1)); printf "/" }'  <<< $(sed "s|$bname||" <<< "$dir")
+      printf $bname
     else
       echo $dir
     fi
@@ -95,6 +96,7 @@ match_lhs=""
 [[ $'\n'${match_lhs} == *$'\n'"TERM "${safe_term}* ]] && use_color=true
 
 if ${use_color} ; then
+  title="\e]0;Alacritty - \w\a"
   # Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
   if type -P dircolors >/dev/null ; then
     if [[ -f ~/.dir_colors ]] ; then
@@ -198,4 +200,3 @@ alias hue='python -m hue_controller.control -b hawos_bridge'
 export PATH="$PATH:~/bin"
 export MATLABDIR="/home/hawo/local/MATLAB/"
 complete -o bashdefault -o default -F _fzf_path_completion zathura
-

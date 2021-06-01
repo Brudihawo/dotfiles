@@ -13,6 +13,7 @@ config=( \
   "Trolltech.conf"
   "dunst"
   "zathura"
+  "alacritty"
 )
 files=( \
   ".Xresources" 
