@@ -23,24 +23,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os 
+import os
 import re
 import subprocess
 
-from hue_controller.hue_classes import HueBridge
+# from hue_controller.hue_classes import HueBridge
 
 from typing import List  # noqa: F401
 
 from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
+# from libqtile.utils import guess_terminal
 from libqtile import hook
 from libqtile.widget import base
 
 
 def send_notification(message, app):
     subprocess.call(["notify-send", "-a", f"{app}", f"{message}"])
+
 
 def toggle_lights(qtile):
     # bridge = HueBridge("hawos_bridge")
@@ -90,16 +91,20 @@ def shutdown_reboot_menu(qtile):
     elif result == "reboot":
         send_notification("reboot", "")
         subprocess.call(["reboot"])
-    else: 
+    else:
         send_notification("no action", "")
 
 
 def change_floating_size(qtile, dw, dh):
+    current_window = qtile.current_window
     qtile.current_window.cmd_resize_floating(dw, dh)
+    current_window.focus(warp=True)
 
 
 def move_floating(qtile, dw, dh):
+    current_window = qtile.current_window
     qtile.current_window.cmd_move_floating(dw, dh)
+    current_window.focus(warp=True)
 
 
 def audio_out_selector(qtile):
@@ -112,29 +117,35 @@ def audio_out_selector(qtile):
         send_notification("SPEAKER ACTIVATED", "sound control")
 
 
+def float_to_front(qtile):
+    """
+    Bring all floating windows of the group to front.
+    """
+    window = qtile.current_window
+    if window.floating:
+        window.cmd_bring_to_front()
+
+
 class CapsNumLockIndicator_Nice(base.ThreadPoolText):
     """A nicer Caps/Num Lock indicator."""
 
     orientations = base.ORIENTATION_HORIZONTAL
-    defaults=[('update_interval', 0.25, 'Update Time in seconds.')]
-
+    defaults = [('update_interval', 0.25, 'Update Time in seconds.')]
 
     def __init__(self, **config):
         base.ThreadPoolText.__init__(self, "", **config)
         self.add_defaults(CapsNumLockIndicator_Nice.defaults)
 
-
     def get_indicators(self):
         """Return a list with the current State"""
-        try: 
+        try:
             output = self.call_process(['xset', 'q'])
         except subprocess.CalledProcessError as err:
             output = err.output.decode()
 
         if output.startswith("Keyboard"):
             indicators = re.findall("(?:Caps|Num)\s+Lock:\s*(on|off)", output)
-            return indicators 
-
+            return indicators
 
     def poll(self):
         """Poll content for the text box."""
@@ -143,7 +154,7 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
 
         if sym[0] == 'on':
             out += u"\u21EA"
-        else: 
+        else:
             out += '_'
 
         if sym[1] == 'on':
@@ -158,10 +169,10 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
 def reduce_brightness(hex_color, factor):
     if factor > 1.0:
         factor = 1.0
-    red   = f"{int(float(factor) * int(hex_color[1:3], 16)):#0{4}x}"[2:4]
+    red = f"{int(float(factor) * int(hex_color[1:3], 16)):#0{4}x}"[2:4]
     green = f"{int(float(factor) * int(hex_color[3:5], 16)):#0{4}x}"[2:4]
-    blue  = f"{int(float(factor) * int(hex_color[5:7], 16)):#0{4}x}"[2:4]
-    return "#{}{}{}".format(red,green,blue)
+    blue = f"{int(float(factor) * int(hex_color[5:7], 16)):#0{4}x}"[2:4]
+    return "#{}{}{}".format(red, green, blue)
 
 
 clr_foreground = "#ebdbb2"
@@ -185,13 +196,13 @@ clr_color15 = "#ebdbb2"
 
 # constants
 FLOAT_RS_INC = 20
-FLOAT_MV_INC = 20 
+FLOAT_MV_INC = 20
 
 # keys
 win = "mod4"
 alt = "mod1"
 
-terminal = "termite"
+terminal = "alacritty"
 
 keys = [
     # Standard window Actions
@@ -202,7 +213,8 @@ keys = [
         desc="Move window focus to other window"),
     Key([alt], "Tab", lazy.layout.next(),
         desc="Move window focus to other window"),
-# Switch between windows
+
+    # Switch between windows
     Key([win], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([win], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([win], "j", lazy.layout.down(), desc="Move focus down"),
@@ -221,8 +233,7 @@ keys = [
             desc="Move window down"),
         Key([], "k", lazy.layout.shuffle_up(), desc="Move window up"),
         Key([], "x", lazy.window.kill(), desc="Kill focused window"),
-    ], 
-    mode="MOVE"),
+    ], mode="MOVE"),
 
     Key([win, 'shift'], 'n', lazy.function(move_to_next_screen), desc="Move window to other Screen"),
 
@@ -234,43 +245,45 @@ keys = [
 
     # Window Resizing in Constrained Layout
     KeyChord([win, "shift"], "r", [
-                Key([], "h", lazy.layout.grow_left(), desc="Grow window left"),
-                Key([], "l", lazy.layout.grow_right(), desc="Grow window right"),
-                Key([], "j", lazy.layout.grow_down(), desc="Grow window down"),
-                Key([], "k", lazy.layout.grow_up(), desc="Grow window up"),
-                Key([], "n", lazy.layout.normalize(), desc="Reset window sizes"),
-                Key([], "x", lazy.window.kill(), desc="Kill focused window"),
-            ],
-            mode="RESIZE"),
-            # mode=u"\U0001F589"),
-    
+        Key([], "h", lazy.layout.grow_left(), desc="Grow window left"),
+        Key([], "l", lazy.layout.grow_right(), desc="Grow window right"),
+        Key([], "j", lazy.layout.grow_down(), desc="Grow window down"),
+        Key([], "k", lazy.layout.grow_up(), desc="Grow window up"),
+        Key([], "n", lazy.layout.normalize(), desc="Reset window sizes"),
+        Key([], "x", lazy.window.kill(), desc="Kill focused window"),
+    ], mode="RESIZE"),
+
+    Key([win, "shift"], "f", lazy.function(float_to_front), desc="Bring currently focused floating window to front."),
+
     # Floating Window Resizing
     KeyChord([win, "shift", alt], "r", [
-            Key([], "h", lazy.function(change_floating_size, -FLOAT_RS_INC, 0), desc="Decrease floating window width"),
-            Key([], "l", lazy.function(change_floating_size, FLOAT_RS_INC, 0), desc="Increase floating window width"),
-            Key([], "j", lazy.function(change_floating_size, 0, FLOAT_RS_INC), desc="Increase floating window height"),
-            Key([], "k", lazy.function(change_floating_size, 0, -FLOAT_RS_INC), desc="Decrease floating window height"),
-            Key(["shift"], "h", lazy.function(change_floating_size, -4 * FLOAT_RS_INC, 0), desc="Decrease floating window width"),
-            Key(["shift"], "l", lazy.function(change_floating_size, 4 * FLOAT_RS_INC, 0), desc="Increase floating window width"),
-            Key(["shift"], "j", lazy.function(change_floating_size, 0, 4 * FLOAT_RS_INC), desc="Increase floating window height"),
-            Key(["shift"], "k", lazy.function(change_floating_size, 0, -4 * FLOAT_RS_INC), desc="Decrease floating window height"),
-            Key([], "x", lazy.window.kill(), desc="Kill focused window"),
-        ],
-        mode="FLOAT RS"),
+        Key([], "h", lazy.function(change_floating_size, -FLOAT_RS_INC, 0),
+            desc="Decrease floating window width"),
+        Key([], "l", lazy.function(change_floating_size, FLOAT_RS_INC, 0),
+            desc="Increase floating window width"),
+        Key([], "j", lazy.function(change_floating_size, 0, FLOAT_RS_INC),
+            desc="Increase floating window height"),
+        Key([], "k", lazy.function(change_floating_size, 0, -FLOAT_RS_INC),
+            desc="Decrease floating window height"),
+        Key(["shift"], "h", lazy.function(change_floating_size, -4 * FLOAT_RS_INC, 0), desc="Decrease floating window width"),
+        Key(["shift"], "l", lazy.function(change_floating_size, 4 * FLOAT_RS_INC, 0), desc="Increase floating window width"),
+        Key(["shift"], "j", lazy.function(change_floating_size, 0, 4 * FLOAT_RS_INC), desc="Increase floating window height"),
+        Key(["shift"], "k", lazy.function(change_floating_size, 0, -4 * FLOAT_RS_INC), desc="Decrease floating window height"),
+        Key([], "x", lazy.window.kill(), desc="Kill focused window"),
+    ], mode="FLOAT RS"),
 
     # Floating Window Moving
     KeyChord([win, "shift", alt], "m", [
-            Key([], "h", lazy.function(move_floating, -FLOAT_MV_INC, 0), desc="Decrease floating window width"),
-            Key([], "l", lazy.function(move_floating, FLOAT_MV_INC, 0), desc="Increase floating window width"),
-            Key([], "j", lazy.function(move_floating, 0, FLOAT_MV_INC), desc="Increase floating window height"),
-            Key([], "k", lazy.function(move_floating, 0, -FLOAT_MV_INC), desc="Decrease floating window height"),
-            Key(["shift"], "h", lazy.function(move_floating, -4 * FLOAT_MV_INC, 0), desc="Decrease floating window width"),
-            Key(["shift"], "l", lazy.function(move_floating, 4 * FLOAT_MV_INC, 0), desc="Increase floating window width"),
-            Key(["shift"], "j", lazy.function(move_floating, 0, 4 * FLOAT_MV_INC), desc="Increase floating window height"),
-            Key(["shift"], "k", lazy.function(move_floating, 0, -4 * FLOAT_MV_INC), desc="Decrease floating window height"),
-            Key([], "x", lazy.window.kill(), desc="Kill focused window"),
-        ],
-        mode="FLOAT MV"),
+        Key([], "h", lazy.function(move_floating, -FLOAT_MV_INC, 0), desc="Decrease floating window width"),
+        Key([], "l", lazy.function(move_floating, FLOAT_MV_INC, 0), desc="Increase floating window width"),
+        Key([], "j", lazy.function(move_floating, 0, FLOAT_MV_INC), desc="Increase floating window height"),
+        Key([], "k", lazy.function(move_floating, 0, -FLOAT_MV_INC), desc="Decrease floating window height"),
+        Key(["shift"], "h", lazy.function(move_floating, -4 * FLOAT_MV_INC, 0), desc="Decrease floating window width"),
+        Key(["shift"], "l", lazy.function(move_floating, 4 * FLOAT_MV_INC, 0), desc="Increase floating window width"),
+        Key(["shift"], "j", lazy.function(move_floating, 0, 4 * FLOAT_MV_INC), desc="Increase floating window height"),
+        Key(["shift"], "k", lazy.function(move_floating, 0, -4 * FLOAT_MV_INC), desc="Decrease floating window height"),
+        Key([], "x", lazy.window.kill(), desc="Kill focused window"),
+    ], mode="FLOAT MV"),
 
     Key([win], "f", lazy.window.toggle_floating()),
 
@@ -282,13 +295,12 @@ keys = [
 
     # Launch Applications
     Key([win], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    Key([win], "r", 
-            lazy.spawn("rofi -show-icons -modi run,drun,window,combi -combi-modi drun,window -show combi"),
-            desc="launch rofi"),
+    Key([win], "r", lazy.spawn("rofi -show-icons -modi run,drun,window,combi -combi-modi drun,window -show combi"), desc="launch rofi"),
     Key([win], "e", lazy.spawn("pcmanfm"), desc="Open File Manager"),
-    Key([win], 'v', lazy.spawn("termite -t 'openvpn_console' -e '/home/hawo/scripts/vpn_connect.sh'"), desc="Start VPN connection"), # VPN SELECTOR
+    Key([win], 'v', lazy.spawn(f"{terminal} -t 'openvpn_console' -e '/home/hawo/scripts/vpn_connect.sh'"), desc="Start VPN connection"),
+    # VPN SELECTOR
     Key([win, "shift"], 'v', lazy.spawn('/home/hawo/scripts/vpn_kill.sh'), desc="kill openvpn"),
-    Key([win, alt], 's', lazy.spawn("rofi -show-icons -ssh-command 'termite -e \"ssh {host}\"' -modi ssh -show ssh"), desc="SSH Menu"),
+    Key([win, alt], 's', lazy.spawn(f"rofi -show-icons -ssh-command '{terminal}"" -e bash -c \"ssh {host}\"' -modi ssh -show ssh"), desc="SSH Menu"),
     Key([win, "shift"], 's', lazy.spawn('flameshot gui'), desc="Screenshot"),
 
     # Specific window Actions
@@ -315,20 +327,21 @@ keys = [
 
     Key([win], 'l', lazy.function(toggle_lights), desc="Turn on Lights"),
 
-    
+
 ]
 groups = [
-        Group("main"),
-        Group("alt"),
-        Group("www", matches=[Match(wm_class="Firefox"),
-                              Match(wm_class="Opera")]),
-        Group("mail", matches=[Match(wm_class=["Mail", "Thunderbird"]),
-                               Match(wm_class=["Rocket.Chat"])]),
-        Group("comms", matches=[Match(wm_class="TelegramDesktop"),
-                                Match(wm_class=re.compile(".*whatsapp.*")),
-                                Match(wm_class="Signal")]),
-        Group("media", matches=Match(wm_class="Spotify")),
-        ]
+    Group("main"),
+    Group("alt"),
+    Group("www", matches=[Match(wm_class="firefox"),
+                          Match(wm_class="Opera")]),
+    Group("mail", matches=[Match(wm_class=["Mail", "Thunderbird"]),
+                           Match(wm_class=["Rocket.Chat"])]),
+    Group("comms", matches=[Match(wm_class="TelegramDesktop"),
+                            Match(wm_class=re.compile(".*whatsapp.*")),
+                            Match(wm_class="Signal")]),
+    Group("media", matches=Match(wm_class="Spotify")),
+    Group("background"),
+]
 
 for n, i in enumerate(groups):
     keys.extend([
@@ -404,7 +417,7 @@ screens = [
                 spacer,
                 widget.CPU(foreground=clr_color3,
                            format='CPU @ {freq_current} GHz {load_percent:3.0f}% ->'),
-               widget.ThermalSensor(foreground=clr_color10, 
+                widget.ThermalSensor(foreground=clr_color10,
                                      foreground_alert=clr_color9),
                 spacer,
                 widget.Net(format="{down}",
@@ -412,7 +425,7 @@ screens = [
                 widget.TextBox(text=u"\u21D3 | \u21D1"),
                 widget.Net(format="{up}",
                            foreground=clr_color3),
-                spacer, 
+                spacer,
                 widget.Volume(),
                 # widget.Open_Weather(cityid="Karlsruhe",
                 #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
@@ -428,7 +441,7 @@ screens = [
             ],
             40,
             margin=[0, 0, 0, 0],
-            background=reduce_brightness(clr_color4,0.5),
+            background=reduce_brightness(clr_color4, 0.5),
         ),
     ),
     Screen(),
@@ -484,6 +497,7 @@ focus_on_window_activation = "smart"
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"
+
 
 @hook.subscribe.startup_complete
 def autostart():
