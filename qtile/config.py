@@ -27,7 +27,7 @@ import os
 import re
 import subprocess
 
-# from hue_controller.hue_classes import HueBridge
+from hue_controller.hue_classes import HueBridge
 
 from typing import List  # noqa: F401
 
@@ -39,20 +39,50 @@ from libqtile import hook
 from libqtile.widget import base
 
 
+BRIDGE = HueBridge("hawos_bridge")
+
+
 def send_notification(message, app):
-    subprocess.call(["notify-send", "-a", f"{app}", f"{message}"])
+    subprocess.call(["dunstify", "-a", f"{app}", f"{message}"])
 
 
-def toggle_lights(qtile):
-    # bridge = HueBridge("hawos_bridge")
-    # lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
-    # if not os.path.isfile(lockfile_path):
-    #     with open(lockfile_path, "w+") as lck_file:
-    #         lck_file.write("locked")
-    #     bridge.toggle_group("hawos_zimmer")
-    #     os.remove(lockfile_path)
+def send_progress(message, app, progress):
+    subprocess.call(["dunstify", "-a", f"{app}", f"{message}", "-h", f"int:value:{progress}"])
 
-    send_notification("toggled lights", "")
+
+def toggle_light_group(qtile, group, display_name):
+    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
+    if not os.path.isfile(lockfile_path):
+        with open(lockfile_path, "w+") as lck_file:
+            lck_file.write("locked")
+        BRIDGE.toggle_group(group)
+        os.remove(lockfile_path)
+        light = BRIDGE.groups[group][0]
+        status = BRIDGE.get_light_states()[light]
+        if status["on"]:
+            brightness = int(status["brightness"] / 255 * 100)
+        else:
+            brightness = 0
+        send_progress(display_name, "Lighting", brightness)
+
+
+def inc_light_brightness(qtile, group, display_name, inc):
+    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
+    if not os.path.isfile(lockfile_path):
+        with open(lockfile_path, "w+") as lck_file:
+            lck_file.write("locked")
+
+        light = BRIDGE.groups[group][0]
+        status = BRIDGE.get_light_states()[light]
+        BRIDGE.increment_group(group, inc)
+        os.remove(lockfile_path)
+        light = BRIDGE.groups[group][0]
+        status = BRIDGE.get_light_states()[light]
+        if status["on"]:
+            brightness = int(status["brightness"] / 255 * 100)
+        else:
+            brightness = 0
+        send_progress(display_name, "Lighting", brightness)
 
 
 def move_to_next_screen(qtile):
@@ -325,8 +355,11 @@ keys = [
     Key(['control', alt], 'c', lazy.spawn("rofi -modi 'clipboard:greenclip print' -show clipboard -run-command '{cmd}'"), desc="Show clipboard contents"),
     Key(['control', alt], 'e', lazy.spawn('/home/hawo/dotfiles/qtile/emoji_select.sh --rofi'), desc="Emoji Selector using rofi"),
 
-    Key([win], 'l', lazy.function(toggle_lights), desc="Turn on Lights"),
-
+    KeyChord([win], "l", [
+        Key([], 't', lazy.function(toggle_light_group, "hawos_zimmer", "Hawos Zimmer"), desc="Toggle Lights"),
+        Key([], 'j', lazy.function(inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", 10), desc="Toggle Lights"),
+        Key([], 'k', lazy.function(inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", -10), desc="Toggle Lights"),
+    ], mode="LIGHT CONTROL"),
 
 ]
 groups = [
@@ -481,8 +514,10 @@ floating_layout = layout.Floating(float_rules=[
           wm_class=re.compile("zoom")),
     Match(title=re.compile("Polls"),
           wm_class=re.compile("zoom")),
-    # Match(title=re.compile("Chat"),
-    #       wm_class=re.compile("zoom")),
+    Match(title=re.compile("Chat"),
+          wm_class=re.compile("zoom")),
+    Match(title=re.compile(""),
+          wm_class=re.compile("zoom")),
 ],
     border_focus=clr_color5)
 auto_fullscreen = True
