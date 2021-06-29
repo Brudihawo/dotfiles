@@ -1,0 +1,37 @@
+{
+  "languageserver": {
+    "ccls": {
+      "command": "ccls",
+      "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp", "h", "hpp"],
+      "rootPatterns": [".ccls", "compile_commands.json", ".git/", ".hg/"],
+      "initializationOptions": {
+        "cache": {
+          "directory": "/tmp/ccls"
+        }
+      }
+    },
+    "cmake": {
+      "command": "cmake-language-server",
+      "filetypes": ["cmake"],
+      "rootPatterns": ["build/"],
+      "initializationOptions": {
+        "buildDirectory": "build"
+      }
+    },
+    "python": {
+      "command": "pylsp",
+      "filetypes": ["py"],
+      "rootPatterns": [".git/"]
+    }
+  },
+  "python.linting.pydocstyleArgs": ["--convention", "google"],
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.pydocstyleEnabled": true,
+  "python.pythonPath": "/home/hawo/miniconda3/bin/python",
+  "python.condaPath": "/home/hawo/miniconda3",
+  "coc.preferences.formatOnSaveFiletypes": ["rust"],
+  "coc.preferences.bracketEnterImprove": true,
+  "coc.preferences.useQuickfixForLocations": true,
+  "codeLens.enable": true
+}
