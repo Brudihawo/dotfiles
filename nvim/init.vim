@@ -12,6 +12,20 @@ require'nvim-treesitter.configs'.setup {
     disable = {},  -- list of language that will be disabled
   },
 }
+-- require("lspconfig").pylsp.setup{}
+
+require("lspconfig").ccls.setup{
+  init_options = {
+    index = {
+      threads = 0;
+    };
+    cache = {
+      directory = "/tmp/ccls";
+    };
+  };
+  filetypes = { "c", "cc", "cpp", "c++", "objc", "objcpp", "h", "hpp" };
+}
+require("lspconfig").cmake.setup{}
 
 require('neoscroll').setup({
     -- All these keys will be mapped. Pass an empty table ({}) for no mappings
@@ -71,8 +85,17 @@ require('telescope').setup{
 
     -- Developer configurations: Not meant for general override
     buffer_previewer_maker = require'telescope.previewers'.buffer_previewer_maker
+  },
+  extensions = {
+    fzf_writer = {
+      minimum_grep_characters = 2,
+      minimum_files_characters = 2,
+      use_highlighter = true,
+    }
   }
 }
+
+require('telescope').load_extension('coc')
 EOF
 
 set nocompatible
@@ -93,7 +116,7 @@ let g:NERDTreeDirArrows=">"
 
 " search
 set hlsearch
-set smartcase
+set ignorecase
 
 " highlighting and Readability
 syntax on
@@ -121,7 +144,7 @@ set laststatus=2
 set ambiwidth=single
 
 " airline colors and colorscheme
-" set termguicolors
+set termguicolors
 let g:gruvbox_bold = 1
 let g:gruvbox_transparent_bg = 0.5
 " let g:gruvbox_hls_cursor = 1
@@ -139,17 +162,11 @@ let g:airline#extensions#tabline#show_buffers=1
 let g:airline_powerline_fonts=1
 let g:airline#extensions#branch#enabled=1
 let g:airline#extensions#denite#enabled=1
-let g:airline#extensions#syntastic#enabled=1
 let g:airline#extensions#vimtex#enabled=1
 let g:airline#extensions#vimcmake#enabled=1
 let g:airline#extensions#whitespace#enabled=1
 let g:airline_skip_empty_sections=1
 let g:airline#extensions#whitespace#trailing_format='trailing[%s]'
-
-let g:syntastic_always_populate_loc_list=1
-let g:syntastic_auto_loc_list=1
-let g:syntastic_check_on_open=1
-let g:syntastic_check_on_wq=0
 
 if !exists('g:airline_symbols')
   let g:airline_symbols={}
@@ -167,6 +184,12 @@ let g:airline_left_sep = ""
 " Setting weird filetypes
 autocmd BufNewFile,BufRead .xprofile set filetype=xprofile
 autocmd BufNewFile,BufRead *.fish set filetype=fish
+
+autocmd BufNewFile,BufRead *.c setlocal commentstring=//\ %s
+autocmd BufNewFile,BufRead *.cpp setlocal commentstring=//\ %s
+autocmd BufNewFile,BufRead *.h setlocal commentstring=//\ %s
+autocmd BufNewFile,BufRead *.hpp setlocal commentstring=//\ %s
+
 
 " Setting comment strings
 autocmd FileType python setlocal commentstring=#\ %s
@@ -187,15 +210,6 @@ nnoremap <C-x> :bdelete<CR>
 nnoremap <leader>dgj :diffget //2<CR>
 nnoremap <leader>dgk :diffget //3<CR>
 
-" Fuzzy Finding
-" nnoremap <silent><C-P> :call fzf#run({'sink': 'e', 'source': 'find . -type f -a ! \( -wholename "*.git/*" \) 2> /dev/null', 'window':{'width': 0.9, 'height': 0.6}, 'options': ['--preview', 'bat --color=always --decorations=always --theme=gruvbox-dark {}']})<CR>
-" nnoremap <silent><A-Enter> :Buffers<CR>
-nnoremap <C-p> <cmd>Telescope find_files<cr>
-nnoremap <C-g> <cmd>Telescope live_grep<cr>
-nnoremap <C-b> <cmd>Telescope buffers<cr> 
-nnoremap <C-h> <cmd>Telescope help_tags<cr>
-nnoremap <C-T> <cmd>Telescope treesitter<cr>
-
 
 " Resizing
 nnoremap <A-j> :resize +3<CR>
@@ -210,6 +224,7 @@ let pairs = { ':' : ':',
             \ '/' : '/',
             \ '<bar>' : '<bar>',
             \ '_' : '_',
+            \ '-' : '-',
             \ '>' : '<',
             \ }
 
@@ -230,6 +245,8 @@ endfor
 " Filetype specific run commands
 autocmd FileType python nnoremap <leader>x :!python % <CR>
 autocmd FileType tex nnoremap <leader>x :w <CR>:! pdflatex -interaction nonstopmode % <CR>
+autocmd FileType sh nnoremap <leader>x :w <CR>:! bash <<< cat %<CR>
+autocmd FileType rust nnoremap <leader>x :w <CR>:! cargo run<CR>
 
 " UltiSnips Config
 let g:UltiSnipsExpandTrigger="<c-Space>"
@@ -265,15 +282,6 @@ xmap <leader>vsr <Plug>VimspectorReset
 " Markdown Preview
 let g:mkdp_browser = 'firefox'
 
-" Syntastic Options
-let g:syntastic_python_checkers=["flake8", "pydocstyle"]
-let g:syntastic_python_flake8_args="--ignore=E501,W504"
-let g:syntastic_python_pydocstyle_args="--convention=google"
-let g:syntastic_check_on_open=0
-let g:syntastic_check_on_wq=0
-let g:syntastic_check_on_w=0
-let g_syntastic_aggregate_errors=1
-
 " Color Column
 set colorcolumn=80,100
 
@@ -286,3 +294,37 @@ nnoremap <leader>st :TagbarShowTag<CR>
 " VimTeX
 let g:vimtex_compiler_name = 'nvr'
 
+" Vim-cmake
+let g:cmake_generate_options=['-G', 'Ninja', '-B', 'build']
+
+" Coc.nvim
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . " " . expand('<cword>')
+  endif
+endfunction
+
+nnoremap <silent> <leader>rn :call CocActionAsync('rename')<CR>
+nnoremap <silent> <leader>cd :call <SID>show_documentation()<CR>
+nnoremap <silent> gd :call CocAction('jumpDefinition')<CR>
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+nnoremap cd :CocDiagnostics<CR>
+nnoremap cn :CocNext<CR>
+nnoremap cp :CocPrev<CR>
+
+
+" Coc-Telescope / Fuzzy Finding
+nnoremap <C-p> <cmd>Telescope find_files find_command=rg,--ignore,--files<cr>
+nnoremap <C-g> <cmd>Telescope live_grep find_command=rg,--ignore,--files<cr>
+nnoremap <C-b> <cmd>Telescope buffers<cr> 
+nnoremap <C-h> <cmd>Telescope help_tags<cr>
+nnoremap td <cmd>Telescope coc workspace_diagnostics<cr>
+nnoremap ts <cmd>Telescope coc workspace_symbols<cr>
+nnoremap tds <cmd>Telescope coc document_symbols<cr>
+nnoremap tr <cmd>Telescope coc references<cr>
+nnoremap tgs <cmd>Telescope grep_string<cr>

@@ -30,7 +30,12 @@
   "python.linting.pydocstyleEnabled": true,
   "python.pythonPath": "/home/hawo/miniconda3/bin/python",
   "python.condaPath": "/home/hawo/miniconda3",
-  "coc.preferences.formatOnSaveFiletypes": ["rust"],
+  "python.sortImports.path": "isort",
+  "python.formatting.blackPath": "black",
+  "python.formatting.blackArgs": ["-l", "79"],
+  "python.formatting.provider": "black",
+  "python.autoComplete.addBrackets": true,
+  "coc.preferences.formatOnSaveFiletypes": ["rust", "python"],
   "coc.preferences.bracketEnterImprove": true,
   "coc.preferences.useQuickfixForLocations": true,
   "codeLens.enable": true
