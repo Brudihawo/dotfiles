@@ -51,10 +51,7 @@ setxkbmap de &
 dunst -config <(envsubst < ~/.config/dunst/dunstrc) &
 greenclip daemon &
 flameshot &
-# pulseaudio &
-# pulseaudio --start &
 pacmd set-default-sink alsa_output.hw_2 &
 nextcloud --background &
 light-locker &
 amixer -c 2 sset Speaker 151 &
-xscreensaver --no-splash &
