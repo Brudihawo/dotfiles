@@ -175,8 +175,13 @@ ex ()
   fi
 }
 
+eval "$(zoxide init bash)"
+
 # MY STUFF
 export MANPAGER="nvim -c 'set ft=man' -"
+export PATH="$PATH:~/bin:/home/hawo/.cargo/bin"
+export MATLABDIR="/home/hawo/local/MATLAB/"
+export EDITOR=nvim
 
 source ~/dotfiles/bash_functions.sh
 source /usr/share/fzf/completion.bash
@@ -185,6 +190,7 @@ source /usr/share/fzf/key-bindings.bash
 set -o vi
 
 # MY ALIASES
+alias ls='exa --long --header --git --sort=name -m'
 alias env='env | fzf --multi'
 alias gstatus='git status'
 alias gcommit='git commit'
@@ -196,7 +202,10 @@ alias qlog='batv ~/.local/share/qtile/qtile.log'
 alias zooml='batv ~/Documents/Semester\ 3/links.txt'
 alias webcamview='mpv --profile=low-latency --untimed av://v4l2:/dev/video0 --demuxer-lavf-format=video4linux2 --demuxer-lavf-o-set=input_format=mjpeg'
 alias hue='python -m hue_controller.control -b hawos_bridge'
+alias u_links='batv ~/Documents/Semester\ 3/links.txt'
 
-export PATH="$PATH:~/bin"
-export MATLABDIR="/home/hawo/local/MATLAB/"
 complete -o bashdefault -o default -F _fzf_path_completion zathura
+source /usr/share/bash-completion/completions/git
+
+
+. "$HOME/.cargo/env"
