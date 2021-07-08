@@ -830,7 +830,7 @@ screens = [
                     urgent_text=colors[17],
                     disable_drag=True,
                     inactive=this_c,
-                    active=colors[17],
+                    active=colors[5],
                     hide_unused=False,
                 ),
                 spacer(this_c),
@@ -896,52 +896,13 @@ mouse = [
         lazy.window.set_size_floating(),
         start=lazy.window.get_size(),
     ),
+    Drag(
+        ["control"],
+        "Button2",
+        lazy.window.set_position_floating(),
+        start=lazy.window.get_position(),
+    ),
     Click([win], "Button2", lazy.window.bring_to_front()),
-    Click(
-        [win, "shift"],
-        "Button4",
-        lazy.function(change_floating_size, -FLOAT_RS_INC, 0),
-    ),
-    Click(
-        [win, "shift"],
-        "Button5",
-        lazy.function(change_floating_size, +FLOAT_RS_INC, 0),
-    ),
-    Click(
-        [win], "Button4", lazy.function(change_floating_size, 0, -FLOAT_RS_INC)
-    ),
-    Click(
-        [win], "Button5", lazy.function(change_floating_size, 0, +FLOAT_RS_INC)
-    ),
-    # Other side
-    Click(
-        [win, alt, "shift"],
-        "Button4",
-        lazy.function(
-            change_floating_size, -FLOAT_RS_INC, 0, bottom_right=False
-        ),
-    ),
-    Click(
-        [win, alt, "shift"],
-        "Button5",
-        lazy.function(
-            change_floating_size, +FLOAT_RS_INC, 0, bottom_right=False
-        ),
-    ),
-    Click(
-        [win, alt],
-        "Button4",
-        lazy.function(
-            change_floating_size, 0, -FLOAT_RS_INC, bottom_right=False
-        ),
-    ),
-    Click(
-        [win, alt],
-        "Button5",
-        lazy.function(
-            change_floating_size, 0, +FLOAT_RS_INC, bottom_right=False
-        ),
-    ),
 ]
 
 dgroups_key_binder = None

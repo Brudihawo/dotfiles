@@ -27,6 +27,7 @@
   "python.linting.pydocstyleArgs": ["--convention", "google"],
   "python.linting.pylintEnabled": false,
   "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": ["--ignore=E203,W503"],
   "python.linting.pydocstyleEnabled": true,
   "python.pythonPath": "/home/hawo/miniconda3/bin/python",
   "python.condaPath": "/home/hawo/miniconda3",
