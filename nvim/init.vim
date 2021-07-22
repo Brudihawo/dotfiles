@@ -328,3 +328,9 @@ nnoremap ts <cmd>Telescope coc workspace_symbols<cr>
 nnoremap tds <cmd>Telescope coc document_symbols<cr>
 nnoremap tr <cmd>Telescope coc references<cr>
 nnoremap tgs <cmd>Telescope grep_string<cr>
+
+" Git
+nnoremap gst :GitGutterSignsToggle<cr>
+nnoremap gtt :GitGutterToggle<cr>
+nnoremap gsh :GitGutterStageHunk<cr>
+nnoremap gph :GitGutterPreviewHunk<cr>
