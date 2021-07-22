@@ -1,11 +1,10 @@
 set runtimepath^=~/dotfiles/vim 
 set runtimepath+=~/dotfiles/vim/after
 let &packpath=&runtimepath
-" source ~/dotfiles/vim/.vimrc
 
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"python", "latex", "c", "cpp", "bibtex", "json", "bash", "lua"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"python", "c", "cpp", "bibtex", "json", "bash", "lua"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   ignore_install = { "javascript" }, -- List of parsers to ignore installing
   highlight = {
     enable = true,              -- false will disable the whole extension
@@ -89,13 +88,21 @@ require('telescope').setup{
   extensions = {
     fzf_writer = {
       minimum_grep_characters = 2,
-      minimum_files_characters = 2,
-      use_highlighter = true,
+      minimum_files_characters = 0,
+      use_highlighter = false,
+    },
+    fzf = {
+      fuzzy = true,
+      override_generic_sorter = true,
+      override_file_sorter = true,
+      case_mode = "smart_case",
     }
   }
 }
 
 require('telescope').load_extension('coc')
+require('telescope').load_extension('fzf_writer')
+require('telescope').load_extension('ultisnips')
 EOF
 
 set nocompatible
@@ -250,12 +257,11 @@ endfor
 
 " Filetype specific run commands
 autocmd FileType python nnoremap <leader>x :!python % <CR>
-autocmd FileType tex nnoremap <leader>x :w <CR>:! pdflatex -interaction nonstopmode % <CR>
 autocmd FileType sh nnoremap <leader>x :w <CR>:! bash <<< cat %<CR>
 autocmd FileType rust nnoremap <leader>x :w <CR>:! cargo run<CR>
 
 " UltiSnips Config
-let g:UltiSnipsExpandTrigger="<c-Space>"
+let g:UltiSnipsExpandTrigger="<c-X>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
@@ -355,8 +361,8 @@ nnoremap cp :CocPrev<CR>
 
 
 " Coc-Telescope / Fuzzy Finding
-nnoremap <C-p> <cmd>Telescope find_files find_command=rg,--ignore,--files<cr>
-nnoremap <C-g> <cmd>Telescope live_grep find_command=rg,--ignore,--files<cr>
+nnoremap <C-p> :lua require('telescope').extensions.fzf_writer.files()<cr>
+nnoremap <C-g> :lua require('telescope').extensions.fzf_writer.staged_grep()<cr>
 nnoremap <C-b> <cmd>Telescope buffers<cr> 
 nnoremap <C-h> <cmd>Telescope help_tags<cr>
 nnoremap td <cmd>Telescope coc workspace_diagnostics<cr>
