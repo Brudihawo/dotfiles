@@ -200,7 +200,8 @@ autocmd FileType lua setlocal commentstring=--\ %s
 autocmd FileType xprofile setlocal commentstring=#\ %s
 autocmd FileType fish setlocal commentstring=#\ %s
 
-" Remappings nnoremap <C-N> :NERDTreeToggle<CR>
+" Remappings 
+" nnoremap <C-N> :NERDTreeToggle<CR>
 nnoremap <A-C> :colorscheme default<CR>
 nnoremap <leader>c :set cursorline!<CR>
 nnoremap <leader>n :set relativenumber!<CR>
@@ -210,6 +211,11 @@ nnoremap <C-x> :bdelete<CR>
 nnoremap <leader>dgj :diffget //2<CR>
 nnoremap <leader>dgk :diffget //3<CR>
 
+" Format line breaks for text sections
+nnoremap <A-Enter> g$a<Enter><Esc>
+
+" In insert mode, use for selecting first completion suggestion
+inoremap <A-Enter> <Down><Enter>
 
 " Resizing
 nnoremap <A-j> :resize +3<CR>
