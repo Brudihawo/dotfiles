@@ -293,6 +293,36 @@ nnoremap <leader>st :TagbarShowTag<CR>
 
 " VimTeX
 let g:vimtex_compiler_name = 'nvr'
+let g:vimtex_compiler_method = 'latexmk'
+let g:vimtex_view_general_viewer = 'zathura'
+let g:vimtex_view_method = 'zathura'
+let g:vimtex_compiler_latexmk_engines = {
+    \ '_'                : '-lualatex',
+    \ 'pdflatex'         : '-pdf',
+    \ 'dvipdfex'         : '-pdfdvi',
+    \ 'lualatex'         : '-lualatex',
+    \ 'xelatex'          : '-xelatex',
+    \ 'context (pdftex)' : '-pdf -pdflatex=texexec',
+    \ 'context (luatex)' : '-pdf -pdflatex=context',
+    \ 'context (xetex)'  : '-pdf -pdflatex=''texexec --xtx''',
+    \}
+
+let g:vimtex_compiler_latexmk = {
+      \ 'executable': 'latexmk',
+      \ 'callback': 1,
+      \ 'hooks': [],
+      \ 'options': [
+      \     '-file-line-error',
+      \     '-synctex=1',
+      \     '-interaction=nonstopmode',
+      \ ],
+      \}
+
+
+let g:vimtex_quickfix_ignore_filters = [
+    \ 'Overfull \\hbox',
+    \ 'Underfull \\hbox',
+    \]
 
 " Vim-cmake
 let g:cmake_generate_options=['-G', 'Ninja', '-B', 'build']
