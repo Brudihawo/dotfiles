@@ -376,3 +376,9 @@ nnoremap gst :GitGutterSignsToggle<cr>
 nnoremap gtt :GitGutterToggle<cr>
 nnoremap gsh :GitGutterStageHunk<cr>
 nnoremap gph :GitGutterPreviewHunk<cr>
+
+" Hop.nvim 
+nnoremap Hl :HopLine<cr>
+nnoremap Hc :HopChar<cr>
+nnoremap Hw :HopWord<cr>
+nnoremap Hp :HopPattern<cr>
