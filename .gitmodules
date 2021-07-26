@@ -4,3 +4,6 @@
 [submodule "vim"]
 	path = vim
 	url = https://github.com/brudihawo/vim
+[submodule "nvim"]
+	path = nvim
+	url = https://github.com/brudihawo/nvim

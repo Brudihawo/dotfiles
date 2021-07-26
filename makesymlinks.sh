@@ -5,7 +5,6 @@ config=( \
   "nvim"
   "picom"
   "rofi"
-  "vim"
   "wal"
   "fish"
   "qtile"
