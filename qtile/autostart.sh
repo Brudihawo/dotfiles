@@ -47,11 +47,11 @@ export EDITOR="$(if [[ -n $DISPLAY ]]; then echo 'termite -e nvim'; else echo 'n
 
 nitrogen --restore &
 picom &
-setxkbmap de &
 dunst -config <(envsubst < ~/.config/dunst/dunstrc) &
-greenclip daemon &
-flameshot &
 pacmd set-default-sink alsa_output.hw_2 &
 nextcloud --background &
 light-locker &
 amixer -c 2 sset Speaker 151 &
+greenclip daemon &
+flameshot &
+redshift -l 49:8.4 &

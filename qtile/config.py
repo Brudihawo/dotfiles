@@ -1,3 +1,4 @@
+"""Qtile Configuration."""
 # Copyright (c) 2010 Aldo Cortesi
 # Copyright (c) 2010, 2014 dequis Copyright (c) 2012 Randall Ma
 # Copyright (c) 2012-2014 Tycho Andersen
@@ -230,23 +231,6 @@ def spotify_mark(qtile):
         )
 
 
-def player_select():
-    """Select current media player."""
-    rofi_selector(
-        subprocess_output(["playerctl", "-l"]), "Select Audio Player"
-    )
-
-
-def play_pause(qtile):
-    """play-pause the current media player."""
-    if CUR_PLAYER is None or CUR_PLAYER not in subprocess_output(
-        ["playerctl", "-l"]
-    ).split("\n"):
-        CUR_PLAYER = player_select()
-
-    subprocess.call(["playerctl", "play-pause", "-p", CUR_PLAYER])
-
-
 def float_to_front(qtile):
     """Bring all floating windows of the group to front."""
     window = qtile.current_window
@@ -355,7 +339,12 @@ groups = [
             Match(wm_class="Signal"),
         ],
     ),
-    Group("media", matches=Match(wm_class="Spotify")),
+    Group(
+        "media",
+        matches=[
+            Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE))
+        ],
+    ),
     Group("background"),
 ]
 
@@ -367,8 +356,8 @@ keys = [
     Key(
         [win],
         "space",
-        lazy.layout.next(),
-        desc="Move window focus to other window",
+        lazy.window.toggle_fullscreen(),
+        desc="Toggle fullscreen mode for current window.",
     ),
     Key(
         [alt],
@@ -571,7 +560,7 @@ keys = [
     Key(
         ["control", win],
         "l",
-        lazy.spawn("xscreensaver-command -lock"),
+        lazy.spawn("clearine"),
         desc="Lock Session",
     ),
     # Launch Applications
@@ -665,19 +654,19 @@ keys = [
     Key(
         [],
         "XF86AudioPlay",
-        lazy.spawn("playerctl --player=spotify play-pause"),
+        lazy.spawn("playerctl -p playerctld play-pause"),
         desc="Play/Pause Media",
     ),
     Key(
         [],
         "XF86AudioNext",
-        lazy.spawn("playerctl --player=spotify next"),
+        lazy.spawn("playerctl -p playerctld next"),
         desc="Next Track",
     ),
     Key(
         [],
         "XF86AudioPrev",
-        lazy.spawn("playerc --player=spotify previous"),
+        lazy.spawn("playerctl -p playerctld previous"),
         desc="Previous Track",
     ),
     Key(
@@ -766,7 +755,7 @@ for n, i in enumerate(groups):
 layouts = [
     layout.Columns(
         border_focus=colors[1],
-        borde_normal=colors[4],
+        border_normal=colors[4],
         border_width=3,
         grow_amount=2,
         margin=24,
@@ -924,7 +913,6 @@ floating_layout = layout.Floating(
         Match(title="pinentry"),  # GPG key password entry
         Match(title=re.compile(".*hourglass.*")),  # Hourglass timer
         Match(title="Picture in Picture"),
-        Match(title="openvpn_console"),
         Match(title="Generate Fonts"),
         Match(title=re.compile("Settings"), wm_class=re.compile("zoom")),
         Match(title=re.compile("Polls"), wm_class=re.compile("zoom")),
