@@ -190,11 +190,11 @@ source /usr/share/fzf/key-bindings.bash
 set -o vi
 
 # MY ALIASES
-alias ls='exa --long --header --git --sort=name -m'
+alias ls='exa --long --header --sort=name -m'
 alias env='env | fzf --multi'
-alias gstatus='git status'
-alias gcommit='git commit'
-alias gpush='git push'
+alias gst='git status'
+alias gcc='git commit'
+alias gpsh='git push'
 alias hiwicd='cd ~/workspace/hiwi/mze_files'
 alias hiwiin='hiwicd && ./connect.sh'
 alias batv='bat --theme=gruvbox-dark'
