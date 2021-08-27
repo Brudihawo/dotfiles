@@ -49,3 +49,6 @@ set index-bg "#3c3836"
 
 set index-active-fg "#3c3836"
 set index-active-bg "#d79921"
+
+set window-title-page
+set render-loading-bg "#3c3836"
