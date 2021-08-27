@@ -27,27 +27,29 @@
 import os
 import re
 import subprocess
-
-from hue_controller.hue_classes import HueBridge
-
 from typing import List  # noqa: F401
 
-from libqtile import bar, layout, widget
+from hue_controller.hue_classes import HueBridge
+# from libqtile.utils import guess_terminal
+from libqtile import bar, hook, layout, widget
 from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
 from libqtile.lazy import lazy
-
-# from libqtile.utils import guess_terminal
-from libqtile import hook
 from libqtile.widget import base
-
+from libqtile.command.client import InteractiveCommandClient
 
 BRIDGE = HueBridge("hawos_bridge")
-CUR_PLAYER = "TEST"
+LOCK_WALLPAPER = "/usr/share/wallpapers/julia_set_multicolor_lock.png"
 
 
-def send_notification(message, app, urgency="normal"):
+def send_notification(message, app, urgency="normal", icon=None):
     """Send a notification using dunstify."""
-    subprocess.call(["dunstify", "-a", f"{app}", f"{message}", "-u", urgency])
+    if icon is not None:
+        subprocess.call(
+            ["dunstify", "-a", f"{app}", f"{message}",
+             "-u", urgency, "-i", icon])
+    else:
+        subprocess.call(
+            ["dunstify", "-a", f"{app}", f"{message}", "-u", urgency])
 
 
 def send_progress(message, app, progress, urgency="low"):
@@ -91,6 +93,24 @@ def toggle_light_group(qtile, group, display_name):
         else:
             brightness = 0
         send_progress(display_name, "Lighting", brightness)
+
+
+def toggle_light(qtile, lights, display_name):
+    """Toggle hue lights in a hue light group."""
+    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
+    if not os.path.isfile(lockfile_path):
+        with open(lockfile_path, "w+") as lck_file:
+            lck_file.write("locked")
+        for light in lights:
+            if light not in BRIDGE.lights:
+                send_notification(f"Invalid Light Name: {light}",
+                                  "light control", "HIGH")
+                return
+
+        BRIDGE.toggle_lights(lights)
+        os.remove(lockfile_path)
+        send_notification(f"Toggled {display_name}",
+                          "light control", "low")
 
 
 def inc_light_brightness(qtile, group, display_name, inc):
@@ -193,29 +213,62 @@ def move_floating(qtile, dw, dh):
 
 def audio_out_selector(qtile):
     """Select audio output."""
-    result = rofi_selector("HEADSET\nSPEAKER", "Audio Sink")
-    if result == "HEADSET":
-        subprocess.call(["pactl", "set-default-sink", "2"])
-        send_notification("HEADSET ACTIVATED", "sound control")
-    elif result == "SPEAKER":
-        subprocess.call(["pactl", "set-default-sink", "1"])
-        send_notification("SPEAKER ACTIVATED", "sound control")
+    SEP_STR = "     |     "
+    sink_list = subprocess_output(["pactl", "list", "sinks"])
+    states = {number: (name, state) for number, state, name
+              in re.findall("Sink #(\d+)\n.*State: (.*)\n.*Name: (.*)\n",
+                            sink_list)}
+
+    alias_dict = {
+        "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo-output": "HEADSET",
+        "alsa_output.pci-0000_00_1b.0.analog-stereo": "SPEAKER",
+        "alsa_output.pci-0000_01_00.1.hdmi-stereo-extra1": "SCREEN",
+    }
+
+    inverted_aliases = {
+        (alias_dict[name] if name in alias_dict else name): number
+        for number, (name, state) in states.items()
+    }
+
+    aliased_states = {(alias_dict[name] if name in alias_dict else name): state
+                      for _, (name, state) in states.items()}
+
+    out = rofi_selector("\n".join([f"{device}{SEP_STR}{(state)}"
+                        for device, state in aliased_states.items()]),
+                        "SELECT AUDIO OUTPUT")
+
+    device = out.split(SEP_STR)[0]
+
+    try:
+        subprocess.call(["pactl", "set-default-sink",
+                         inverted_aliases[device]])
+        send_notification(f"Selected {device}", "sound control", urgency="low")
+    except KeyError:
+        send_notification("Changed Nothing", "sound control", urgency="low")
+        pass
+
+
+def playerctl_metadata(format=None, player="playerctld"):
+    """Return playerctl metadata for current player.
+
+    Args:
+        format (str): format specification for metadata
+        player (str): player to use (default playerctld)
+
+    Returns (str): requested metadata from playerctl
+    """
+    if format is not None:
+        return subprocess_output(["playerctl", "-p", player,
+                                  "metadata", "-f", format])
+    else:
+        return subprocess_output(["playerctl", "-p", player, "metadata"])
 
 
 def spotify_mark(qtile):
     """Memorise the name and artist of the current spotify track."""
-    artist_track = subprocess_output(
-        [
-            "playerctl",
-            "metadata",
-            "-p",
-            "spotify",
-            "-f",
-            "'{{xesam:artist}}: {{xesam:title}}'",
-            ">>",
-            "~/spotify_marks.txt",
-        ]
-    ).strip("'")
+    artist_track = playerctl_metadata(
+        format="'{{xesam:artist}}: {{xesam:title}}'",
+        player="spotify").strip("'")
     with open("/home/hawo/spotify_marks.txt", "r") as file:
         tracklist = [line.strip("\n") for line in file.readlines()]
 
@@ -229,6 +282,29 @@ def spotify_mark(qtile):
         send_notification(
             "track already marked", "spotify-mark", urgency="low"
         )
+
+
+def current_track_notification(qtile):
+    """Display a Notification with the current track."""
+    TMP_LOCATION = "/home/hawo/spotify_notification_tmp/tmp_icon.jpg"
+    player = subprocess_output(["playerctl", "-l"])
+    title = playerctl_metadata(format="{{xesam:title}}")
+
+    if not player.startswith("spotify"):
+        send_notification(f"{title}", f"{player}")
+        return
+
+    # Process spotify album cover URL
+    url = playerctl_metadata(format="{{mpris:artUrl}}")
+    url = "https://i.scdn.co" + url[24:]
+
+    subprocess.call(
+        ["wget", f"{url}", "-O", TMP_LOCATION])
+    artist = playerctl_metadata(format="{{xesam:artist}}")
+
+    send_notification(f"{artist}", f"{title}",
+                      icon=TMP_LOCATION,
+                      urgency="low")
 
 
 def float_to_front(qtile):
@@ -560,7 +636,7 @@ keys = [
     Key(
         ["control", win],
         "l",
-        lazy.spawn("clearine"),
+        lazy.spawn(f"i3lock -e -i {LOCK_WALLPAPER}"),
         desc="Lock Session",
     ),
     # Launch Applications
@@ -691,6 +767,15 @@ keys = [
         lazy.spawn("/home/hawo/dotfiles/qtile/emoji_select.sh --rofi"),
         desc="Emoji Selector using rofi",
     ),
+
+    Key(
+        ["control", alt],
+        "t",
+        lazy.spawn(f"{terminal} -t translate "
+                   "-e '/home/hawo/scripts/translate.sh'"),
+        desc="Open translation terminal Interface."
+        ),
+
     KeyChord(
         [win, alt],
         "l",
@@ -701,7 +786,7 @@ keys = [
                 lazy.function(
                     toggle_light_group, "hawos_zimmer", "Hawos Zimmer"
                 ),
-                desc="Toggle Lights",
+                desc="Toggle Hawos Zimmer",
             ),
             Key(
                 [],
@@ -709,7 +794,7 @@ keys = [
                 lazy.function(
                     inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", 10
                 ),
-                desc="Toggle Lights",
+                desc="Increment Lights by 10% Brightness",
             ),
             Key(
                 [],
@@ -717,12 +802,37 @@ keys = [
                 lazy.function(
                     inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", -10
                 ),
-                desc="Toggle Lights",
+                desc="Decrement Lights by 10% Brightness",
+            ),
+            Key(
+                ["shift"],
+                "k",
+                lazy.function(
+                    toggle_light, ["Kueche", "Kueche2"], "Küche"
+                ),
+                desc="Toggle Kitchen Lights",
+            ),
+            Key(
+                ["shift"],
+                "f",
+                lazy.function(
+                    toggle_light, ["Flur"], "Flur"
+                ),
+                desc="Toggle Hallway Lights",
+            ),
+            Key(
+                ["shift"],
+                "b",
+                lazy.function(
+                    toggle_light, ["Bad"], "Bad"
+                ),
+                desc="Toggle Bathroom Lights",
             ),
         ],
         mode="LIGHT CONTROL",
     ),
     Key([win, alt], "t", lazy.function(spotify_mark)),
+    Key([win, "shift"], "t", lazy.function(current_track_notification)),
 ]
 
 for n, i in enumerate(groups):
@@ -920,6 +1030,9 @@ floating_layout = layout.Floating(
         Match(title=re.compile(""), wm_class=re.compile("zoom")),
         Match(wm_class=re.compile("gnuplot_qt")),
         Match(wm_class=re.compile("matplotlib")),
+        Match(title=re.compile(".*Open With.*", flags=re.IGNORECASE)),
+        Match(title=re.compile(".*Import.*", flags=re.IGNORECASE)),
+        Match(title=re.compile(".*Confirm.*", flags=re.IGNORECASE)),
     ],
     border_focus=colors[5],
 )
@@ -942,3 +1055,14 @@ def autostart():
     """Autostart functions."""
     home = os.path.expanduser("~")
     subprocess.call(home + "/.config/qtile/autostart.sh")
+
+
+# @hook.subscribe.client_managed
+# def focus_new(window):
+#     """Focus newly created windows."""
+#     c = InteractiveCommandClient()
+#     # window.focus(warp=True)
+#     # next_group = window.cmd_info()["group"]
+#     # c.group[next_group].to_screen()
+#     for screen in c.screen:
+#         send_notification(f"{ssscreen.cmd_info()}", "screen_wins")
