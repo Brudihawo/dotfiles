@@ -641,7 +641,13 @@ keys = [
         desc="Lock Session",
     ),
     # Launch Applications
-    Key([win], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    Key(
+        [win, "shift"],
+        "Return",
+        lazy.spawn(f"{terminal} -e 'tmux'"),
+        desc="Launch tmux terminal",
+    ),
+    Key([win], "Return", lazy.spawn(f"{terminal}"), desc="Launch terminal"),
     Key(
         [win],
         "r",
@@ -772,11 +778,16 @@ keys = [
     Key(
         ["control", alt],
         "t",
-        lazy.spawn(f"{terminal} -t translate "
-                   "-e '/home/hawo/scripts/translate.sh'"),
-        desc="Open translation terminal Interface."
-        ),
-
+        lazy.spawn(
+            f"{terminal} -t translate " "-e '/home/hawo/scripts/translate.sh'"),
+        desc="Open translation terminal Interface.",
+    ),
+    Key(
+        [win],
+        "c",
+        lazy.spawn(f"{terminal} -t 'cht.sh' -e '/home/hawo/scripts/cht.sh'"),
+        desc="Open Cheat Sheet terminal",
+    ),
     KeyChord(
         [win, alt],
         "l",
