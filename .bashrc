@@ -178,8 +178,8 @@ ex ()
 eval "$(zoxide init bash)"
 
 # MY STUFF
-export MANPAGER="nvim -c 'set ft=man' -"
-export PATH="$PATH:~/bin:/home/hawo/.cargo/bin"
+export MANPAGER='nvim +Man!'
+export PATH="$PATH:~/bin:/home/hawo/.cargo/bin:/opt/rocm/bin/"
 export MATLABDIR="/home/hawo/local/MATLAB/"
 export EDITOR=nvim
 
@@ -203,6 +203,8 @@ alias zooml='batv ~/Documents/Semester\ 3/links.txt'
 alias webcamview='mpv --profile=low-latency --untimed av://v4l2:/dev/video0 --demuxer-lavf-format=video4linux2 --demuxer-lavf-o-set=input_format=mjpeg'
 alias hue='python -m hue_controller.control -b hawos_bridge'
 alias u_links='batv ~/Documents/Semester\ 3/links.txt'
+alias termdown='termdown -b -f colossal -c 10'
+alias glog="git log --pretty='%Cgreen%cs% Cred%an %Creset%s' --graph"
 
 complete -o bashdefault -o default -F _fzf_path_completion zathura
 source /usr/share/bash-completion/completions/git
