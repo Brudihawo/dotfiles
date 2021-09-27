@@ -410,15 +410,16 @@ groups = [
     Group(
         "comms",
         matches=[
-            Match(wm_class="TelegramDesktop"),
-            Match(wm_class=re.compile(".*whatsapp.*")),
-            Match(wm_class="Signal"),
+            Match(wm_class=re.compile(".*telegram.*", flags=re.IGNORECASE)),
+            Match(wm_class=re.compile(".*whatsapp.*", flags=re.IGNORECASE)),
+            Match(wm_class=re.compile(".*signal.*", flags=re.IGNORECASE)),
         ],
     ),
     Group(
         "media",
         matches=[
-            Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE))
+            Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE)),
+            Match(title=re.compile(".*spotify.*", flags=re.IGNORECASE)),
         ],
     ),
     Group("background"),
@@ -1029,9 +1030,11 @@ floating_layout = layout.Floating(
         Match(title=re.compile("Chat"), wm_class=re.compile("zoom")),
         Match(title=re.compile(""), wm_class=re.compile("zoom")),
         Match(wm_class=re.compile("gnuplot_qt")),
+        Match(wm_class=re.compile(".*arandr.*", flags=re.IGNORECASE)),
         Match(wm_class=re.compile("matplotlib")),
         Match(title=re.compile(".*Open With.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*Import.*", flags=re.IGNORECASE)),
+        Match(title=re.compile(".*Export.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*Confirm.*", flags=re.IGNORECASE)),
     ],
     border_focus=colors[5],
