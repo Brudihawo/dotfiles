@@ -35,7 +35,6 @@ from libqtile import bar, hook, layout, widget
 from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.widget import base
-from libqtile.command.client import InteractiveCommandClient
 
 BRIDGE = HueBridge("hawos_bridge")
 LOCK_WALLPAPER = "/usr/share/wallpapers/julia_set_multicolor_lock.png"
@@ -46,7 +45,8 @@ def send_notification(message, app, urgency="normal", icon=None):
     if icon is not None:
         subprocess.call(
             ["dunstify", "-a", f"{app}", f"{message}",
-             "-u", urgency, "-i", icon])
+                "-u", urgency, "-i", icon]
+        )
     else:
         subprocess.call(
             ["dunstify", "-a", f"{app}", f"{message}", "-u", urgency])
@@ -103,14 +103,14 @@ def toggle_light(qtile, lights, display_name):
             lck_file.write("locked")
         for light in lights:
             if light not in BRIDGE.lights:
-                send_notification(f"Invalid Light Name: {light}",
-                                  "light control", "HIGH")
+                send_notification(
+                    f"Invalid Light Name: {light}", "light control", "HIGH"
+                )
                 return
 
         BRIDGE.toggle_lights(lights)
         os.remove(lockfile_path)
-        send_notification(f"Toggled {display_name}",
-                          "light control", "low")
+        send_notification(f"Toggled {display_name}", "light control", "low")
 
 
 def inc_light_brightness(qtile, group, display_name, inc):
@@ -156,24 +156,20 @@ def rofi_selector(option_string, prompt):
 def move_to_group_selector(qtile):
     """Move window to a group with a rofi selector."""
     active_win = qtile.current_window
-    str_groups = "\n".join(
-        [
-            f"{index:4} -> {g.label}"
-            for index, g in enumerate(qtile.groups, start=1)
-        ]
-    )
+    str_groups = "\n".join([
+        f"{index:4} -> {g.label}" for index,
+        g in enumerate(qtile.groups, start=1)
+    ])
     target = re.split(r" -> ", rofi_selector(str_groups, "chose group"))[-1]
     active_win.cmd_togroup(target)
 
 
 def group_switch_selector(qtile):
     """Switch focus to a group with a selector."""
-    str_groups = "\n".join(
-        [
-            f"{index:4} -> {g.label}"
-            for index, g in enumerate(qtile.groups, start=1)
-        ]
-    )
+    str_groups = "\n".join([
+        f"{index:4} -> {g.label}" for index,
+        g in enumerate(qtile.groups, start=1)
+    ])
     target = re.split(r" -> ", rofi_selector(str_groups, "chose group"))[0]
     qtile.groups[int(target) - 1].cmd_toscreen()
 
@@ -215,9 +211,12 @@ def audio_out_selector(qtile):
     """Select audio output."""
     SEP_STR = "     |     "
     sink_list = subprocess_output(["pactl", "list", "sinks"])
-    states = {number: (name, state) for number, state, name
-              in re.findall("Sink #(\d+)\n.*State: (.*)\n.*Name: (.*)\n",
-                            sink_list)}
+    states = {
+        number: (name, state)
+        for number, state, name in re.findall(
+            "Sink #(\d+)\n.*State: (.*)\n.*Name: (.*)\n", sink_list
+        )
+    }
 
     alias_dict = {
         "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo-output": "HEADSET",
@@ -230,12 +229,18 @@ def audio_out_selector(qtile):
         for number, (name, state) in states.items()
     }
 
-    aliased_states = {(alias_dict[name] if name in alias_dict else name): state
-                      for _, (name, state) in states.items()}
+    aliased_states = {
+        (alias_dict[name] if name in alias_dict else name): state
+        for _, (name, state) in states.items()
+    }
 
-    out = rofi_selector("\n".join([f"{device}{SEP_STR}{(state)}"
-                        for device, state in aliased_states.items()]),
-                        "SELECT AUDIO OUTPUT")
+    out = rofi_selector(
+        "\n".join(
+            [f"{device}{SEP_STR}{(state)}" for device,
+             state in aliased_states.items()]
+        ),
+        "SELECT AUDIO OUTPUT",
+    )
 
     device = out.split(SEP_STR)[0]
 
@@ -268,7 +273,8 @@ def spotify_mark(qtile):
     """Memorise the name and artist of the current spotify track."""
     artist_track = playerctl_metadata(
         format="'{{xesam:artist}}: {{xesam:title}}'",
-        player="spotify").strip("'")
+        player="spotify"
+    ).strip("'")
     with open("/home/hawo/spotify_marks.txt", "r") as file:
         tracklist = [line.strip("\n") for line in file.readlines()]
 
@@ -279,9 +285,8 @@ def spotify_mark(qtile):
         send_notification("track name marked", "spotify-mark", urgency="low")
 
     else:
-        send_notification(
-            "track already marked", "spotify-mark", urgency="low"
-        )
+        send_notification("track already marked",
+                          "spotify-mark", urgency="low")
 
 
 def current_track_notification(qtile):
@@ -298,13 +303,11 @@ def current_track_notification(qtile):
     url = playerctl_metadata(format="{{mpris:artUrl}}")
     url = "https://i.scdn.co" + url[24:]
 
-    subprocess.call(
-        ["wget", f"{url}", "-O", TMP_LOCATION])
+    subprocess.call(["wget", f"{url}", "-O", TMP_LOCATION])
     artist = playerctl_metadata(format="{{xesam:artist}}")
 
     send_notification(f"{artist}", f"{title}",
-                      icon=TMP_LOCATION,
-                      urgency="low")
+                      icon=TMP_LOCATION, urgency="low")
 
 
 def float_to_front(qtile):
@@ -774,7 +777,6 @@ keys = [
         lazy.spawn("/home/hawo/dotfiles/qtile/emoji_select.sh --rofi"),
         desc="Emoji Selector using rofi",
     ),
-
     Key(
         ["control", alt],
         "t",
@@ -795,17 +797,15 @@ keys = [
             Key(
                 [],
                 "t",
-                lazy.function(
-                    toggle_light_group, "hawos_zimmer", "Hawos Zimmer"
-                ),
+                lazy.function(toggle_light_group,
+                              "hawos_zimmer", "Hawos Zimmer"),
                 desc="Toggle Hawos Zimmer",
             ),
             Key(
                 [],
                 "j",
-                lazy.function(
-                    inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", 10
-                ),
+                lazy.function(inc_light_brightness,
+                              "hawos_zimmer", "Hawos Zimmer", 10),
                 desc="Increment Lights by 10% Brightness",
             ),
             Key(
@@ -819,25 +819,19 @@ keys = [
             Key(
                 ["shift"],
                 "k",
-                lazy.function(
-                    toggle_light, ["Kueche", "Kueche2"], "Küche"
-                ),
+                lazy.function(toggle_light, ["Kueche", "Kueche2"], "Küche"),
                 desc="Toggle Kitchen Lights",
             ),
             Key(
                 ["shift"],
                 "f",
-                lazy.function(
-                    toggle_light, ["Flur"], "Flur"
-                ),
+                lazy.function(toggle_light, ["Flur"], "Flur"),
                 desc="Toggle Hallway Lights",
             ),
             Key(
                 ["shift"],
                 "b",
-                lazy.function(
-                    toggle_light, ["Bad"], "Bad"
-                ),
+                lazy.function(toggle_light, ["Bad"], "Bad"),
                 desc="Toggle Bathroom Lights",
             ),
         ],
@@ -864,8 +858,7 @@ for n, i in enumerate(groups):
                 str(n + 1),
                 lazy.window.togroup(i.name, switch_group=True),
                 desc="Switch to & move focused window to group {}".format(
-                    i.name
-                ),
+                    i.name),
             ),
             # Or, use below if you prefer not to switch to that group.
             # # win + shift + letter of group = move focused window to group
@@ -919,9 +912,8 @@ extension_defaults = widget_defaults.copy()
 
 def spacer(color):
     """Spacer in bar with color 'color'."""
-    return widget.Sep(
-        size_percent=80, padding=4, linewidth=2, foreground=color
-    )
+    return widget.Sep(size_percent=80, padding=4,
+                      linewidth=2, foreground=color)
 
 
 screens = [
@@ -957,16 +949,14 @@ screens = [
                 # widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
                 spacer(this_c),
                 widget.Memory(
-                    foreground=colors[6], format="RAM: {MemUsed: .0f} MB"
-                ),
+                    foreground=colors[6], format="RAM: {MemUsed: .0f} MB"),
                 spacer(this_c),
                 widget.CPU(
                     foreground=colors[3],
                     format="CPU @ {freq_current} GHz {load_percent:3.0f}% ->",
                 ),
                 widget.ThermalSensor(
-                    foreground=colors[10], foreground_alert=colors[9]
-                ),
+                    foreground=colors[10], foreground_alert=colors[9]),
                 spacer(this_c),
                 widget.Net(
                     format="{down}",
@@ -979,8 +969,7 @@ screens = [
                 # widget.Open_Weather(cityid="Karlsruhe",
                 #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
                 CapsNumLockIndicator_Nice(
-                    background=this_c, foreground=colors[17]
-                ),
+                    background=this_c, foreground=colors[17]),
                 widget.Systray(padding=7, background=this_c),
                 widget.Clock(
                     format=" %H:%M %a %d.%m.%Y",
@@ -1085,4 +1074,4 @@ def autostart():
 #     # next_group = window.cmd_info()["group"]
 #     # c.group[next_group].to_screen()
 #     for screen in c.screen:
-#         send_notification(f"{ssscreen.cmd_info()}", "screen_wins")
+#         setd_notification(f"{screen.cmd_info()}", "screen_wins")
