@@ -15,9 +15,10 @@ config=( \
   "alacritty"
 )
 files=( \
-  ".Xresources" 
+  ".Xresources"
   ".bashrc"
   ".zshrc"
+  ".tmux.conf"
 )
 
 for link in ${config[@]}; do
