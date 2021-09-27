@@ -862,31 +862,37 @@ for n, i in enumerate(groups):
             #     desc="move focused window to group {}".format(i.name)),
         ]
     )
+MARGIN = 12
+BORDER_WIDTH = 4
+FOCUS_BORDER = colors[15]
+NORMAL_BORDER = colors[4]
 
 layouts = [
     layout.Columns(
-        border_focus=colors[1],
-        border_normal=colors[4],
-        border_width=3,
+        border_focus=FOCUS_BORDER,
+        border_normal=NORMAL_BORDER,
+        border_width=BORDER_WIDTH,
+        border_on_single=True,
         grow_amount=2,
-        margin=24,
         insert_position=1,
         num_columns=3,
+        fair=True,
+        margin=MARGIN,
     ),
     layout.Max(
-        border_focus=colors[1],
-        border_normal=colors[4],
-        border_width=3,
+        border_focus=FOCUS_BORDER,
+        border_normal=NORMAL_BORDER,
+        border_width=BORDER_WIDTH,
         grow_amount=2,
-        margin=24,
+        margin=MARGIN,
         insert_position=1,
     ),
     layout.Bsp(
-        border_focus=colors[1],
-        border_normal=colors[4],
-        border_width=3,
+        border_focus=FOCUS_BORDER,
+        border_normal=NORMAL_BORDER,
+        border_width=BORDER_WIDTH,
         grow_amount=2,
-        margin=24,
+        margin=MARGIN,
         insert_position=1,
     ),
 ]
