@@ -67,14 +67,14 @@ check_conda_env ()
     fi
 }
 
-modified_path () 
+modified_path ()
 {
     dir=$(sed "s|$HOME|~|g" <<< $(pwd))
     bname=$(basename "$(pwd)")
     dead_len=$((9 + $(wc -m <<< "$(check_conda_env)$HOSTNAME@$USER: ")))
     if [ $(wc -m <<< $dir) -gt $(($(stty -a | awk -F "[; ]" 'FNR == 1 {print $9}') - $dead_len )) ]; then
-      awk 'BEGIN { RS="/"; LF} { printf(substr($1, 0, 1)); printf "/" }'  <<< $(sed "s|$bname||" <<< "$dir")
-      printf $bname
+      outdir=$(awk 'BEGIN { RS="/"; LF} { printf(substr($1, 0, 1)); printf "/" }'  <<< $(sed "s|/$bname||" <<< "$dir"))
+      printf "$outdir$bname"
     else
       echo $dir
     fi
