@@ -55,9 +55,10 @@ function fga {
 }
 
 function zathopen {
-  FILE=$(find -L $* \( -type f \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) -a \( -wholename "*.pdf" \) 2> /dev/null | sort | fzf)
+  FILE=$(find -L "$*" \( -type f \) -a ! \( -wholename '*.git/*' \) -a ! \( -name '*.git' \) -a \( -wholename '*.pdf' \) | sort | fzf)
+  echo "Chose $FILE"
   if test $(wc -w <<< $FILE) -ne "0"; then
-    zathura $FILE
+    zathura "$FILE"
   fi
 }
 
@@ -71,5 +72,14 @@ function pdfwords {
     sed -r 's/[0-9]+//g' |\
     sed -r "s/^.{1,$(($MIN_CHARS - 1))}\$//g" |\
     sort -u | xargs
+}
 
+function repeat {
+  while [ : ]; do
+    $@
+  done
+}
+
+function zpushd {
+  pushd "$(zoxide query -i)"
 }
