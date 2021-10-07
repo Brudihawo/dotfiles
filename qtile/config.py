@@ -916,74 +916,81 @@ def spacer(color):
                       linewidth=2, foreground=color)
 
 
+def gen_widgets(this_c, other_c, screen):
+    widgetlist = [
+        widget.Chord(
+            foreground=colors[11],
+            background=reduce_brightness(colors[4], 0.8),
+        ),
+        # widget.CurrentLayout(foreground=colors[16]),
+        widget.GroupBox(
+            highlight_method="block",
+            borderwidth=0,
+            padding=7,
+            # fmt="<span weight='bold>{}</span>",
+            block_highlight_text_color=colors[17],
+            this_current_screen_border=this_c,
+            this_screen_border=this_c,
+            other_current_screen_border=other_c,
+            other_screen_border=other_c,
+            urgent_border=colors[16],
+            urgent_text=colors[17],
+            disable_drag=True,
+            inactive=this_c,
+            active=colors[5],
+            hide_unused=False,
+        ),
+        spacer(this_c),
+        widget.WindowCount(show_zero=True),
+        spacer(this_c),
+        widget.WindowName(foreground=colors[16]),
+        # widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
+        spacer(this_c),
+        widget.Memory(
+            foreground=colors[6], format="RAM: {MemUsed: .0f} MB"),
+        spacer(this_c),
+        widget.CPU(
+            foreground=colors[3],
+            format="CPU @ {freq_current} GHz {load_percent:3.0f}% ->",
+        ),
+        widget.ThermalSensor(
+            foreground=colors[10], foreground_alert=colors[9]),
+        spacer(this_c),
+        widget.Net(
+            format="{down}",
+            foreground=colors[6],
+        ),
+        widget.TextBox(text="\u21D3 | \u21D1"),
+        widget.Net(format="{up}", foreground=colors[3]),
+        spacer(this_c),
+        widget.Volume(),
+        # widget.Open_Weather(cityid="Karlsruhe",
+        #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
+        CapsNumLockIndicator_Nice(
+            background=this_c, foreground=colors[17]),
+        widget.Clock(
+            format=" %H:%M %a %d.%m.%Y",
+            foreground=colors[17],
+            background=this_c,
+        ),
+        widget.CurrentLayoutIcon(scale=0.8, background=this_c),
+    ]
+    if screen == 0:
+        widgetlist.insert(-2, widget.Systray(padding=7, background=this_c))
+
+    return widgetlist
+
+
 screens = [
     Screen(
         top=bar.Bar(
-            [
-                widget.Chord(
-                    foreground=colors[11],
-                    background=reduce_brightness(colors[4], 0.8),
-                ),
-                # widget.CurrentLayout(foreground=colors[16]),
-                widget.GroupBox(
-                    highlight_method="block",
-                    borderwidth=0,
-                    padding=7,
-                    # fmt="<span weight='bold>{}</span>",
-                    block_highlight_text_color=colors[17],
-                    this_current_screen_border=this_c,
-                    this_screen_border=this_c,
-                    other_current_screen_border=other_c,
-                    other_screen_border=other_c,
-                    urgent_border=colors[16],
-                    urgent_text=colors[17],
-                    disable_drag=True,
-                    inactive=this_c,
-                    active=colors[5],
-                    hide_unused=False,
-                ),
-                spacer(this_c),
-                widget.WindowCount(show_zero=True),
-                spacer(this_c),
-                widget.WindowName(foreground=colors[16]),
-                # widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
-                spacer(this_c),
-                widget.Memory(
-                    foreground=colors[6], format="RAM: {MemUsed: .0f} MB"),
-                spacer(this_c),
-                widget.CPU(
-                    foreground=colors[3],
-                    format="CPU @ {freq_current} GHz {load_percent:3.0f}% ->",
-                ),
-                widget.ThermalSensor(
-                    foreground=colors[10], foreground_alert=colors[9]),
-                spacer(this_c),
-                widget.Net(
-                    format="{down}",
-                    foreground=colors[6],
-                ),
-                widget.TextBox(text="\u21D3 | \u21D1"),
-                widget.Net(format="{up}", foreground=colors[3]),
-                spacer(this_c),
-                widget.Volume(),
-                # widget.Open_Weather(cityid="Karlsruhe",
-                #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
-                CapsNumLockIndicator_Nice(
-                    background=this_c, foreground=colors[17]),
-                widget.Systray(padding=7, background=this_c),
-                widget.Clock(
-                    format=" %H:%M %a %d.%m.%Y",
-                    foreground=colors[17],
-                    background=this_c,
-                ),
-                widget.CurrentLayoutIcon(scale=0.8, background=this_c),
-            ],
+            gen_widgets(this_c, other_c, screen),
             40,
             margin=[0, 0, 0, 0],
             background=reduce_brightness(colors[17], 0.8),
         ),
     )
-    for this_c, other_c in [(colors[3], colors[14]), (colors[14], colors[3])]
+    for screen, (this_c, other_c) in enumerate([(colors[3], colors[14]), (colors[14], colors[3])])
 ]
 
 # Drag floating layouts.
