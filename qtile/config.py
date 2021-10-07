@@ -27,6 +27,7 @@
 import os
 import re
 import subprocess
+import psutil
 from typing import List  # noqa: F401
 
 from hue_controller.hue_classes import HueBridge
@@ -73,9 +74,74 @@ def subprocess_output(args):
     return (
         subprocess.Popen(args, stdout=subprocess.PIPE)
         .communicate()[0]
-        .decode("ascii")
+        .decode("utf-8")
         .strip("\n")
     )
+
+
+def get_clipboard(clipboard="primary"):
+    """Returns clipboard contents via xclip.
+
+    Args:
+        selection (string): 'primary', 'secondary', or 'clipboard'.
+
+    Returns:
+        string: contents of clipboard / selection
+    """
+    return subprocess_output(["xclip", "-selection", clipboard, "-o"])
+
+
+def open_in_firefox(url, how="tab"):
+    """Open url in firefox.
+
+    Args:
+        url (string): url to open
+        how (string): 'window', 'tab', 'private'
+    """
+    mode_map = {
+        'window': '--new-window',
+        'tab': '--new-tab',
+        'private': '--private-window'
+    }
+    subprocess.call(['firefox', mode_map[how], url])
+
+
+def g_scholar_search(query, how='window'):
+    """Search query in google scholar, open in firefox.
+
+    Args:
+        query (string): what to search
+    """
+    query_str = f"https://scholar.google.com/scholar?hl=en&q={query}"
+    open_in_firefox(query_str, how=how)
+
+
+def scholar_search_cur_selection(qtile):
+    """Open a google scholar search of the current selection in firefox."""
+    selection = get_clipboard('primary')
+    send_notification(f"Searching for: {selection}", "Scholar Search",
+                      icon="/home/hawo/dotfiles/qtile/img/gscholar_logo.png")
+    g_scholar_search(selection, how="tab")
+
+
+def check_process_running(proc_name):
+    """Check if a process is running."""
+    for proc in psutil.process_iter():
+        try:
+            if proc_name.lower() in proc.name().lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+    return False
+
+
+def open_translate_window(qtile):
+    """Open Transation window in tmux if tmux is running else open terminal"""
+    if check_process_running("tmux"):
+        subprocess.call(["tmux", "neww", "~/scripts/translate.sh"])
+    else:
+        subprocess.call([terminal, "-e", "~/scripts/translate.sh"])
 
 
 def toggle_light_group(qtile, group, display_name):
@@ -299,11 +365,10 @@ def current_track_notification(qtile):
         send_notification(f"{title}", f"{player}")
         return
 
-    # Process spotify album cover URL
+    # Get spotify album cover URL and set temporary file
     url = playerctl_metadata(format="{{mpris:artUrl}}")
-    url = "https://i.scdn.co" + url[24:]
-
     subprocess.call(["wget", f"{url}", "-O", TMP_LOCATION])
+
     artist = playerctl_metadata(format="{{xesam:artist}}")
 
     send_notification(f"{artist}", f"{title}",
@@ -401,7 +466,7 @@ terminal = "alacritty"
 groups = [
     Group("main"),
     Group("alt"),
-    Group("visu", matches=Match(wm_instance_class="paraview")),
+    Group("visu", matches=[Match(wm_instance_class="paraview")]),
     Group("www", matches=[Match(wm_class="firefox"), Match(wm_class="Opera")]),
     Group(
         "mail",
@@ -777,13 +842,24 @@ keys = [
         lazy.spawn("/home/hawo/dotfiles/qtile/emoji_select.sh --rofi"),
         desc="Emoji Selector using rofi",
     ),
+    # Key(
+    #     ["control", alt],
+    #     "t",
+    #     lazy.spawn(
+    #         f"{terminal} -t translate " "-e '/home/hawo/scripts/translate.sh'"),
+    #     desc="Open translation terminal Interface.",
+    # ),
     Key(
         ["control", alt],
         "t",
-        lazy.spawn(
-            f"{terminal} -t translate " "-e '/home/hawo/scripts/translate.sh'"),
+        lazy.function(open_translate_window),
         desc="Open translation terminal Interface.",
     ),
+    Key([alt, 'shift'],
+        "s",
+        lazy.function(scholar_search_cur_selection),
+        desc="Search current selection in google scholar."
+        ),
     Key(
         [win],
         "c",
