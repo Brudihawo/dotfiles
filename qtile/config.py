@@ -501,6 +501,8 @@ melange_colors = [
     "#352f2a",  # background
 ]
 
+colors = melange_colors
+
 FLOAT_RS_INC = 20
 FLOAT_MV_INC = 20
 
