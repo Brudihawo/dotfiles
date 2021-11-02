@@ -27,9 +27,10 @@
 import os
 import re
 import subprocess
-import psutil
 from typing import List  # noqa: F401
+import time
 
+import psutil
 from hue_controller.hue_classes import HueBridge
 # from libqtile.utils import guess_terminal
 from libqtile import bar, hook, layout, widget
@@ -38,7 +39,7 @@ from libqtile.lazy import lazy
 from libqtile.widget import base
 
 BRIDGE = HueBridge("hawos_bridge")
-LOCK_WALLPAPER = "/usr/share/wallpapers/julia_set_multicolor_lock.png"
+LOCK_WALLPAPER = "/usr/share/wallpapers/hex_melange_2_lock.png"
 
 
 def send_notification(message, app, urgency="normal", icon=None):
@@ -122,6 +123,14 @@ def scholar_search_cur_selection(qtile):
     send_notification(f"Searching for: {selection}", "Scholar Search",
                       icon="/home/hawo/dotfiles/qtile/img/gscholar_logo.png")
     g_scholar_search(selection, how="tab")
+
+
+def open_selection_in_firefox(qtile):
+    """Open Highlighed URL in firefox"""
+    selection = get_clipboard('primary')
+    send_notification(f"Opening {selection} as URL in firefox.", "Open In Firefox",
+                      icon="/home/hawo/dotfiles/qtile/img/firefox_logo.png")
+    open_in_firefox(selection, how="tab")
 
 
 def check_process_running(proc_name):
@@ -432,6 +441,24 @@ def reduce_brightness(hex_color, factor):
     return "#{}{}{}".format(red, green, blue)
 
 
+def show_cheatsheet(qtile):
+    """Open Cheatsheet with all Keybindings using yad."""
+    cheatsheet_fname = os.path.join(os.path.expanduser("~"),
+                                    "dotfiles/qtile/keychords_mangled.txt")
+
+    catp = subprocess.Popen(["cat", cheatsheet_fname], stdout=subprocess.PIPE)
+    out, _ = catp.communicate()
+    p = subprocess.Popen(["yad", "--list", "--close-on-unfocus",
+                          "--no-header", "--no-click", "--no-selection",
+                          "--center", "--width=3000", "--height=1688",
+                          "--title='KEY COMBINATIONS AND KEYS'",
+                          "--column=KEYS:text",
+                          "--column=KEYS (2):text",
+                          "--column=KEY CHORDS:text"],
+                         stdin=subprocess.PIPE)
+    p.communicate(input=out, timeout=0.001)
+
+
 gruvbox_colors = [
     "#282828",  # color0
     "#cc241d",  # color1
@@ -483,6 +510,7 @@ alt = "mod1"
 
 terminal = "alacritty"
 
+
 groups = [
     Group("main"),
     Group("alt"),
@@ -515,53 +543,54 @@ groups = [
 
 keys = [
     # Standard window Actions
-    Key([win], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([alt], "F4", lazy.window.kill(), desc="Kill focused window"),
-    Key([win], "w", lazy.window.kill(), desc="Kill focused window"),
+    Key([win], "Tab", lazy.next_layout(),
+        desc="Layout: Toggle between layouts"),
+    Key([alt], "F4", lazy.window.kill(), desc="Window: Kill focused."),
+    Key([win], "w", lazy.window.kill(), desc="Window: Kill focused."),
     Key(
         [win],
         "space",
         lazy.window.toggle_fullscreen(),
-        desc="Toggle fullscreen mode for current window.",
+        desc="Window: Toggle fullscreen for current window.",
     ),
     Key(
         [alt],
         "Tab",
         lazy.layout.next(),
-        desc="Move window focus to other window",
+        desc="Window: Move window focus to other.",
     ),
     # Switch between windows
-    Key([win], "h", lazy.layout.left(), desc="Move focus to left"),
-    Key([win], "l", lazy.layout.right(), desc="Move focus to right"),
-    Key([win], "j", lazy.layout.down(), desc="Move focus down"),
-    Key([win], "k", lazy.layout.up(), desc="Move focus up"),
-    Key([win], "n", lazy.next_screen(), desc="Move focus to next screen"),
+    Key([win], "h", lazy.layout.left(), desc="Window: Focus left"),
+    Key([win], "l", lazy.layout.right(), desc="Window: Focus right"),
+    Key([win], "j", lazy.layout.down(), desc="Window: Focus down"),
+    Key([win], "k", lazy.layout.up(), desc="Window: Focus up"),
+    Key([win], "n", lazy.next_screen(), desc="Window: Focus next screen."),
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
     Key(
         [win, "shift"],
         "h",
         lazy.layout.shuffle_left(),
-        desc="Move window to the left",
+        desc="Window: Move left",
     ),
     Key(
         [win, "shift"],
         "l",
         lazy.layout.shuffle_right(),
-        desc="Move window to the right",
+        desc="Window: Move right",
     ),
     Key(
         [win, "shift"],
         "j",
         lazy.layout.shuffle_down(),
-        desc="Move window down",
+        desc="Window: Move down",
     ),
-    Key([win, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+    Key([win, "shift"], "k", lazy.layout.shuffle_up(), desc="Window: Move up"),
     Key(
         [win, "shift"],
         "n",
         lazy.function(move_to_next_screen),
-        desc="Move window to other Screen",
+        desc="Window: Focus next screen",
     ),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed Unsplit = 1 window displayed,
@@ -571,19 +600,19 @@ keys = [
         [win, "shift"],
         "Return",
         lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack",
+        desc="Layout: Toggle stack split.",
     ),
     # Window Resizing in Constrained Layout
     KeyChord(
         [win, "shift"],
         "r",
         [
-            Key([], "h", lazy.layout.grow_left(), desc="Grow window left"),
-            Key([], "l", lazy.layout.grow_right(), desc="Grow window right"),
-            Key([], "j", lazy.layout.grow_down(), desc="Grow window down"),
-            Key([], "k", lazy.layout.grow_up(), desc="Grow window up"),
-            Key([], "n", lazy.layout.normalize(), desc="Reset window sizes"),
-            Key([], "x", lazy.window.kill(), desc="Kill focused window"),
+            Key([], "h", lazy.layout.grow_left(), desc="Grow left"),
+            Key([], "l", lazy.layout.grow_right(), desc="Grow right"),
+            Key([], "j", lazy.layout.grow_down(), desc="Grow down"),
+            Key([], "k", lazy.layout.grow_up(), desc="Grow up"),
+            Key([], "n", lazy.layout.normalize(), desc="Reset sizes"),
+            Key([], "x", lazy.window.kill(), desc="Kill focused"),
         ],
         mode="RESIZE",
     ),
@@ -591,7 +620,7 @@ keys = [
         [win, "shift"],
         "f",
         lazy.function(float_to_front),
-        desc="Bring currently focused floating window to front.",
+        desc="Window: Bring currently focused floating window to front.",
     ),
     # Floating Window Resizing
     KeyChord(
@@ -602,49 +631,25 @@ keys = [
                 [],
                 "h",
                 lazy.function(change_floating_size, -FLOAT_RS_INC, 0),
-                desc="Decrease floating window width",
+                desc="Decrease floating width",
             ),
             Key(
                 [],
                 "l",
                 lazy.function(change_floating_size, FLOAT_RS_INC, 0),
-                desc="Increase floating window width",
+                desc="Increase floating width",
             ),
             Key(
                 [],
                 "j",
                 lazy.function(change_floating_size, 0, FLOAT_RS_INC),
-                desc="Increase floating window height",
+                desc="Increase floating height",
             ),
             Key(
                 [],
                 "k",
                 lazy.function(change_floating_size, 0, -FLOAT_RS_INC),
-                desc="Decrease floating window height",
-            ),
-            Key(
-                ["shift"],
-                "h",
-                lazy.function(change_floating_size, -4 * FLOAT_RS_INC, 0),
-                desc="Decrease floating window width",
-            ),
-            Key(
-                ["shift"],
-                "l",
-                lazy.function(change_floating_size, 4 * FLOAT_RS_INC, 0),
-                desc="Increase floating window width",
-            ),
-            Key(
-                ["shift"],
-                "j",
-                lazy.function(change_floating_size, 0, 4 * FLOAT_RS_INC),
-                desc="Increase floating window height",
-            ),
-            Key(
-                ["shift"],
-                "k",
-                lazy.function(change_floating_size, 0, -4 * FLOAT_RS_INC),
-                desc="Decrease floating window height",
+                desc="Decrease floating height",
             ),
             Key([], "x", lazy.window.kill(), desc="Kill focused window"),
         ],
@@ -659,83 +664,61 @@ keys = [
                 [],
                 "h",
                 lazy.function(move_floating, -FLOAT_MV_INC, 0),
-                desc="Decrease floating window width",
+                desc="Move left",
             ),
             Key(
                 [],
                 "l",
                 lazy.function(move_floating, FLOAT_MV_INC, 0),
-                desc="Increase floating window width",
+                desc="Move right",
             ),
             Key(
                 [],
                 "j",
                 lazy.function(move_floating, 0, FLOAT_MV_INC),
-                desc="Increase floating window height",
+                desc="Move up",
             ),
             Key(
                 [],
                 "k",
                 lazy.function(move_floating, 0, -FLOAT_MV_INC),
-                desc="Decrease floating window height",
-            ),
-            Key(
-                ["shift"],
-                "h",
-                lazy.function(move_floating, -4 * FLOAT_MV_INC, 0),
-                desc="Decrease floating window width",
-            ),
-            Key(
-                ["shift"],
-                "l",
-                lazy.function(move_floating, 4 * FLOAT_MV_INC, 0),
-                desc="Increase floating window width",
-            ),
-            Key(
-                ["shift"],
-                "j",
-                lazy.function(move_floating, 0, 4 * FLOAT_MV_INC),
-                desc="Increase floating window height",
-            ),
-            Key(
-                ["shift"],
-                "k",
-                lazy.function(move_floating, 0, -4 * FLOAT_MV_INC),
-                desc="Decrease floating window height",
+                desc="Move down",
             ),
             Key([], "x", lazy.window.kill(), desc="Kill focused window"),
         ],
         mode="FLOAT MV",
     ),
-    Key([win], "f", lazy.window.toggle_floating()),
+    Key([win], "f", lazy.window.toggle_floating(),
+        desc="Window: Toggle floating status"),
     # Qtile Management Actions
-    Key([win, "control"], "r", lazy.restart(), desc="Restart Qtile"),
+    Key([win, "control"], "r", lazy.restart(), desc="System: Restart Qtile"),
     Key(
         ["control", "shift"],
         "Escape",
         lazy.function(shutdown_reboot_menu),
-        desc="Start Shutdown/Reboot Menu with Rofi",
+        desc="System: Start Shutdown/Reboot Menu with Rofi",
     ),
     Key(
         [win, "control"],
         "s",
-        lazy.spawn("feh ~/Pictures/qtile_layout/"),
-        desc="View Qtile Key Map",
+        lazy.function(show_cheatsheet),
+        desc="Launch: Qtile Key Map View",
     ),
     Key(
         ["control", win],
         "l",
         lazy.spawn(f"i3lock -e -i {LOCK_WALLPAPER}"),
-        desc="Lock Session",
+        desc="System: Lock Session",
     ),
     # Launch Applications
     Key(
         [win, "shift"],
         "Return",
         lazy.spawn(f"{terminal} -e 'tmux'"),
-        desc="Launch tmux terminal",
+        desc="Launch: tmux terminal",
     ),
-    Key([win], "Return", lazy.spawn(f"{terminal}"), desc="Launch terminal"),
+    Key([win], "Return", lazy.spawn(
+        f"{terminal}"), desc=f"Launch: {terminal}"),
     Key(
         [win],
         "r",
@@ -743,9 +726,9 @@ keys = [
             "rofi -show-icons -modi run,drun,window,combi "
             "-combi-modi drun,window -show combi"
         ),
-        desc="launch rofi",
+        desc="Launch: rofi application start",
     ),
-    Key([win], "e", lazy.spawn("pcmanfm"), desc="Open File Manager"),
+    Key([win], "e", lazy.spawn("pcmanfm"), desc="Launch: pcmanfn"),
     Key(
         [win],
         "v",
@@ -753,14 +736,33 @@ keys = [
             f"{terminal} -t 'openvpn_console' -e "
             "'/home/hawo/scripts/vpn_connect.sh'"
         ),
-        desc="Start VPN connection",
+        desc="Connections: Start VPN",
+    ),
+    # Notifications
+    Key(
+        ["control", "shift"],
+        "space",
+        lazy.spawn("dunstctl close-all"),
+        desc="Notifications: Close all Notifications",
+    ),
+    Key(
+        ["control", "shift"],
+        "h",
+        lazy.spawn("dunstctl history-pop"),
+        desc="Notifications: Show Notification History",
+    ),
+    Key(
+        ["control", "shift"],
+        "a",
+        lazy.spawn("dunstctl action"),
+        desc="Notifications: Dunstctl default action",
     ),
     # VPN SELECTOR
     Key(
         [win, "shift"],
         "v",
         lazy.spawn("/home/hawo/scripts/vpn_kill.sh"),
-        desc="kill openvpn",
+        desc="Connections: Kill openVPN",
     ),
     Key(
         [win, alt],
@@ -769,82 +771,83 @@ keys = [
             f"rofi -show-icons -ssh-command '{terminal}"
             ' -e bash -c "ssh {host}"\' -modi ssh -show ssh'
         ),
-        desc="SSH Menu",
+        desc="Connections: SSH Menu",
     ),
-    Key([win, "shift"], "s", lazy.spawn("flameshot gui"), desc="Screenshot"),
+    Key([win, "shift"], "s", lazy.spawn(
+        "flameshot gui"), desc="Launch: Screenshot"),
     # Specific window Actions
     Key(
         [win],
         "a",
         lazy.spawn("rofi -show-icons -modi window -show window"),
-        desc="Show all windows in rofi (allow to switch)",
+        desc="Window: Show all in rofi (allow to switch)",
     ),
     Key(
         ["control", alt],
         "m",
         lazy.function(move_to_group_selector),
-        desc="Move current window to group using a rofi selector",
+        desc="Window: Move current to group using rofi",
     ),
     Key(
         [win],
         "g",
         lazy.function(group_switch_selector),
-        desc="Switch to group using a rofi selector",
+        desc="Group: Switch using rofi selector",
     ),
     # sound control
     Key(
         [alt],
         "F1",
         lazy.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle"),
-        desc="Mute Audio Out",
+        desc="Audio: Mute Audio Out",
     ),
     Key(
         [alt],
         "F2",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%"),
-        desc="Decrease Volume",
+        desc="Audio: Decrease Volume",
     ),
     Key(
         [alt],
         "F3",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%"),
-        desc="Increase Volume",
+        desc="Audio: Increase Volume",
     ),
     Key(
         [],
         "XF86AudioLowerVolume",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ -2%"),
-        desc="Decrease Volume",
+        desc="Audio: Decrease Volume",
     ),
     Key(
         [],
         "XF86AudioRaiseVolume",
         lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ +2%"),
-        desc="Increase Volume",
+        desc="Audio: Increase Volume",
     ),
     Key(
         [],
         "XF86AudioPlay",
         lazy.spawn("playerctl -p playerctld play-pause"),
-        desc="Play/Pause Media",
+        desc="Audio: Play/Pause Media",
     ),
     Key(
         [],
         "XF86AudioNext",
         lazy.spawn("playerctl -p playerctld next"),
-        desc="Next Track",
+        desc="Audio: Next Track",
     ),
     Key(
         [],
         "XF86AudioPrev",
         lazy.spawn("playerctl -p playerctld previous"),
-        desc="Previous Track",
+        desc="Audio: Previous Track",
     ),
     Key(
         [alt, "shift"],
         "o",
         lazy.function(audio_out_selector),
-        desc="Select pulseaudio sink",
+        desc="Audio: Select pulseaudio sink",
     ),
     # Clipboard Manager
     Key(
@@ -854,13 +857,13 @@ keys = [
             "rofi -modi 'clipboard:greenclip print' "
             "-show clipboard -run-command '{cmd}'"
         ),
-        desc="Show clipboard contents",
+        desc="System: Show clipboard contents",
     ),
     Key(
         ["control", alt],
         "e",
         lazy.spawn("/home/hawo/dotfiles/qtile/emoji_select.sh --rofi"),
-        desc="Emoji Selector using rofi",
+        desc="Launch: Emoji Selector using rofi",
     ),
     # Key(
     #     ["control", alt],
@@ -873,18 +876,23 @@ keys = [
         ["control", alt],
         "t",
         lazy.function(open_translate_window),
-        desc="Open translation terminal Interface.",
+        desc="Launch: Translation terminal Interface.",
     ),
     Key([alt, 'shift'],
         "s",
         lazy.function(scholar_search_cur_selection),
-        desc="Search current selection in google scholar."
+        desc="Launch: Search current selection in google scholar."
+        ),
+    Key([alt, 'shift'],
+        "f",
+        lazy.function(open_selection_in_firefox),
+        desc="Launch: Open current selection as URL in firefox."
         ),
     Key(
         [win],
         "c",
         lazy.spawn(f"{terminal} -t 'cht.sh' -e '/home/hawo/scripts/cht.sh'"),
-        desc="Open Cheat Sheet terminal",
+        desc="Launch: Cheat Sheet terminal",
     ),
     KeyChord(
         [win, alt],
@@ -933,8 +941,10 @@ keys = [
         ],
         mode="LIGHT CONTROL",
     ),
-    Key([win, alt], "t", lazy.function(spotify_mark)),
-    Key([win, "shift"], "t", lazy.function(current_track_notification)),
+    Key([win, alt], "t", lazy.function(spotify_mark),
+        desc="Audio: Mark current spotify track."),
+    Key([win, "shift"], "t", lazy.function(current_track_notification),
+        desc="Audio: Display notification with current track"),
 ]
 
 for n, i in enumerate(groups):
@@ -945,7 +955,7 @@ for n, i in enumerate(groups):
                 [win],
                 str(n + 1),
                 lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
+                desc="Group: Switch to {}".format(i.name),
             ),
             # win + shift + letter of group
             # = switch to & move focused window to group
@@ -953,7 +963,7 @@ for n, i in enumerate(groups):
                 [win, "shift"],
                 str(n + 1),
                 lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(
+                desc="Group: Switch to and move focused window {}".format(
                     i.name),
             ),
             # Or, use below if you prefer not to switch to that group.
@@ -1000,7 +1010,7 @@ layouts = [
 widget_defaults = dict(
     font="NotoSansMono Nerd Font Regular",
     # font='sans',
-    fontsize=24,
+    fontsize=28,
     padding=4,
 )
 extension_defaults = widget_defaults.copy()
@@ -1086,7 +1096,7 @@ screens = [
             background=reduce_brightness(colors[17], 0.8),
         ),
     )
-    for screen, (this_c, other_c) in enumerate([(colors[3], colors[14]), (colors[14], colors[3])])
+    for screen, (this_c, other_c) in enumerate([(colors[3], colors[10]), (colors[10], colors[3])])
 ]
 
 # Drag floating layouts.
@@ -1145,6 +1155,8 @@ floating_layout = layout.Floating(
         Match(title=re.compile(".*Import.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*Export.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*Confirm.*", flags=re.IGNORECASE)),
+        Match(title=re.compile(".*gpick.*", flags=re.IGNORECASE)),
+        Match(wm_class=re.compile(".*yad.*", flags=re.IGNORECASE)),
     ],
     border_focus=colors[5],
 )

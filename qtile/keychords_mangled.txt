@@ -1,0 +1,117 @@
+<span foreground='#8e733f'><b><tt>  AUDIO ACTIONS</tt></b></span>
+<span foreground='#c1a78e'><tt>    <b>alt + shift + s</b>: Search current selection in google scholar.</tt></span>
+<span foreground='#f17c64'><tt><b>  FLOAT MV (win + shift + alt + m)</b></tt></span>
+<span foreground='#8e733f'><tt>    <b>XF86AudioLowerVolume</b>: Decrease Volume</tt></span>
+<span foreground='#c1a78e'><tt>    <b>win + Return</b>: alacritty</tt></span>
+<span foreground='#f17c64'><tt>    <b>h</b>: Move left</tt></span>
+<span foreground='#8e733f'><tt>    <b>XF86AudioNext</b>: Next Track</tt></span>
+<span foreground='#c1a78e'><tt>    <b>win + c</b>: Cheat Sheet terminal</tt></span>
+<span foreground='#f17c64'><tt>    <b>j</b>: Move up</tt></span>
+<span foreground='#8e733f'><tt>    <b>XF86AudioPlay</b>: Play/Pause Media</tt></span>
+<span foreground='#c1a78e'><tt>    <b>win + control + s</b>: Qtile Key Map View</tt></span>
+<span foreground='#f17c64'><tt>    <b>k</b>: Move down</tt></span>
+<span foreground='#8e733f'><tt>    <b>XF86AudioPrev</b>: Previous Track</tt></span>
+<span foreground='#c1a78e'><tt>    <b>win + e</b>: pcmanfn</tt></span>
+<span foreground='#f17c64'><tt>    <b>l</b>: Move right</tt></span>
+<span foreground='#8e733f'><tt>    <b>XF86AudioRaiseVolume</b>: Increase Volume</tt></span>
+<span foreground='#c1a78e'><tt>    <b>win + r</b>: rofi application start</tt></span>
+<span foreground='#f17c64'><tt>    <b>x</b>: Kill focused window</tt></span>
+<span foreground='#8e733f'><tt>    <b>alt + F1</b>: Mute Audio Out</tt></span>
+<span foreground='#c1a78e'><tt>    <b>win + shift + Return</b>: tmux terminal</tt></span>
+<span foreground='#8e733f'><tt><b>  FLOAT RS (win + shift + alt + r)</b></tt></span>
+<span foreground='#8e733f'><tt>    <b>alt + F2</b>: Decrease Volume</tt></span>
+<span foreground='#c1a78e'><tt>    <b>win + shift + s</b>: Screenshot</tt></span>
+<span foreground='#8e733f'><tt>    <b>h</b>: Decrease floating width</tt></span>
+<span foreground='#8e733f'><tt>    <b>alt + F3</b>: Increase Volume</tt></span>
+<span foreground='#ce9bcb'><b><tt>  LAYOUT ACTIONS</tt></b></span>
+<span foreground='#8e733f'><tt>    <b>j</b>: Increase floating height</tt></span>
+<span foreground='#8e733f'><tt>    <b>alt + shift + o</b>: Select pulseaudio sink</tt></span>
+<span foreground='#ce9bcb'><tt>    <b>win + Tab</b>: Toggle between layouts</tt></span>
+<span foreground='#8e733f'><tt>    <b>k</b>: Decrease floating height</tt></span>
+<span foreground='#8e733f'><tt>    <b>win + alt + t</b>: Mark current spotify track.</tt></span>
+<span foreground='#ce9bcb'><tt>    <b>win + shift + Return</b>: Toggle stack split.</tt></span>
+<span foreground='#8e733f'><tt>    <b>l</b>: Increase floating width</tt></span>
+<span foreground='#8e733f'><tt>    <b>win + shift + t</b>: Display notification with current track</tt></span>
+<span foreground='#e49b5d'><b><tt>  NOTIFICATIONS</tt></b></span>
+<span foreground='#8e733f'><tt>    <b>x</b>: Kill focused window</tt></span>
+<span foreground='#99d59d'><b><tt>  CONNECTIONS</tt></b></span>
+<span foreground='#e49b5d'><tt>    <b>control + shift + a</b>: Dunstctl default action</tt></span>
+<span foreground='#99d59d'><tt><b>  LIGHT CONTROL (win + alt + l)</b></tt></span>
+<span foreground='#99d59d'><tt>    <b>win + alt + s</b>: SSH Menu</tt></span>
+<span foreground='#e49b5d'><tt>    <b>control + shift + h</b>: Show Notification History</tt></span>
+<span foreground='#99d59d'><tt>    <b>j</b>: Increment Lights by 10% Brightness</tt></span>
+<span foreground='#99d59d'><tt>    <b>win + shift + v</b>: Kill openVPN</tt></span>
+<span foreground='#e49b5d'><tt>    <b>control + shift + space</b>: Close all Notifications</tt></span>
+<span foreground='#99d59d'><tt>    <b>k</b>: Decrement Lights by 10% Brightness</tt></span>
+<span foreground='#99d59d'><tt>    <b>win + v</b>: Start VPN</tt></span>
+<span foreground='#ebc06d'><b><tt>  SYSTEM ACTIONS</tt></b></span>
+<span foreground='#99d59d'><tt>    <b>shift + b</b>: Toggle Bathroom Lights</tt></span>
+<span foreground='#b380b0'><b><tt>  GROUP ACTIONS</tt></b></span>
+<span foreground='#ebc06d'><tt>    <b>control + alt + c</b>: Show clipboard contents</tt></span>
+<span foreground='#99d59d'><tt>    <b>shift + f</b>: Toggle Hallway Lights</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 1</b>: Switch to main</tt></span>
+<span foreground='#ebc06d'><tt>    <b>control + win + l</b>: Lock Session</tt></span>
+<span foreground='#99d59d'><tt>    <b>shift + k</b>: Toggle Kitchen Lights</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 2</b>: Switch to alt</tt></span>
+<span foreground='#ebc06d'><tt>    <b>control + shift + Escape</b>: Start Shutdown/Reboot Menu with Rofi</tt></span>
+<span foreground='#99d59d'><tt>    <b>t</b>: Toggle Hawos Zimmer</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 3</b>: Switch to visu</tt></span>
+<span foreground='#ebc06d'><tt>    <b>win + control + r</b>: Restart Qtile</tt></span>
+<span foreground='#b380b0'><tt><b>  RESIZE (win + shift + r)</b></tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 4</b>: Switch to www</tt></span>
+<span foreground='#f17c64'><b><tt>  WINDOW ACTIONS</tt></b></span>
+<span foreground='#b380b0'><tt>    <b>h</b>: Grow left</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 5</b>: Switch to mail</tt></span>
+<span foreground='#f17c64'><tt>    <b>control + alt + m</b>: Move current to group using rofi</tt></span>
+<span foreground='#b380b0'><tt>    <b>j</b>: Grow down</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 6</b>: Switch to comms</tt></span>
+<span foreground='#f17c64'><tt>    <b>alt + F4</b>: Kill focused.</tt></span>
+<span foreground='#b380b0'><tt>    <b>k</b>: Grow up</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 7</b>: Switch to media</tt></span>
+<span foreground='#f17c64'><tt>    <b>alt + Tab</b>: Move window focus to other.</tt></span>
+<span foreground='#b380b0'><tt>    <b>l</b>: Grow right</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + 8</b>: Switch to background</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + a</b>: Show all in rofi (allow to switch)</tt></span>
+<span foreground='#b380b0'><tt>    <b>n</b>: Reset sizes</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + g</b>: Switch using rofi selector</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + f</b>: Toggle floating status</tt></span>
+<span foreground='#b380b0'><tt>    <b>x</b>: Kill focused</tt></span>
+<span foreground='#b380b0'><tt>    <b>win + shift + 1</b>: Switch to and move focused window main</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + h</b>: Focus left</tt></span>
+
+<span foreground='#b380b0'><tt>    <b>win + shift + 2</b>: Switch to and move focused window alt</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + j</b>: Focus down</tt></span>
+
+<span foreground='#b380b0'><tt>    <b>win + shift + 3</b>: Switch to and move focused window visu</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + k</b>: Focus up</tt></span>
+
+<span foreground='#b380b0'><tt>    <b>win + shift + 4</b>: Switch to and move focused window www</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + l</b>: Focus right</tt></span>
+
+<span foreground='#b380b0'><tt>    <b>win + shift + 5</b>: Switch to and move focused window mail</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + n</b>: Focus next screen.</tt></span>
+
+<span foreground='#b380b0'><tt>    <b>win + shift + 6</b>: Switch to and move focused window comms</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + shift + f</b>: Bring currently focused floating window to front.</tt></span>
+
+<span foreground='#b380b0'><tt>    <b>win + shift + 7</b>: Switch to and move focused window media</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + shift + h</b>: Move left</tt></span>
+
+<span foreground='#b380b0'><tt>    <b>win + shift + 8</b>: Switch to and move focused window background</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + shift + j</b>: Move down</tt></span>
+
+<span foreground='#c1a78e'><b><tt>  LAUNCH</tt></b></span>
+<span foreground='#f17c64'><tt>    <b>win + shift + k</b>: Move up</tt></span>
+
+<span foreground='#c1a78e'><tt>    <b>control + alt + e</b>: Emoji Selector using rofi</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + shift + l</b>: Move right</tt></span>
+
+<span foreground='#c1a78e'><tt>    <b>control + alt + t</b>: Translation terminal Interface.</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + shift + n</b>: Focus next screen</tt></span>
+
+<span foreground='#c1a78e'><tt>    <b>alt + shift + f</b>: Open current selection as URL in firefox.</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + space</b>: Toggle fullscreen for current window.</tt></span>
+
+
+<span foreground='#f17c64'><tt>    <b>win + w</b>: Kill focused.</tt></span>
+
