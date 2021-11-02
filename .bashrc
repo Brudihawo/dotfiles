@@ -43,6 +43,15 @@ case ${TERM} in
     ;;
 esac
 
+if [[ $TERM == "linux" ]]; then
+  top_chars=""
+  bottom_chars="==>"
+else
+  top_chars="╭─"
+  bottom_chars="╰─❯"
+fi
+
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/hawo/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
@@ -107,9 +116,9 @@ if ${use_color} ; then
   fi
 
   if [[ ${EUID} == 0 ]] ; then
-    PS1='\[\033[01;33m\] ╭─ \[\033[00m\]\A \[\033[01;31m\]\h\[\033[01;36m\]: '"\$(modified_path)"'\[\033[01;31m\]\[\033[01;33m\]\n ╰─❯ \[\033[00m\]'
+    PS1='\[\033[01;33m\] '"$top_chars"' \[\033[00m\]\A \[\033[01;31m\]\h\[\033[01;36m\]: '"\$(modified_path)"'\[\033[01;31m\]\[\033[01;33m\]\n '"$bottom_chars"' \[\033[00m\]'
   else
-    PS1='\[\033[01;33m\] ╭─ \[\033[00;35m\]'"\$(check_conda_env)"' \[\033[00m\]\A \[\033[01;34m\]\u\[\033[01;33m\]@\h\[\033[01;37m\]: '"\$(modified_path)"'\[\033[01;32m\]\[\033[00m\]\n\[\033[01;33m\] ╰─❯ \[\033[00m\]'
+    PS1='\[\033[01;33m\] '"$top_chars"' \[\033[00;35m\]'"\$(check_conda_env)"' \[\033[00m\]\A \[\033[01;34m\]\u\[\033[01;33m\]@\h\[\033[01;37m\]: '"\$(modified_path)"'\[\033[01;32m\]\[\033[00m\]\n\[\033[01;33m\] '"$bottom_chars"' \[\033[00m\]'
   fi
 
   alias ls='ls --color=auto'
@@ -182,6 +191,10 @@ export MANPAGER='nvim +Man!'
 export PATH="$PATH:~/bin:/home/hawo/.cargo/bin:/opt/rocm/bin/"
 export MATLABDIR="/home/hawo/local/MATLAB/"
 export EDITOR=nvim
+
+# NNN
+export NNN_PLUG='o:fzopen;v:imgview;r:renamer;d:diffs'
+export NNN_FIFO=/tmp/nnn.fifo
 
 source ~/dotfiles/bash_functions.sh
 source /usr/share/fzf/completion.bash
