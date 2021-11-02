@@ -432,7 +432,7 @@ def reduce_brightness(hex_color, factor):
     return "#{}{}{}".format(red, green, blue)
 
 
-colors = [
+gruvbox_colors = [
     "#282828",  # color0
     "#cc241d",  # color1
     "#98971a",  # color2
@@ -453,7 +453,27 @@ colors = [
     "#1d2021",  # background
 ]
 
-# constants
+melange_colors = [
+    "#2a2520",  # color0
+    "#7d2a2f",  # color1
+    "#78997a",  # color2
+    "#e49b5d",  # color3
+    "#697893",  # color4
+    "#b380b0",  # color5
+    "#86a3a3",  # color6
+    "#ece1d7",  # color7
+    "#8e733f",  # color8
+    "#f17c64",  # color9
+    "#78997a",  # color10
+    "#ebc06d",  # color11
+    "#88b3b2",  # color12
+    "#ce9bcb",  # color13
+    "#99d59d",  # color14
+    "#ece1d7",  # color15
+    "#c1a78e",  # foreground
+    "#352f2a",  # background
+]
+
 FLOAT_RS_INC = 20
 FLOAT_MV_INC = 20
 

@@ -4,12 +4,11 @@ configuration {
   width: 1920;
   lines: 24;
   columns: 1;
-  terminal: "termite";
+  terminal: "alacritty";
   matching: "fuzzy";
   sort: true;
   sorting-method: "fzf";
-  font: "Noto Sans Mono 20";
+  font: "Noto Sans Mono 32";
 }
 
-/* @import "~/.cache/wal/colors-rofi-dark" */
-@import "gruvbox-dark.rasi"
+@import "~/.config/rofi/colorscheme.rasi"

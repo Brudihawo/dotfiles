@@ -17,7 +17,7 @@
 #env:
   # TERM variable
   #
-  # This value is used to set the `alacritty` environment variable for
+  # This value is used to set the `$TERM` environment variable for
   # each instance of Alacritty. If it is not present, alacritty will
   # check the local terminfo database and use `alacritty` if it is
   # available, otherwise `xterm-256color` is used.
@@ -179,8 +179,8 @@ font:
 colors:
   # Default colors
   primary:
-   background: '#2a2520'
-   foreground: '#c1a78e'
+   background: '${color0}'
+   foreground: '${foreground}'
 
     # Bright and dim foreground colors
     #
@@ -209,7 +209,7 @@ colors:
   # affected cell, or hexadecimal colors like #ff00ff.
   vi_mode_cursor:
    text: CellBackground
-   cursor: '#7d2a2f'
+   cursor: '${color1}'
 
   # Search colors
   #
@@ -218,11 +218,11 @@ colors:
     # Allowed values are CellForeground/CellBackground, which reference the
     # affected cell, or hexadecimal colors like #ff00ff.
     matches:
-     foreground: '#ece1d7'
-     background: '#f17c64'
+     foreground: '${color15}'
+     background: '${color9}'
     focused_match:
-     foreground: '#ece1d7'
-     background: '#ebc06d'
+     foreground: '${color15}'
+     background: '${color11}'
 
     # bar:
     #  background: '#c5c8c6'
@@ -235,16 +235,16 @@ colors:
     # Allowed values are CellForeground/CellBackground, which reference the
     # affected cell, or hexadecimal colors like #ff00ff.
     start:
-     foreground: '#c1a78e'
-     background: '#99d59d'
+     foreground: '${foreground}'
+     background: '${color14}'
 
     # All characters after the first one in the hint label
     #
     # Allowed values are CellForeground/CellBackground, which reference the
     # affected cell, or hexadecimal colors like #ff00ff.
     end:
-     foreground: '#c1a78e'
-     background: '#99d59d'
+     foreground: '${foreground}'
+     background: '${color14}'
 
   # Line indicator
   #
@@ -268,39 +268,39 @@ colors:
 
   # Normal colors
   normal:
-   black:   '#2a2520'
-   red:     '#7d2a2f'
-   green:   '#78997a'
-   yellow:  '#e49b5d'
-   blue:    '#697893'
-   magenta: '#b380b0'
-   cyan:    '#86a3a3'
-   white:   '#ece1d7'
+   black:   '${color0}'
+   red:     '${color1}'
+   green:   '${color2}'
+   yellow:  '${color3}'
+   blue:    '${color4}'
+   magenta: '${color5}'
+   cyan:    '${color6}'
+   white:   '${color7}'
 
   # Bright colors
   bright:
-    black:   '#8e733f'
-    red:     '#f17c64'
-    green:   '#78997a'
-    yellow:  '#ebc06d'
-    blue:    '#88b3b2'
-    magenta: '#ce9bcb'
-    cyan:    '#99d59d'
-    white:   '#ece1d7'
+    black:   '${color8}'
+    red:     '${color9}'
+    green:   '${color10}'
+    yellow:  '${color11}'
+    blue:    '${color12}'
+    magenta: '${color13}'
+    cyan:    '${color14}'
+    white:   '${color15}'
 
   # Dim colors
   #
   # If the dim colors are not set, they will be calculated automatically based
   # on the `normal` colors.
   dim:
-    black:   '#2a2520'
-    red:     '#7d2a2f'
-    green:   '#78997a'
-    yellow:  '#e49b5d'
-    blue:    '#697893'
-    magenta: '#b380b0'
-    cyan:    '#86a3a3'
-    white:   '#ece1d7'
+    black:   '${color0}'
+    red:     '${color1}'
+    green:   '${color2}'
+    yellow:  '${color3}'
+    blue:    '${color4}'
+    magenta: '${color5}'
+    cyan:    '${color6}'
+    white:   '${color7}'
 
   # Indexed Colors
   #

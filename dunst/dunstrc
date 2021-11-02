@@ -18,6 +18,7 @@
     follow = mouse
 
     # The geometry of the window:
+    # DEPRECATED
     #   [{width}]x{height}[+/-{x}+/-{y}]
     # The geometry of the message window.
     # The height is measured in number of notifications everything else
@@ -29,7 +30,11 @@
     # the top and down respectively.
     # The width can be negative.  In this case the actual width is the
     # screen width minus the width defined in within the geometry option.
-    geometry = "1000x0-30+70"
+    width=(0, 1000)
+    height=400
+    origin=top-right
+    offset=30x70
+    progress_bar_height=10
 
     # Show how many messages are currently hidden (because of geometry).
     indicate_hidden = yes
@@ -42,11 +47,6 @@
     # This option will only work if a compositing window manager is
     # present (e.g. xcompmgr, compiz, etc.).
     transparency = 10
-
-    # The height of the entire notification.  If the height is smaller
-    # than the font height and padding combined, it will be raised
-    # to the font height and padding.
-    notification_height = 0
 
     # Draw a line of "separator_height" pixel height between two
     # notifications.
@@ -147,7 +147,7 @@
 
     # When word_wrap is set to no, specify where to make an ellipsis in long lines.
     # Possible values are "start", "middle" and "end".
-    ellipsize = middle
+    ellipsize = end
 
     # Ignore newlines '\n' in notifications.
     ignore_newline = no
@@ -191,7 +191,7 @@
     dmenu = /usr/bin/rofi -dmenu -p dunst:
 
     # Browser for opening urls in context menu.
-    browser = /usr/bin/opera -new-tab
+    browser = /usr/bin/firefox --new-tab
 
     # Always run rule-defined scripts, even if the notification is suppressed
     always_run_script = true
@@ -201,20 +201,6 @@
 
     # Define the class of the windows spawned by dunst
     class = Dunst
-
-    # Print a notification on startup.
-    # This is mainly for error detection, since dbus (re-)starts dunst
-    # automatically after a crash.
-    startup_notification = false
-
-    # Manage dunst's desire for talking
-    # Can be one of the following values:
-    #  crit: Critical features. Dunst aborts
-    #  warn: Only non-fatal warnings
-    #  mesg: Important Messages
-    #  info: all unimportant stuff
-    # debug: all less than unimportant stuff
-    verbosity = mesg
 
     # Define the corner radius of the notification window
     # in pixel size. If the radius is 0, you have no rounded
@@ -266,27 +252,6 @@
     # where there are multiple screens with very different dpi values.
     per_monitor_dpi = false
 
-[shortcuts]
-
-    # Shortcuts are specified as [modifier+][modifier+]...key
-    # Available modifiers are "ctrl", "mod1" (the alt-key), "mod2",
-    # "mod3" and "mod4" (windows-key).
-    # Xev might be helpful to find names for keys.
-
-    # Close notification.
-    close = ctrl+space
-
-    # Close all notifications.
-    close_all = ctrl+shift+space
-
-    # Redisplay last message(s).
-    # On the US keyboard layout "grave" is normally above TAB and left
-    # of "1". Make sure this key actually exists on your keyboard layout,
-    # e.g. check output of 'xmodmap -pke'
-    history = ctrl+shift+h
-
-    # Context menu
-    context = ctrl+mod1+space
 
 [urgency_low]
     # IMPORTANT: colors have to be defined in quotation marks.

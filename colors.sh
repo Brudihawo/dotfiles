@@ -1,62 +1,41 @@
 #!/bin/bash
 
-xres_file="/home/brudihawo/.Xresources"
-theme_file="/home/brudihawo/.config/awesome/themes/wal_theme/theme.lua"
-qtile_file="/home/brudihawo/.config/qtile/config.py"
-dunst_file="/home/brudihawo/.config/dunst/dunstrc"
+# Just do source ~/this_filename for color definitions
 
-. /home/brudihawo/.cache/wal/colors.sh
+color0="#2a2520"
+color1="#7d2a2f"
+color2="#78997a"
+color3="#e49b5d"
+color4="#697893"
+color5="#b380b0"
+color6="#86a3a3"
+color7="#ece1d7"
+color8="#8e733f"
+color9="#f17c64"
+color10="#78997a"
+color11="#ebc06d"
+color12="#88b3b2"
+color13="#ce9bcb"
+color14="#99d59d"
+color15="#ece1d7"
+background="#352f2a"
+foreground="#c1a78e"
 
-colors=( \
-"$color0"
-"$color1"
-"$color2"
-"$color3"
-"$color4"
-"$color5"
-"$color6"
-"$color7"
-"$color8"
-"$color9"
-"$color10"
-"$color11"
-"$color12"
-"$color13"
-"$color14"
-"$color15"
-"$background"
-"$foreground"
-)
-color_names=( \
-"color0"
-"color1"
-"color2"
-"color3"
-"color4"
-"color5"
-"color6"
-"color7"
-"color8"
-"color9"
-"color10"
-"color11"
-"color12"
-"color13"
-"color14"
-"color15"
-"background"
-"foreground"
-)
-
-i=0
-while [ $i -lt 18 ]; do
-  echo "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\""
-  sed -i --follow-symlinks "/${color_names[$i]}"'=/c\'"${color_names[$i]}=\"${colors[$i]}\"" $theme_file
-  sed -i --follow-symlinks "/${color_names[$i]}"':/c\'"${color_names[$i]}: \"${colors[$i]}\"" $xres_file
-  sed -i --follow-symlinks "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $qtile_file
-  sed -i --follow-symlinks "/clr_${color_names[$i]}"' = /c\'"clr_${color_names[$i]} = \"${colors[$i]}\"" $dunst_file
-  i=$(($i + 1))
-done
-
-xrdb $xres_file
-# echo 'awesome.restart()' | awesome-client
+export color0="#2a2520"
+export color1="#7d2a2f"
+export color2="#78997a"
+export color3="#e49b5d"
+export color4="#697893"
+export color5="#b380b0"
+export color6="#86a3a3"
+export color7="#ece1d7"
+export color8="#8e733f"
+export color9="#f17c64"
+export color10="#78997a"
+export color11="#ebc06d"
+export color12="#88b3b2"
+export color13="#ce9bcb"
+export color14="#99d59d"
+export color15="#ece1d7"
+export background="#352f2a"
+export foreground="#c1a78e"
