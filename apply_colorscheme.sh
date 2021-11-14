@@ -47,19 +47,19 @@ melange_colors=(
   "#7d2a2f"  # color1
   "#78997a"  # color2
   "#e49b5d"  # color3
-  "#697893"  # color4
+  "#485f84"  # color4
   "#b380b0"  # color5
-  "#86a3a3"  # color6
-  "#ece1d7"  # color7
-  "#8e733f"  # color8
-  "#f17c64"  # color9
-  "#78997a"  # color10
-  "#ebc06d"  # color11
-  "#88b3b2"  # color12
+  "#729893"  # color6
+  "#8e733f"  # color7
+  "#4d453e"  # color8
+  "#c65333"  # color9
+  "#99d59d"  # color10
+  "#d7898c"  # color11
+  "#697893"  # color12
   "#ce9bcb"  # color13
-  "#99d59d"  # color14
+  "#86a3a3"  # color14
   "#ece1d7"  # color15
-  "#c1a78e"  # foreground
+  "#f4f0ed"  # foreground
   "#352f2a"  # background
 )
 
@@ -105,4 +105,3 @@ cp ~/dotfiles/alacritty/alacritty.yml ~/dotfiles/alacritty/alacritty.yml.old
 source ~/dotfiles/colors.sh
 cat ~/dotfiles/alacritty/skeleton.yml | envsubst > ~/dotfiles/alacritty/alacritty.yml
 qtile cmd-obj -o cmd -f restart
-

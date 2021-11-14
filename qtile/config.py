@@ -40,6 +40,7 @@ from libqtile.widget import base
 
 BRIDGE = HueBridge("hawos_bridge")
 LOCK_WALLPAPER = "/usr/share/wallpapers/hex_melange_2_lock.png"
+WALLPAPER = "/usr/share/wallpapers/hex_melange_2.png"
 
 
 def send_notification(message, app, urgency="normal", icon=None):
@@ -224,29 +225,29 @@ def rofi_selector(option_string, prompt):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
-    child_process.stdin.write(option_string.encode("ascii"))
-    return child_process.communicate()[0].decode("ascii").strip("\n")
+    child_process.stdin.write(option_string.encode("utf-8"))
+    return child_process.communicate()[0].decode("utf-8").strip("\n")
 
 
 def move_to_group_selector(qtile):
     """Move window to a group with a rofi selector."""
     active_win = qtile.current_window
     str_groups = "\n".join([
-        f"{index:4} -> {g.label}" for index,
+        f"{index:4} {g.label} \uf942 {g.name}" for index,
         g in enumerate(qtile.groups, start=1)
     ])
-    target = re.split(r" -> ", rofi_selector(str_groups, "chose group"))[-1]
+    target = re.split(r"\s+", rofi_selector(str_groups, "chose group"))[-1]
     active_win.cmd_togroup(target)
 
 
 def group_switch_selector(qtile):
     """Switch focus to a group with a selector."""
     str_groups = "\n".join([
-        f"{index:4} -> {g.label}" for index,
+        f"{index:4} {g.label} \uf942 {g.name}" for index,
         g in enumerate(qtile.groups, start=1)
     ])
-    target = re.split(r" -> ", rofi_selector(str_groups, "chose group"))[0]
-    qtile.groups[int(target) - 1].cmd_toscreen()
+    target = re.split("\s+", rofi_selector(str_groups, "chose group"))
+    qtile.groups[int(target[1]) - 1].cmd_toscreen()
 
 
 def shutdown_reboot_menu(qtile):
@@ -418,15 +419,15 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
         sym = self.get_indicators()
         out = " "
 
-        if sym[0] == "on":
-            out += "\u21EA"
+        if sym[0] == "on":  # Caps Lock
+            out += u"\uf55f"
         else:
-            out += "_"
+            out += u"\uf48b"
 
-        if sym[1] == "on":
-            out += "\u21ED"
+        if sym[1] == "on":  # Num Lock
+            out += u"\uf560"
         else:
-            out += "_"
+            out += u"\uf48b"
 
         return out + " "
 
@@ -438,6 +439,14 @@ def reduce_brightness(hex_color, factor):
     red = f"{int(float(factor) * int(hex_color[1:3], 16)):#0{4}x}"[2:4]
     green = f"{int(float(factor) * int(hex_color[3:5], 16)):#0{4}x}"[2:4]
     blue = f"{int(float(factor) * int(hex_color[5:7], 16)):#0{4}x}"[2:4]
+    return "#{}{}{}".format(red, green, blue)
+
+
+def invert_color(hex_color):
+    """Invert Hex color."""
+    red = f"{255 - int(hex_color[1:3], 16):#0{4}x}"[2:4]
+    green = f"{255 - int(hex_color[3:5], 16):#0{4}x}"[2:4]
+    blue = f"{255 - int(hex_color[5:7], 16):#0{4}x}"[2:4]
     return "#{}{}{}".format(red, green, blue)
 
 
@@ -485,26 +494,32 @@ melange_colors = [
     "#7d2a2f",  # color1
     "#78997a",  # color2
     "#e49b5d",  # color3
-    "#697893",  # color4
+    "#485f84",  # color4
     "#b380b0",  # color5
-    "#86a3a3",  # color6
-    "#ece1d7",  # color7
-    "#8e733f",  # color8
-    "#f17c64",  # color9
-    "#78997a",  # color10
-    "#ebc06d",  # color11
-    "#88b3b2",  # color12
+    "#729893",  # color6
+    "#8e733f",  # color7
+
+    "#4d453e",  # color8
+    "#c65333",  # color9
+    "#99d59d",  # color10
+    "#d7898c",  # color11
+    "#697893",  # color12
     "#ce9bcb",  # color13
-    "#99d59d",  # color14
+    "#86a3a3",  # color14
     "#ece1d7",  # color15
-    "#c1a78e",  # foreground
+
+    "#f4f0ed",  # foreground
     "#352f2a",  # background
 ]
 
 colors = melange_colors
 
-FLOAT_RS_INC = 20
-FLOAT_MV_INC = 20
+xrandr_out = subprocess_output(["xrandr", "--listmonitors"]).split("\n")[1]
+px_x, px_y = [int(d) for d
+              in re.search(" (\d+)/\d+x(\d+)/", xrandr_out).groups()]
+
+FLOAT_RS_INC = int(px_x * 0.01)
+FLOAT_MV_INC = int(px_x * 0.01)
 
 # keys
 win = "mod4"
@@ -512,35 +527,57 @@ alt = "mod1"
 
 terminal = "alacritty"
 
+group_names = [
+    "main",
+    "alt",
+    "visu",
+    "www",
+    "mail",
+    "comms",
+    "media",
+    "background"
+]
+
+group_syms = [
+    u"\uf015",  # House
+    u"\uf46d",  # Another House
+    u"\uf06e",  # Eye
+    u"\uf484",  # Globe
+    u"\uf6ef",  # Mail
+    u"\uf0e6",  # Speech Bubbles
+    u"\uf26c",  # Screen
+    u"\uf756",  # Folder
+]
 
 groups = [
-    Group("main"),
-    Group("alt"),
-    Group("visu", matches=[Match(wm_instance_class="paraview")]),
-    Group("www", matches=[Match(wm_class="firefox"), Match(wm_class="Opera")]),
-    Group(
-        "mail",
+    Group(group_names[0], label=group_syms[0]),
+    Group(group_names[1], label=group_syms[1]),
+    Group(group_names[2], label=group_syms[2],
+        matches=[Match(wm_instance_class="paraview")]
+    ),
+    Group(group_names[3], label=group_syms[3],
+        matches=[Match(wm_class="firefox"), Match(wm_class="Opera")]
+    ),
+    Group(group_names[4], label=group_syms[4],
         matches=[
             Match(wm_class=["Mail", "Thunderbird"]),
             Match(wm_class=["Rocket.Chat"]),
         ],
     ),
-    Group(
-        "comms",
+    Group(group_names[5], label=group_syms[5],
         matches=[
             Match(wm_class=re.compile(".*telegram.*", flags=re.IGNORECASE)),
             Match(wm_class=re.compile(".*whatsapp.*", flags=re.IGNORECASE)),
             Match(wm_class=re.compile(".*signal.*", flags=re.IGNORECASE)),
         ],
     ),
-    Group(
-        "media",
+    Group(group_names[6], label=group_syms[6],
         matches=[
             Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE)),
             Match(title=re.compile(".*spotify.*", flags=re.IGNORECASE)),
         ],
     ),
-    Group("background"),
+    Group(group_names[7], label=group_syms[7]),
 ]
 
 keys = [
@@ -949,24 +986,24 @@ keys = [
         desc="Audio: Display notification with current track"),
 ]
 
-for n, i in enumerate(groups):
+for n, grp in enumerate(groups):
     keys.extend(
         [
             # win + letter of group = switch to group
             Key(
                 [win],
                 str(n + 1),
-                lazy.group[i.name].toscreen(),
-                desc="Group: Switch to {}".format(i.name),
+                lazy.group[grp.name].toscreen(),
+                desc="Group: Switch to {}".format(group_names[n]),
             ),
             # win + shift + letter of group
             # = switch to & move focused window to group
             Key(
                 [win, "shift"],
                 str(n + 1),
-                lazy.window.togroup(i.name, switch_group=True),
+                lazy.window.togroup(grp.name, switch_group=True),
                 desc="Group: Switch to and move focused window {}".format(
-                    i.name),
+                    grp.name),
             ),
             # Or, use below if you prefer not to switch to that group.
             # # win + shift + letter of group = move focused window to group
@@ -975,7 +1012,7 @@ for n, i in enumerate(groups):
         ]
     )
 MARGIN = 12
-BORDER_WIDTH = 4
+BORDER_WIDTH = 1
 FOCUS_BORDER = colors[15]
 NORMAL_BORDER = colors[4]
 
@@ -1012,68 +1049,104 @@ layouts = [
 widget_defaults = dict(
     font="NotoSansMono Nerd Font Regular",
     # font='sans',
-    fontsize=28,
-    padding=4,
+    fontsize=int(px_y * 0.013),
+    padding=int(px_y * 0.001),
 )
+
 extension_defaults = widget_defaults.copy()
+bar_margin = int(px_y * 0.006)
+bar_height = int(px_y * 0.025)
 
 
-def spacer(color):
+def spacer(fore, back, dir="l", padding=0):
     """Spacer in bar with color 'color'."""
-    return widget.Sep(size_percent=80, padding=4,
-                      linewidth=2, foreground=color)
+    # return widget.Sep(size_percent=80, padding=4,
+    #                   linewidth=2, foreground=color)
+    if dir == "l":
+        return widget.TextBox(text=u"\ue0b6", fontsize=bar_height,
+                              padding=padding,
+                              foreground=fore, background=back)
+    else:
+        return widget.TextBox(text=u"\ue0b4", fontsize=bar_height,
+                              padding=padding,
+                              foreground=fore, background=back)
 
 
 def gen_widgets(this_c, other_c, screen):
     widgetlist = [
+        spacer(this_c, None, dir="l"),
         widget.Chord(
-            foreground=colors[11],
-            background=reduce_brightness(colors[4], 0.8),
+            foreground=colors[0],
+            background=this_c,
+            fmt=u"\uf085 {}  ",
         ),
-        # widget.CurrentLayout(foreground=colors[16]),
         widget.GroupBox(
-            highlight_method="block",
-            borderwidth=0,
-            padding=7,
-            # fmt="<span weight='bold>{}</span>",
-            block_highlight_text_color=colors[17],
-            this_current_screen_border=this_c,
-            this_screen_border=this_c,
-            other_current_screen_border=other_c,
-            other_screen_border=other_c,
+            spacing=bar_margin,
+            borderwidth=int(px_y * 0.003),
+            highlight_method="line",
+            highlight_color=[this_c, this_c],
+            background=this_c,
+            foreground=colors[0],
+
+            this_screen_border=colors[17],
+            other_screen_border=colors[17],
+
+            this_current_screen_border=colors[16],
+            other_current_screen_border=colors[16],
+
             urgent_border=colors[16],
             urgent_text=colors[17],
+
+            active=colors[16],
+            inactive=colors[17],
             disable_drag=True,
-            inactive=this_c,
-            active=colors[5],
             hide_unused=False,
         ),
-        spacer(this_c),
-        widget.WindowCount(show_zero=True),
-        spacer(this_c),
-        widget.WindowName(foreground=colors[16]),
-        # widget.CheckUpdates(display_format=u'\U0001F504 {updates}'),
-        spacer(this_c),
+        spacer(this_c, None, dir="r"),
+
+        spacer(colors[0], None, dir="l"),
+        widget.WindowName(
+            foreground=this_c, background=colors[0],
+        ),
+        spacer(colors[0], None, dir="r"),
+
+        spacer(colors[0], None, dir="l"),
         widget.Memory(
-            foreground=colors[6], format="RAM: {MemUsed: .0f} MB"),
-        spacer(this_c),
+            foreground=colors[6],
+            background=colors[0],
+            format="RAM: {MemUsed: .0f} MB  "),
+        # spacer(this_c),
         widget.CPU(
-            foreground=colors[3],
-            format="CPU @ {freq_current} GHz {load_percent:3.0f}% ->",
+            foreground=colors[11],
+            background=colors[0],
+            format="CPU @ {freq_current} GHz {load_percent:3.0f}%"
+        ),
+        widget.TextBox(
+            foreground=colors[16],
+            background=colors[0],
+            text=u" \uf942 "
         ),
         widget.ThermalSensor(
-            foreground=colors[10], foreground_alert=colors[9]),
-        spacer(this_c),
+            foreground=colors[6],
+            background=colors[0],
+            foreground_alert=colors[9]),
+        spacer(colors[0], None, dir="r"),
+
+        spacer(colors[0], None, dir="l"),
         widget.Net(
             format="{down}",
             foreground=colors[6],
+            background=colors[0],
         ),
-        widget.TextBox(text="\u21D3 | \u21D1"),
-        widget.Net(format="{up}", foreground=colors[3]),
-        spacer(this_c),
-        widget.Volume(),
-        # widget.Open_Weather(cityid="Karlsruhe",
-        #                     app_key="552454590f5ac95df45d0d8b5b92bb64"),
+        widget.TextBox(text=u" \uf0ab | \uf0aa ", background=colors[0]),
+        widget.Net(format="{up}", foreground=colors[11], background=colors[0]),
+        spacer(colors[0], None, dir="r"),
+
+        spacer(this_c, None, dir="l"),
+        widget.Volume(
+            background=this_c,
+            foreground=colors[0],
+        ),
         CapsNumLockIndicator_Nice(
             background=this_c, foreground=colors[17]),
         widget.Clock(
@@ -1082,6 +1155,7 @@ def gen_widgets(this_c, other_c, screen):
             background=this_c,
         ),
         widget.CurrentLayoutIcon(scale=0.8, background=this_c),
+        spacer(this_c, None, dir="r"),
     ]
     if screen == 0:
         widgetlist.insert(-2, widget.Systray(padding=7, background=this_c))
@@ -1093,12 +1167,13 @@ screens = [
     Screen(
         top=bar.Bar(
             gen_widgets(this_c, other_c, screen),
-            40,
-            margin=[0, 0, 0, 0],
-            background=reduce_brightness(colors[17], 0.8),
+            bar_height,
+            margin=[bar_margin, 0, 0, 0],
+            background="#00000000",
         ),
     )
-    for screen, (this_c, other_c) in enumerate([(colors[3], colors[10]), (colors[10], colors[3])])
+    for screen, (this_c, other_c) in enumerate([(colors[3], colors[2]),
+                                                (colors[2], colors[3])])
 ]
 
 # Drag floating layouts.
@@ -1159,8 +1234,9 @@ floating_layout = layout.Floating(
         Match(title=re.compile(".*Confirm.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*gpick.*", flags=re.IGNORECASE)),
         Match(wm_class=re.compile(".*yad.*", flags=re.IGNORECASE)),
+        Match(title=re.compile(".*clocks.*", flags=re.IGNORECASE)),
     ],
-    border_focus=colors[5],
+    border_focus=colors[16],
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
@@ -1176,11 +1252,13 @@ focus_on_window_activation = "smart"
 wmname = "LG3D"
 
 
-@hook.subscribe.startup_complete
+@hook.subscribe.startup_once
 def autostart():
     """Autostart functions."""
     home = os.path.expanduser("~")
-    subprocess.call(home + "/.config/qtile/autostart.sh")
+    subprocess.call([home + "/.config/qtile/autostart.sh",
+                     WALLPAPER,
+                     LOCK_WALLPAPER])
 
 
 # @hook.subscribe.client_managed

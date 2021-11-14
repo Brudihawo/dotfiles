@@ -1,6 +1,8 @@
 #!/bin/bash
 
 source ~/dotfiles/colors.sh
+WALLPAPER=$1
+LOCK_WALLPAPER=$2
 
 export EDITOR="$(if [[ -n $DISPLAY ]]; then echo 'alacritty -e nvim'; else echo 'nvim'; fi)"
 
@@ -16,4 +18,4 @@ amixer -c 2 sset Speaker 151 &
 greenclip daemon &
 flameshot &
 redshift -l 49:8.4 &
-xss-lock -- i3lock -e -i /usr/share/wallpapers/julia_set_multicolor_lock.png &
+xss-lock -- i3lock -e -i $LOCK_WALLPAPER &

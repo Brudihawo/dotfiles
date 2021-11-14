@@ -180,7 +180,7 @@ colors:
   # Default colors
   primary:
    background: '#2a2520'
-   foreground: '#c1a78e'
+   foreground: '#f4f0ed'
 
     # Bright and dim foreground colors
     #
@@ -219,10 +219,10 @@ colors:
     # affected cell, or hexadecimal colors like #ff00ff.
     matches:
      foreground: '#ece1d7'
-     background: '#f17c64'
+     background: '#c65333'
     focused_match:
      foreground: '#ece1d7'
-     background: '#ebc06d'
+     background: '#d7898c'
 
     # bar:
     #  background: '#c5c8c6'
@@ -235,16 +235,16 @@ colors:
     # Allowed values are CellForeground/CellBackground, which reference the
     # affected cell, or hexadecimal colors like #ff00ff.
     start:
-     foreground: '#c1a78e'
-     background: '#99d59d'
+     foreground: '#f4f0ed'
+     background: '#86a3a3'
 
     # All characters after the first one in the hint label
     #
     # Allowed values are CellForeground/CellBackground, which reference the
     # affected cell, or hexadecimal colors like #ff00ff.
     end:
-     foreground: '#c1a78e'
-     background: '#99d59d'
+     foreground: '#f4f0ed'
+     background: '#86a3a3'
 
   # Line indicator
   #
@@ -272,20 +272,20 @@ colors:
    red:     '#7d2a2f'
    green:   '#78997a'
    yellow:  '#e49b5d'
-   blue:    '#697893'
+   blue:    '#485f84'
    magenta: '#b380b0'
-   cyan:    '#86a3a3'
-   white:   '#ece1d7'
+   cyan:    '#729893'
+   white:   '#8e733f'
 
   # Bright colors
   bright:
-    black:   '#8e733f'
-    red:     '#f17c64'
-    green:   '#78997a'
-    yellow:  '#ebc06d'
-    blue:    '#88b3b2'
+    black:   '#4d453e'
+    red:     '#c65333'
+    green:   '#99d59d'
+    yellow:  '#d7898c'
+    blue:    '#697893'
     magenta: '#ce9bcb'
-    cyan:    '#99d59d'
+    cyan:    '#86a3a3'
     white:   '#ece1d7'
 
   # Dim colors
@@ -297,10 +297,10 @@ colors:
     red:     '#7d2a2f'
     green:   '#78997a'
     yellow:  '#e49b5d'
-    blue:    '#697893'
+    blue:    '#485f84'
     magenta: '#b380b0'
-    cyan:    '#86a3a3'
-    white:   '#ece1d7'
+    cyan:    '#729893'
+    white:   '#8e733f'
 
   # Indexed Colors
   #

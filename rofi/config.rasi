@@ -8,7 +8,7 @@ configuration {
   matching: "fuzzy";
   sort: true;
   sorting-method: "fzf";
-  font: "Noto Sans Mono 32";
+  font: "Noto Sans Nerd Font 32";
 }
 
 @import "~/.config/rofi/colorscheme.rasi"

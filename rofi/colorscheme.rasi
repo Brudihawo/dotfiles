@@ -5,20 +5,20 @@
     repcolor1: #7d2a2f;
     repcolor2: #78997a;
     repcolor3: #e49b5d;
-    repcolor4: #697893;
+    repcolor4: #485f84;
     repcolor5: #b380b0;
-    repcolor6: #86a3a3;
-    repcolor7: #ece1d7;
-    repcolor8: #8e733f;
-    repcolor9: #f17c64;
-    repcolor10: #78997a;
-    repcolor11: #ebc06d;
-    repcolor12: #88b3b2;
+    repcolor6: #729893;
+    repcolor7: #8e733f;
+    repcolor8: #4d453e;
+    repcolor9: #c65333;
+    repcolor10: #99d59d;
+    repcolor11: #d7898c;
+    repcolor12: #697893;
     repcolor13: #ce9bcb;
-    repcolor14: #99d59d;
+    repcolor14: #86a3a3;
     repcolor15: #ece1d7;
     repbackground: #352f2a;
-    repforeground: #c1a78e;
+    repforeground: #f4f0ed;
 
     /* Theme Colors */
     foreground:                  @repforeground;
