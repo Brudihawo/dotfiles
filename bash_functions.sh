@@ -83,3 +83,9 @@ function repeat {
 function zpushd {
   pushd "$(zoxide query -i)"
 }
+
+function nvim_add {
+  pushd ~/dotfiles/nvim/pack/editing/start
+  git submodule add $1
+  popd
+}
