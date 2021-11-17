@@ -28,7 +28,6 @@ import os
 import re
 import subprocess
 from typing import List  # noqa: F401
-import time
 
 import psutil
 from hue_controller.hue_classes import HueBridge
@@ -1094,8 +1093,8 @@ def gen_widgets(this_c, other_c, screen):
             this_current_screen_border=colors[16],
             other_current_screen_border=colors[16],
 
-            urgent_border=colors[16],
-            urgent_text=colors[17],
+            urgent_border=colors[5],
+            urgent_text=colors[5],
 
             active=colors[16],
             inactive=colors[17],
@@ -1158,7 +1157,9 @@ def gen_widgets(this_c, other_c, screen):
         spacer(this_c, None, dir="r"),
     ]
     if screen == 0:
-        widgetlist.insert(-2, widget.Systray(padding=7, background=this_c))
+        widgetlist.insert(-6, widget.Systray(padding=7,
+                                             icon_size=int(bar_height * 0.6),
+                                             background=None))
 
     return widgetlist
 
