@@ -170,6 +170,20 @@ def toggle_light_group(qtile, group, display_name):
         send_progress(display_name, "Lighting", brightness)
 
 
+def set_brightness_group(qtile, group, display_name, brightness):
+    """Set Group Light Brightness."""
+    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
+    if not os.path.isfile(lockfile_path):
+        with open(lockfile_path, "w+") as lck_file:
+            lck_file.write("locked")
+
+        BRIDGE.groups[group]
+        BRIDGE.group_set_bri_sat_hue(group, brightness=brightness)
+
+        os.remove(lockfile_path)
+        send_progress(display_name, "Lighting", brightness)
+
+
 def toggle_light(qtile, lights, display_name):
     """Toggle hue lights in a hue light group."""
     lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
@@ -951,6 +965,13 @@ keys = [
                 desc="Increment Lights by 10% Brightness",
             ),
             Key(
+                ["shift"],
+                "j",
+                lazy.function(set_brightness_group,
+                              "hawos_zimmer", "Hawos Zimmer", 100),
+                desc="Set Room Lights to 100%",
+            ),
+            Key(
                 [],
                 "k",
                 lazy.function(
@@ -961,17 +982,24 @@ keys = [
             Key(
                 ["shift"],
                 "k",
+                lazy.function(set_brightness_group,
+                              "hawos_zimmer", "Hawos Zimmer", 0),
+                desc="Set Room Lights to 0%",
+            ),
+            Key(
+                [alt],
+                "k",
                 lazy.function(toggle_light, ["Kueche", "Kueche2"], "Küche"),
                 desc="Toggle Kitchen Lights",
             ),
             Key(
-                ["shift"],
+                [alt],
                 "f",
                 lazy.function(toggle_light, ["Flur"], "Flur"),
                 desc="Toggle Hallway Lights",
             ),
             Key(
-                ["shift"],
+                [alt],
                 "b",
                 lazy.function(toggle_light, ["Bad"], "Bad"),
                 desc="Toggle Bathroom Lights",
