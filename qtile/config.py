@@ -553,29 +553,29 @@ groups = [
     Group(group_names[0], label=group_syms[0]),
     Group(group_names[1], label=group_syms[1]),
     Group(group_names[2], label=group_syms[2],
-        matches=[Match(wm_instance_class="paraview")]
-    ),
+          matches=[Match(wm_instance_class="paraview")]
+          ),
     Group(group_names[3], label=group_syms[3],
-        matches=[Match(wm_class="firefox"), Match(wm_class="Opera")]
-    ),
+          matches=[Match(wm_class="firefox"), Match(wm_class="Opera")]
+          ),
     Group(group_names[4], label=group_syms[4],
-        matches=[
-            Match(wm_class=["Mail", "Thunderbird"]),
-            Match(wm_class=["Rocket.Chat"]),
-        ],
+          matches=[
+        Match(wm_class=["Mail", "Thunderbird"]),
+        Match(wm_class=["Rocket.Chat"]),
+    ],
     ),
     Group(group_names[5], label=group_syms[5],
-        matches=[
-            Match(wm_class=re.compile(".*telegram.*", flags=re.IGNORECASE)),
-            Match(wm_class=re.compile(".*whatsapp.*", flags=re.IGNORECASE)),
-            Match(wm_class=re.compile(".*signal.*", flags=re.IGNORECASE)),
-        ],
+          matches=[
+        Match(wm_class=re.compile(".*telegram.*", flags=re.IGNORECASE)),
+        Match(wm_class=re.compile(".*whatsapp.*", flags=re.IGNORECASE)),
+        Match(wm_class=re.compile(".*signal.*", flags=re.IGNORECASE)),
+    ],
     ),
     Group(group_names[6], label=group_syms[6],
-        matches=[
-            Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE)),
-            Match(title=re.compile(".*spotify.*", flags=re.IGNORECASE)),
-        ],
+          matches=[
+        Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE)),
+        Match(title=re.compile(".*spotify.*", flags=re.IGNORECASE)),
+    ],
     ),
     Group(group_names[7], label=group_syms[7]),
 ]
