@@ -28,6 +28,8 @@ import os
 import re
 import subprocess
 from typing import List  # noqa: F401
+from Xlib.ext import randr
+from Xlib import X, display
 
 import psutil
 from hue_controller.hue_classes import HueBridge
@@ -527,9 +529,19 @@ melange_colors = [
 
 colors = melange_colors
 
-xrandr_out = subprocess_output(["xrandr", "--listmonitors"]).split("\n")[1]
-px_x, px_y = [int(d) for d
-              in re.search(" (\d+)/\d+x(\d+)/", xrandr_out).groups()]
+d = display.Display()
+s = d.screen()
+r = s.root
+res = r.xrandr_get_screen_resources()._data
+
+n_monitors = 0
+resolutions = []
+for output in res['outputs']:
+    mon = d.xrandr_get_output_info(output, res["config_timestamp"])._data
+    if mon["num_preferred"] == 1:
+        n_monitors += 1
+
+px_x, px_y = res["modes"][0]["width"], res["modes"][0]["height"]
 
 FLOAT_RS_INC = int(px_x * 0.01)
 FLOAT_MV_INC = int(px_x * 0.01)
