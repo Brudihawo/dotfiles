@@ -55,7 +55,7 @@ function fga {
 }
 
 function zathopen {
-  FILE=$(find -L "$*" \( -type f \) -a ! \( -wholename '*.git/*' \) -a ! \( -name '*.git' \) -a \( -wholename '*.pdf' \) | sort | fzf)
+  FILE=$(find -L "${1:-.}" \( -type f \) -a ! \( -wholename '*.git/*' \) -a ! \( -name '*.git' \) -a \( -wholename '*.pdf' \) | sort | fzf)
   echo "Chose $FILE"
   if test $(wc -w <<< $FILE) -ne "0"; then
     zathura "$FILE"
