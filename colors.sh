@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Just do source ~/this_filename for color definitions
+# Just do source <this_filename> for color definitions
 
 color0="#2a2520"
 color1="#7d2a2f"
