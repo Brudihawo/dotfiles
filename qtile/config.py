@@ -28,8 +28,6 @@ import os
 import re
 import subprocess
 from typing import List  # noqa: F401
-from Xlib.ext import randr
-from Xlib import X, display
 
 import psutil
 from hue_controller.hue_classes import HueBridge
@@ -38,6 +36,8 @@ from libqtile import bar, hook, layout, widget
 from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.widget import base
+from Xlib import X, display
+from Xlib.ext import randr
 
 BRIDGE = HueBridge("hawos_bridge")
 LOCK_WALLPAPER = "/usr/share/wallpapers/hex_melange_2_lock.png"
@@ -228,7 +228,7 @@ def move_to_next_screen(qtile):
     """Move a window to the next screen."""
     active_win = qtile.current_window
     next_screen = (qtile.current_screen.index + 1) % len(qtile.screens)
-    active_win.toscreen(next_screen)
+    active_win.cmd_toscreen(next_screen)
     qtile.focus_screen(next_screen, warp=True)
     active_win.focus(warp=True)
 
@@ -654,14 +654,14 @@ keys = [
         [win, "shift"],
         "n",
         lazy.function(move_to_next_screen),
-        desc="Window: Focus next screen",
+        desc="Window: move current window to next screen",
     ),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed Unsplit = 1 window displayed,
     # like Max layout, but still with
     # multiple stack panes
     Key(
-        [win, "shift"],
+        [win, alt],
         "Return",
         lazy.layout.toggle_split(),
         desc="Layout: Toggle stack split.",
@@ -1032,7 +1032,7 @@ for n, grp in enumerate(groups):
             Key(
                 [win],
                 str(n + 1),
-                lazy.group[grp.name].toscreen(),
+                lazy.group[grp.name].toscreen(toggle=True),
                 desc="Group: Switch to {}".format(group_names[n]),
             ),
             # win + shift + letter of group
@@ -1051,37 +1051,25 @@ for n, grp in enumerate(groups):
         ]
     )
 MARGIN = 12
-BORDER_WIDTH = 1
+BORDER_WIDTH = 2
 FOCUS_BORDER = colors[15]
 NORMAL_BORDER = colors[4]
+STACK_BORDER = colors[2]
+STACK_BORDER_FOCUS = colors[10]
 
 layouts = [
     layout.Columns(
         border_focus=FOCUS_BORDER,
         border_normal=NORMAL_BORDER,
         border_width=BORDER_WIDTH,
+        border_normal_stack=STACK_BORDER,
+        border_focus_stack=STACK_BORDER_FOCUS,
         border_on_single=True,
         grow_amount=2,
         insert_position=1,
-        num_columns=3,
+        num_columns=2,
         fair=True,
         margin=MARGIN,
-    ),
-    layout.Max(
-        border_focus=FOCUS_BORDER,
-        border_normal=NORMAL_BORDER,
-        border_width=BORDER_WIDTH,
-        grow_amount=2,
-        margin=MARGIN,
-        insert_position=1,
-    ),
-    layout.Bsp(
-        border_focus=FOCUS_BORDER,
-        border_normal=NORMAL_BORDER,
-        border_width=BORDER_WIDTH,
-        grow_amount=2,
-        margin=MARGIN,
-        insert_position=1,
     ),
 ]
 
@@ -1131,7 +1119,7 @@ def gen_widgets(this_c, other_c, screen):
             other_screen_border=colors[17],
 
             this_current_screen_border=colors[16],
-            other_current_screen_border=colors[16],
+            other_current_screen_border=colors[17],
 
             urgent_border=colors[5],
             urgent_text=colors[5],
