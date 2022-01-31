@@ -44,8 +44,26 @@ case ${TERM} in
 esac
 
 if [[ $TERM == "linux" ]]; then
-  top_chars=""
-  bottom_chars="==>"
+  top_chars="┌─"
+  bottom_chars="└─>"
+
+  source ~/dotfiles/colors.sh
+  echo -ne "\e]P0$color0"
+  echo -ne "\e]P1$color1"
+  echo -ne "\e]P2$color2"
+  echo -ne "\e]P3$color3"
+  echo -ne "\e]P4$color4"
+  echo -ne "\e]P5$color5"
+  echo -ne "\e]P6$color6"
+  echo -ne "\e]P7$color7"
+  echo -ne "\e]P8$color8"
+  echo -ne "\e]P9$color9"
+  echo -ne "\e]PA$color10"
+  echo -ne "\e]PB$color11"
+  echo -ne "\e]PC$color12"
+  echo -ne "\e]PD$color13"
+  echo -ne "\e]PE$color14"
+  echo -ne "\e]PF$color15"
 else
   top_chars="╭─"
   bottom_chars="╰─❯"
@@ -203,10 +221,11 @@ source /usr/share/fzf/key-bindings.bash
 set -o vi
 
 # MY ALIASES
+alias lls='/usr/bin/ls'
 alias ls='exa --long --header --sort=name -m'
 alias env='env | fzf --multi'
 alias gst='git status'
-alias gcc='git commit'
+alias gc='git commit'
 alias gpsh='git push'
 alias hiwicd='cd ~/workspace/hiwi/mze_files'
 alias hiwiin='hiwicd && ./connect.sh'
