@@ -40,5 +40,5 @@ xterm*renderFont:	true
 emacs*background:	#0A192B
 emacs*foreground:	#e9ded5
 
-Xcursor.theme: LyraG
-Xcursor.size: 32
+Xcursor.theme: Future Cursors
+Xcursor.size: 64
