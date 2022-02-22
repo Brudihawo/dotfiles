@@ -75,7 +75,7 @@ def send_progress(message, app, progress, urgency="low"):
 def subprocess_output(args):
     """Get the output of a subprocess."""
     return (
-        subprocess.Popen(args, stdout=subprocess.PIPE)
+        subprocess.Popen(args, stdout=subprocess.PIPE, start_new_session=True)
         .communicate()[0]
         .decode("utf-8")
         .strip("\n")
@@ -231,6 +231,25 @@ def move_to_next_screen(qtile):
     active_win.cmd_toscreen(next_screen)
     qtile.focus_screen(next_screen, warp=True)
     active_win.focus(warp=True)
+
+
+def circular_selector(options):
+    """Use a circular selector for selecting one of the commands"""
+    # sel = subprocess.call(["/home/hawo/bin/selgl", "480", f"{len(options)}"],
+    #                        start_new_session=True)
+    # if sel > 0:
+    #     return options[sel]
+
+    return None
+
+
+@lazy.function
+def circ_selector_pen(qtile):
+    keystrokes = ["1", "2", "3", "K", "J", "O", "P"]
+    selected = circular_selector(keystrokes)
+    send_notification("test")
+    if selected is not None:
+        subprocess.call(["xdotool", "key", keystrokes[selected]])
 
 
 def rofi_selector(option_string, prompt):
@@ -773,6 +792,12 @@ keys = [
         "l",
         lazy.spawn(f"i3lock -e -i {LOCK_WALLPAPER}"),
         desc="System: Lock Session",
+    ),
+    Key(
+        [alt],
+        "minus",
+        lazy.spawn("/home/hawo/scripts/circ_pen_selector.sh"),
+        desc="Launch: Cycle Pen Script",
     ),
     # Launch Applications
     Key(
