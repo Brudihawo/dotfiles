@@ -1075,6 +1075,7 @@ for n, grp in enumerate(groups):
             #     desc="move focused window to group {}".format(i.name)),
         ]
     )
+
 MARGIN = 12
 BORDER_WIDTH = 2
 FOCUS_BORDER = colors[15]
@@ -1272,16 +1273,17 @@ floating_layout = layout.Floating(
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-        Match(title=re.compile(".*hourglass.*")),  # Hourglass timer
         Match(title="Picture in Picture"),
         Match(title="Generate Fonts"),
-        Match(title=re.compile("Settings"), wm_class=re.compile("zoom")),
+        Match(title=re.compile("^.*settings((?!.*firefox).)*$", flags=re.IGNORECASE)),
+        Match(title=re.compile("^.*preferences((?!.*firefox).)*$", flags=re.IGNORECASE)),
         Match(title=re.compile("Polls"), wm_class=re.compile("zoom")),
         Match(title=re.compile("Chat"), wm_class=re.compile("zoom")),
         Match(title=re.compile(""), wm_class=re.compile("zoom")),
         Match(wm_class=re.compile("gnuplot_qt")),
         Match(wm_class=re.compile(".*arandr.*", flags=re.IGNORECASE)),
         Match(wm_class=re.compile("matplotlib")),
+        Match(role=re.compile("Event.*Dialog", flags=re.IGNORECASE)),
         Match(title=re.compile(".*Open With.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*Import.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*Export.*", flags=re.IGNORECASE)),
@@ -1290,7 +1292,7 @@ floating_layout = layout.Floating(
         Match(wm_class=re.compile(".*yad.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*clocks.*", flags=re.IGNORECASE)),
     ],
-    border_focus=colors[16],
+    border_width=0,
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
