@@ -211,7 +211,7 @@ export MATLABDIR="/home/hawo/local/MATLAB/"
 export EDITOR=nvim
 
 # NNN
-export NNN_PLUG='o:fzopen;v:imgview;r:renamer;d:diffs'
+export NNN_PLUG='o:fzopen;v:imgview;r:renamer;d:diffs;j:autojump'
 export NNN_FIFO=/tmp/nnn.fifo
 
 source ~/dotfiles/bash_functions.sh
