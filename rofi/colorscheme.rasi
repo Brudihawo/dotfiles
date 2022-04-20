@@ -17,35 +17,32 @@
     repcolor13: #ce9bcb;
     repcolor14: #86a3a3;
     repcolor15: #ece1d7;
-    repbackground: #352f2a;
-    repforeground: #f4f0ed;
+    background: #352f2a;
+    foreground: #f4f0ed;
 
     /* Theme Colors */
-    foreground:                  @repforeground;
-    background:                  @repbackground;
-
     normal-foreground:           @foreground;
     normal-background:           @background;
 
-    active-foreground:           @repcolor7;
-    active-background:           @repcolor8;
+    active-foreground:           @repcolor15;
+    active-background:           @repcolor7;
 
-    urgent-foreground:           @repcolor7;
-    urgent-background:           @repcolor1;
+    urgent-foreground:           @repcolor0;
+    urgent-background:           @repcolor10;
 
-    selected-normal-foreground:  @normal-background;
-    selected-normal-background:  @normal-foreground;
+    selected-normal-foreground:  @normal-foreground;
+    selected-normal-background:  @repcolor14;
 
-    selected-active-foreground:  @repcolor7;
-    selected-active-background:  @repcolor8;
+    selected-active-foreground:  @background;
+    selected-active-background:  @repcolor14;
 
     selected-urgent-foreground:  @repcolor9;
     selected-urgent-background:  @repcolor9;
 
-    alternate-normal-background: @repcolor0;
-    alternate-normal-foreground: @repforeground;
+    alternate-normal-background: @background;
+    alternate-normal-foreground: @foreground;
 
-    alternate-active-background: @repbackground;
+    alternate-active-background: @background;
     alternate-active-foreground: @active-foreground;
 
     alternate-urgent-foreground: @urgent-foreground;
@@ -63,46 +60,53 @@
     spacing:                     10px;
 
     separatorcolor:              @repcolor3;
-    background-color:            @repbackground;
+    background-color:            @background;
+
+    input-color:                 @repcolor14;
+    input-text:                  @background;
 }
 
 #window {
-    background-color: @background;
-    border:           4px;
-    padding:          8px;
+    background-color: @repcolor7;
+    border:           0px;
+    padding:          0px;
 }
+
 #mainbox {
     border:  0;
     padding: 0;
 }
+
 #message {
-    border:       4px dash 0px 0px ;
+    border:       0px dash 0px 0px ;
     border-color: @separatorcolor;
-    padding:      4px ;
+    padding:      0px ;
 }
-#textbox {
-    text-color: @foreground;
-}
+
 #listview {
-    fixed-height: 0;
-    border:       4px 0px 0px 0px ;
-    border-color: @separatorcolor;
-    spacing:      4px ;
-    scrollbar:    true;
-    padding:      4px 0px 0px ;
+  lines:        10;
+  dynamic:      true;
+  border:       0px 0px 0px 0px ;
+  border-color: @separatorcolor;
+  spacing:      0px;
+  scrollbar:    true;
+  padding:      0px 0px 0px;
 }
 #element {
-    border:  0;
-    padding: 10px 0px 10px;
+  border:  0;
+  padding: 32px 32px 32px;
 }
+
 #element.normal.normal {
-    background-color: @normal-background;
-    text-color:       @normal-foreground;
+  background-color: @normal-background;
+  text-color:       @normal-foreground;
 }
+
 #element.normal.urgent {
     background-color: @urgent-background;
     text-color:       @urgent-foreground;
 }
+
 #element.normal.active {
     background-color: @active-background;
     text-color:       @active-foreground;
@@ -132,42 +136,51 @@
     text-color:       @alternate-active-foreground;
 }
 #scrollbar {
-    width:        4px ;
-    border:       0;
-    handle-width: 8px ;
-    padding:      0;
+  width:        4px;
+  border:       0;
+  handle-width: 8px;
+  padding:      0;
 }
 #mode-switcher {
-    border:       4px dash 0px 0px ;
-    border-color: @separatorcolor;
+  border:       0px dash 0px 0px ;
+  border-color: @separatorcolor;
 }
 #button.selected {
-    background-color: @selected-normal-background;
-    text-color:       @selected-normal-foreground;
+  background-color: @selected-normal-background;
+  text-color:       @selected-normal-foreground;
 }
+
 #inputbar {
-    spacing:    0;
-    text-color: @normal-foreground;
-    padding:    2px ;
+  location:   south;
+  spacing:    0px;
+  text-color: @input-text;
+  background-color: @input-color;
+  padding:    32px 16px 32px;
+  children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
 }
 #case-indicator {
-    spacing:    0;
-    text-color: @normal-foreground;
+  spacing:    0;
+  text-color: @input-text;
+  background-color: @input-color;
 }
 #entry {
-    spacing:    0;
-    text-color: @normal-foreground;
+  spacing:    0;
+  text-color: @input-text;
+  background-color: @input-color;
 }
 #prompt {
-    spacing:    0;
-    text-color: @normal-foreground;
+  spacing:    0;
+  text-color: @input-text;
+  background-color: @input-color;
 }
-#inputbar {
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
-}
+
 #textbox-prompt-colon {
-    expand:     false;
-    str:        "  ) ";
-    margin:     0px 0.3em 0em 0em ;
-    text-color: @normal-foreground;
+  expand:     false;
+  str:        " ";
+  margin:     0px 0.3em 0em 0em ;
+  text-color: @input-text;
+  background-color: @input-color;
+}
+#textbox {
+  text-color: @text-color;
 }
