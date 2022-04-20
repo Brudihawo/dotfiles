@@ -4,9 +4,12 @@
 mode=${1:-'--fzf'}
 
 EMOJI_FILE="$HOME/workspace/emoji_select/emojis.txt" 
-
+line=""
 if [ $mode == '--fzf' ]; then
-  cat $EMOJI_FILE | fzf | sed "s/ | /|/" | awk -P -F "|" '{print $1}' | xclip -selection clipboard -i
+  line="$(cat $EMOJI_FILE | fzf)"
 elif [ $mode == '--rofi' ]; then
-  cat $EMOJI_FILE | rofi -dmenu -p "Select Emoji" | sed "s/ | /|/" | awk -P -F "|" '{print $1}' | xclip -selection clipboard -i
+  line="$(cat $EMOJI_FILE | rofi -dmenu -p "Select Emoji")"
 fi
+
+transformed=$(echo "$line" | sed "s/ | /|/g" | awk -P -F "|" '{print $1}' | sed "s/\n//g")
+echo $transformed | xclip -selection clipboard -i

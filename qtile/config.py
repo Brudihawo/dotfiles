@@ -39,7 +39,6 @@ from libqtile.widget import base
 from Xlib import X, display
 from Xlib.ext import randr
 
-BRIDGE = HueBridge("hawos_bridge")
 LOCK_WALLPAPER = "/usr/share/wallpapers/hex_melange_2_lock.png"
 WALLPAPER = "/usr/share/wallpapers/hex_melange_2.png"
 
@@ -157,6 +156,7 @@ def open_translate_window(qtile):
 
 def toggle_light_group(qtile, group, display_name):
     """Toggle hue lights in a hue light group."""
+    BRIDGE = HueBridge("hawos_bridge")
     lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
     if not os.path.isfile(lockfile_path):
         with open(lockfile_path, "w+") as lck_file:
@@ -174,6 +174,7 @@ def toggle_light_group(qtile, group, display_name):
 
 def set_brightness_group(qtile, group, display_name, brightness):
     """Set Group Light Brightness."""
+    BRIDGE = HueBridge("hawos_bridge")
     lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
     if not os.path.isfile(lockfile_path):
         with open(lockfile_path, "w+") as lck_file:
@@ -188,6 +189,7 @@ def set_brightness_group(qtile, group, display_name, brightness):
 
 def toggle_light(qtile, lights, display_name):
     """Toggle hue lights in a hue light group."""
+    BRIDGE = HueBridge("hawos_bridge")
     lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
     if not os.path.isfile(lockfile_path):
         with open(lockfile_path, "w+") as lck_file:
@@ -206,6 +208,7 @@ def toggle_light(qtile, lights, display_name):
 
 def inc_light_brightness(qtile, group, display_name, inc):
     """Increment light brightness in a hue light group."""
+    BRIDGE = HueBridge("hawos_bridge")
     lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
     if not os.path.isfile(lockfile_path):
         with open(lockfile_path, "w+") as lck_file:
@@ -286,7 +289,7 @@ def group_switch_selector(qtile):
 
 def shutdown_reboot_menu(qtile):
     """Open a rofi menu for shutting down or rebooting."""
-    option_str = "\n".join(["shutdown", "reboot", "nothing"])
+    option_str = "\n".join(["shutdown", "reboot", "suspend", "nothing"])
     result = rofi_selector(option_str, "Shutdown Menu")
     if result == "shutdown":
         send_notification("shutdown", "")
@@ -294,6 +297,9 @@ def shutdown_reboot_menu(qtile):
     elif result == "reboot":
         send_notification("reboot", "")
         subprocess.call(["reboot"])
+    elif result == "suspend":
+        send_notification("suspend", "")
+        subprocess.call(["systemctl", "suspend"])
     else:
         send_notification("no action", "")
 
