@@ -335,9 +335,8 @@ def audio_out_selector(qtile):
     }
 
     alias_dict = {
-        "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo-output": "HEADSET",
-        "alsa_output.pci-0000_00_1b.0.analog-stereo": "SPEAKER",
-        "alsa_output.pci-0000_01_00.1.hdmi-stereo-extra1": "SCREEN",
+        "alsa_output.usb-Generic_USB_Audio-00.HiFi__hw_Audio__sink": "00_SPEAKER",
+        "alsa_output.usb-Logitech_G733_Gaming_Headset-00.analog-stereo": "01_HEADSET",
     }
 
     inverted_aliases = {
@@ -352,8 +351,8 @@ def audio_out_selector(qtile):
 
     out = rofi_selector(
         "\n".join(
-            [f"{device}{SEP_STR}{(state)}" for device,
-             state in aliased_states.items()]
+            sorted([f"{device}{SEP_STR}{(state)}" for device,
+             state in aliased_states.items()])
         ),
         "SELECT AUDIO OUTPUT",
     )
@@ -603,7 +602,8 @@ groups = [
     Group(group_names[0], label=group_syms[0]),
     Group(group_names[1], label=group_syms[1]),
     Group(group_names[2], label=group_syms[2],
-          matches=[Match(wm_instance_class="paraview")]
+          matches=[Match(wm_instance_class="paraview"),
+                   Match(wm_class="Zotero")]
           ),
     Group(group_names[3], label=group_syms[3],
           matches=[Match(wm_class="firefox"), Match(wm_class="Opera")]
@@ -703,7 +703,7 @@ keys = [
             Key([], "n", lazy.layout.normalize(), desc="Reset sizes"),
             Key([], "x", lazy.window.kill(), desc="Kill focused"),
         ],
-        mode="RESIZE",
+        name="RESIZE",
     ),
     Key(
         [win, "shift"],
@@ -742,7 +742,7 @@ keys = [
             ),
             Key([], "x", lazy.window.kill(), desc="Kill focused window"),
         ],
-        mode="FLOAT RS",
+        name="FLOAT RS",
     ),
     # Floating Window Moving
     KeyChord(
@@ -775,7 +775,7 @@ keys = [
             ),
             Key([], "x", lazy.window.kill(), desc="Kill focused window"),
         ],
-        mode="FLOAT MV",
+        name="FLOAT MV",
     ),
     Key([win], "f", lazy.window.toggle_floating(),
         desc="Window: Toggle floating status"),
@@ -864,7 +864,7 @@ keys = [
         "s",
         lazy.spawn(
             f"rofi -show-icons -ssh-command '{terminal}"
-            ' -e bash -c "ssh {host}"\' -modi ssh -show ssh'
+            '-c "ssh {host}"\' -modi ssh -show ssh'
         ),
         desc="Connections: SSH Menu",
     ),
@@ -1048,7 +1048,7 @@ keys = [
                 desc="Toggle Bathroom Lights",
             ),
         ],
-        mode="LIGHT CONTROL",
+        name="LIGHT CONTROL",
     ),
     Key([win, alt], "t", lazy.function(spotify_mark),
         desc="Audio: Mark current spotify track."),
@@ -1119,15 +1119,13 @@ bar_height = int(px_y * 0.025)
 
 def spacer(fore, back, dir="l", padding=0):
     """Spacer in bar with color 'color'."""
-    # return widget.Sep(size_percent=80, padding=4,
-    #                   linewidth=2, foreground=color)
     if dir == "l":
-        return widget.TextBox(text=u"\ue0b6", fontsize=bar_height,
-                              padding=padding,
+        return widget.TextBox(text=u" \ue0b6", fontsize=bar_height,
+                              padding=0,
                               foreground=fore, background=back)
     else:
-        return widget.TextBox(text=u"\ue0b4", fontsize=bar_height,
-                              padding=padding,
+        return widget.TextBox(text=u"\ue0b4 ", fontsize=bar_height,
+                              padding=0,
                               foreground=fore, background=back)
 
 
@@ -1193,12 +1191,12 @@ def gen_widgets(this_c, other_c, screen):
 
         spacer(colors[0], None, dir="l"),
         widget.Net(
-            format="{down}",
+            format="{down:.2f} {down_suffix}",
             foreground=colors[6],
             background=colors[0],
         ),
         widget.TextBox(text=u" \uf0ab | \uf0aa ", background=colors[0]),
-        widget.Net(format="{up}", foreground=colors[11], background=colors[0]),
+        widget.Net(format="{up:.2f} {up_suffix}", foreground=colors[11], background=colors[0]),
         spacer(colors[0], None, dir="r"),
 
         spacer(this_c, None, dir="l"),
@@ -1231,6 +1229,7 @@ screens = [
             bar_height,
             margin=[bar_margin, 0, 0, 0],
             background="#00000000",
+            x11_drag_polling_rate=60,
         ),
     )
     for screen, (this_c, other_c) in enumerate([(colors[3], colors[2]),

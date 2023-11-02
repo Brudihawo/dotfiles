@@ -29,7 +29,7 @@
 <span foreground='#ce9bcb'><tt>    <b>win + Tab</b>: Toggle between layouts</tt></span>
 <span foreground='#8e733f'><tt>    <b>k</b>: Decrease floating height</tt></span>
 <span foreground='#8e733f'><tt>    <b>win + alt + t</b>: Mark current spotify track.</tt></span>
-<span foreground='#ce9bcb'><tt>    <b>win + shift + Return</b>: Toggle stack split.</tt></span>
+<span foreground='#ce9bcb'><tt>    <b>win + alt + Return</b>: Toggle stack split.</tt></span>
 <span foreground='#8e733f'><tt>    <b>l</b>: Increase floating width</tt></span>
 <span foreground='#8e733f'><tt>    <b>win + shift + t</b>: Display notification with current track</tt></span>
 <span foreground='#e49b5d'><b><tt>  NOTIFICATIONS</tt></b></span>
@@ -107,11 +107,14 @@
 <span foreground='#f17c64'><tt>    <b>win + shift + l</b>: Move right</tt></span>
 
 <span foreground='#c1a78e'><tt>    <b>control + alt + t</b>: Translation terminal Interface.</tt></span>
-<span foreground='#f17c64'><tt>    <b>win + shift + n</b>: Focus next screen</tt></span>
+<span foreground='#f17c64'><tt>    <b>win + shift + n</b>: move current window to next screen</tt></span>
 
-<span foreground='#c1a78e'><tt>    <b>alt + shift + f</b>: Open current selection as URL in firefox.</tt></span>
+<span foreground='#c1a78e'><tt>    <b>alt + minus</b>: Cycle Pen Script</tt></span>
 <span foreground='#f17c64'><tt>    <b>win + space</b>: Toggle fullscreen for current window.</tt></span>
 
-
+<span foreground='#c1a78e'><tt>    <b>alt + shift + f</b>: Open current selection as URL in firefox.</tt></span>
 <span foreground='#f17c64'><tt>    <b>win + w</b>: Kill focused.</tt></span>
+
+
+
 

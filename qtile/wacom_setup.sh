@@ -8,7 +8,7 @@ xsetwacom set "Wacom Intuos BT M Pen stylus" MapToOutput ${pixels_wacom}x2160+$(
 xsetwacom set "Wacom Intuos BT M Pen stylus" PressureCurve 0 50 50 100
 
 # Pen Buttons
-xsetwacom set "Wacom Intuos BT M Pen stylus" Button 2 "key shift"
+xsetwacom set "Wacom Intuos BT M Pen stylus" Button 2 "button +1"
 xsetwacom set "Wacom Intuos BT M Pen stylus" Button 3 "button +2"
 
 # Pad Buttons

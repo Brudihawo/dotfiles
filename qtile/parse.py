@@ -96,7 +96,7 @@ for key in cfg.keys:
 chords = {}
 for chord in key_chords:
     mod_str = " + ".join(chord.modifiers)
-    chord_str = f"{chord.mode} ({mod_str} + {chord.key})"
+    chord_str = f"{chord.name} ({mod_str} + {chord.key})"
     chords[chord_str] = []
     for key in chord.submappings:
         if not key.key == "Escape":
