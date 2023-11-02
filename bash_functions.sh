@@ -12,13 +12,6 @@ function fe {
     nvim $FILES
   fi
 }
-# fuzzy change directory
-function fd {
-  DIR=$(find -L $* \( -type d,l \) -a ! \( -wholename "*.git/*" \) -a ! \( -name "*.git" \) 2> /dev/null | fzf --preview 'tree {}')
-  if test $(wc -w <<< $DIR) -ne "1"; then
-    cd $DIR
-  fi
-}
 
 # fuzzy copy
 function fcp {
