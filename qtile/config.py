@@ -31,6 +31,8 @@ from typing import List  # noqa: F401
 
 import psutil
 from hue_controller.hue_classes import HueBridge
+from libqtile.config import EzKey
+
 # from libqtile.utils import guess_terminal
 from libqtile import bar, hook, layout, widget
 from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
@@ -47,12 +49,10 @@ def send_notification(message, app, urgency="normal", icon=None):
     """Send a notification using dunstify."""
     if icon is not None:
         subprocess.call(
-            ["dunstify", "-a", f"{app}", f"{message}",
-                "-u", urgency, "-i", icon]
+            ["dunstify", "-a", f"{app}", f"{message}", "-u", urgency, "-i", icon]
         )
     else:
-        subprocess.call(
-            ["dunstify", "-a", f"{app}", f"{message}", "-u", urgency])
+        subprocess.call(["dunstify", "-a", f"{app}", f"{message}", "-u", urgency])
 
 
 def send_progress(message, app, progress, urgency="low"):
@@ -101,14 +101,14 @@ def open_in_firefox(url, how="tab"):
         how (string): 'window', 'tab', 'private'
     """
     mode_map = {
-        'window': '--new-window',
-        'tab': '--new-tab',
-        'private': '--private-window'
+        "window": "--new-window",
+        "tab": "--new-tab",
+        "private": "--private-window",
     }
-    subprocess.call(['firefox', mode_map[how], url])
+    subprocess.call(["firefox", mode_map[how], url])
 
 
-def g_scholar_search(query, how='window'):
+def g_scholar_search(query, how="window"):
     """Search query in google scholar, open in firefox.
 
     Args:
@@ -120,17 +120,23 @@ def g_scholar_search(query, how='window'):
 
 def scholar_search_cur_selection(qtile):
     """Open a google scholar search of the current selection in firefox."""
-    selection = get_clipboard('primary')
-    send_notification(f"Searching for: {selection}", "Scholar Search",
-                      icon="/home/hawo/dotfiles/qtile/img/gscholar_logo.png")
+    selection = get_clipboard("primary")
+    send_notification(
+        f"Searching for: {selection}",
+        "Scholar Search",
+        icon="/home/hawo/dotfiles/qtile/img/gscholar_logo.png",
+    )
     g_scholar_search(selection, how="tab")
 
 
 def open_selection_in_firefox(qtile):
     """Open Highlighed URL in firefox"""
-    selection = get_clipboard('primary')
-    send_notification(f"Opening {selection} as URL in firefox.", "Open In Firefox",
-                      icon="/home/hawo/dotfiles/qtile/img/firefox_logo.png")
+    selection = get_clipboard("primary")
+    send_notification(
+        f"Opening {selection} as URL in firefox.",
+        "Open In Firefox",
+        icon="/home/hawo/dotfiles/qtile/img/firefox_logo.png",
+    )
     open_in_firefox(selection, how="tab")
 
 
@@ -269,20 +275,24 @@ def rofi_selector(option_string, prompt):
 def move_to_group_selector(qtile):
     """Move window to a group with a rofi selector."""
     active_win = qtile.current_window
-    str_groups = "\n".join([
-        f"{index:4} {g.label} \uf942 {g.name}" for index,
-        g in enumerate(qtile.groups, start=1)
-    ])
+    str_groups = "\n".join(
+        [
+            f"{index:4} {g.label} \uf942 {g.name}"
+            for index, g in enumerate(qtile.groups, start=1)
+        ]
+    )
     target = re.split(r"\s+", rofi_selector(str_groups, "chose group"))[-1]
     active_win.cmd_togroup(target)
 
 
 def group_switch_selector(qtile):
     """Switch focus to a group with a selector."""
-    str_groups = "\n".join([
-        f"{index:4} {g.label} \uf942 {g.name}" for index,
-        g in enumerate(qtile.groups, start=1)
-    ])
+    str_groups = "\n".join(
+        [
+            f"{index:4} {g.label} \uf942 {g.name}"
+            for index, g in enumerate(qtile.groups, start=1)
+        ]
+    )
     target = re.split("\s+", rofi_selector(str_groups, "chose group"))
     qtile.groups[int(target[1]) - 1].cmd_toscreen()
 
@@ -351,8 +361,12 @@ def audio_out_selector(qtile):
 
     out = rofi_selector(
         "\n".join(
-            sorted([f"{device}{SEP_STR}{(state)}" for device,
-             state in aliased_states.items()])
+            sorted(
+                [
+                    f"{device}{SEP_STR}{(state)}"
+                    for device, state in aliased_states.items()
+                ]
+            )
         ),
         "SELECT AUDIO OUTPUT",
     )
@@ -360,8 +374,7 @@ def audio_out_selector(qtile):
     device = out.split(SEP_STR)[0]
 
     try:
-        subprocess.call(["pactl", "set-default-sink",
-                         inverted_aliases[device]])
+        subprocess.call(["pactl", "set-default-sink", inverted_aliases[device]])
         send_notification(f"Selected {device}", "sound control", urgency="low")
     except KeyError:
         send_notification("Changed Nothing", "sound control", urgency="low")
@@ -378,8 +391,7 @@ def playerctl_metadata(format=None, player="playerctld"):
     Returns (str): requested metadata from playerctl
     """
     if format is not None:
-        return subprocess_output(["playerctl", "-p", player,
-                                  "metadata", "-f", format])
+        return subprocess_output(["playerctl", "-p", player, "metadata", "-f", format])
     else:
         return subprocess_output(["playerctl", "-p", player, "metadata"])
 
@@ -387,8 +399,7 @@ def playerctl_metadata(format=None, player="playerctld"):
 def spotify_mark(qtile):
     """Memorise the name and artist of the current spotify track."""
     artist_track = playerctl_metadata(
-        format="'{{xesam:artist}}: {{xesam:title}}'",
-        player="spotify"
+        format="'{{xesam:artist}}: {{xesam:title}}'", player="spotify"
     ).strip("'")
     with open("/home/hawo/spotify_marks.txt", "r") as file:
         tracklist = [line.strip("\n") for line in file.readlines()]
@@ -400,8 +411,7 @@ def spotify_mark(qtile):
         send_notification("track name marked", "spotify-mark", urgency="low")
 
     else:
-        send_notification("track already marked",
-                          "spotify-mark", urgency="low")
+        send_notification("track already marked", "spotify-mark", urgency="low")
 
 
 def current_track_notification(qtile):
@@ -420,8 +430,7 @@ def current_track_notification(qtile):
 
     artist = playerctl_metadata(format="{{xesam:artist}}")
 
-    send_notification(f"{artist}", f"{title}",
-                      icon=TMP_LOCATION, urgency="low")
+    send_notification(f"{artist}", f"{title}", icon=TMP_LOCATION, urgency="low")
 
 
 def float_to_front(qtile):
@@ -459,14 +468,14 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
         out = " "
 
         if sym[0] == "on":  # Caps Lock
-            out += u"\uf55f"
+            out += "\uf55f"
         else:
-            out += u"\uf48b"
+            out += "\uf48b"
 
         if sym[1] == "on":  # Num Lock
-            out += u"\uf560"
+            out += "\uf560"
         else:
-            out += u"\uf48b"
+            out += "\uf48b"
 
         return out + " "
 
@@ -491,19 +500,30 @@ def invert_color(hex_color):
 
 def show_cheatsheet(qtile):
     """Open Cheatsheet with all Keybindings using yad."""
-    cheatsheet_fname = os.path.join(os.path.expanduser("~"),
-                                    "dotfiles/qtile/keychords_mangled.txt")
+    cheatsheet_fname = os.path.join(
+        os.path.expanduser("~"), "dotfiles/qtile/keychords_mangled.txt"
+    )
 
     catp = subprocess.Popen(["cat", cheatsheet_fname], stdout=subprocess.PIPE)
     out, _ = catp.communicate()
-    p = subprocess.Popen(["yad", "--list", "--close-on-unfocus",
-                          "--no-header", "--no-click", "--no-selection",
-                          "--center", "--width=3000", "--height=1688",
-                          "--title='KEY COMBINATIONS AND KEYS'",
-                          "--column=KEYS:text",
-                          "--column=KEYS (2):text",
-                          "--column=KEY CHORDS:text"],
-                         stdin=subprocess.PIPE)
+    p = subprocess.Popen(
+        [
+            "yad",
+            "--list",
+            "--close-on-unfocus",
+            "--no-header",
+            "--no-click",
+            "--no-selection",
+            "--center",
+            "--width=3000",
+            "--height=1688",
+            "--title='KEY COMBINATIONS AND KEYS'",
+            "--column=KEYS:text",
+            "--column=KEYS (2):text",
+            "--column=KEY CHORDS:text",
+        ],
+        stdin=subprocess.PIPE,
+    )
     p.communicate(input=out, timeout=0.001)
 
 
@@ -537,7 +557,6 @@ melange_colors = [
     "#b380b0",  # color5
     "#729893",  # color6
     "#8e733f",  # color7
-
     "#4d453e",  # color8
     "#c65333",  # color9
     "#99d59d",  # color10
@@ -546,7 +565,6 @@ melange_colors = [
     "#ce9bcb",  # color13
     "#86a3a3",  # color14
     "#ece1d7",  # color15
-
     "#f4f0ed",  # foreground
     "#352f2a",  # background
 ]
@@ -560,7 +578,7 @@ res = r.xrandr_get_screen_resources()._data
 
 n_monitors = 0
 resolutions = []
-for output in res['outputs']:
+for output in res["outputs"]:
     mon = d.xrandr_get_output_info(output, res["config_timestamp"])._data
     if mon["num_preferred"] == 1:
         n_monitors += 1
@@ -576,118 +594,94 @@ alt = "mod1"
 
 terminal = "alacritty"
 
-group_names = [
-    "main",
-    "alt",
-    "visu",
-    "www",
-    "mail",
-    "comms",
-    "media",
-    "background"
-]
+group_names = ["main", "alt", "visu", "www", "mail", "comms", "media", "background"]
 
 group_syms = [
-    u"\uf015",  # House
-    u"\uf46d",  # Another House
-    u"\uf06e",  # Eye
-    u"\uf484",  # Globe
-    u"\uf6ef",  # Mail
-    u"\uf0e6",  # Speech Bubbles
-    u"\uf26c",  # Screen
-    u"\uf756",  # Folder
+    "\uf015",  # House
+    "\uf46d",  # Another House
+    "\uf06e",  # Eye
+    "\uf484",  # Globe
+    "\uf6ef",  # Mail
+    "\uf0e6",  # Speech Bubbles
+    "\uf26c",  # Screen
+    "\uf756",  # Folder
 ]
 
 groups = [
     Group(group_names[0], label=group_syms[0]),
     Group(group_names[1], label=group_syms[1]),
-    Group(group_names[2], label=group_syms[2],
-          matches=[Match(wm_instance_class="paraview"),
-                   Match(wm_class="Zotero")]
-          ),
-    Group(group_names[3], label=group_syms[3],
-          matches=[Match(wm_class="firefox"), Match(wm_class="Opera")]
-          ),
-    Group(group_names[4], label=group_syms[4],
-          matches=[
-        Match(wm_class=["Mail", "Thunderbird"]),
-        Match(wm_class=["Rocket.Chat"]),
-    ],
+    Group(
+        group_names[2],
+        label=group_syms[2],
+        matches=[Match(wm_instance_class="paraview"), Match(wm_class="Zotero")],
     ),
-    Group(group_names[5], label=group_syms[5],
-          matches=[
-        Match(wm_class=re.compile(".*telegram.*", flags=re.IGNORECASE)),
-        Match(wm_class=re.compile(".*whatsapp.*", flags=re.IGNORECASE)),
-        Match(wm_class=re.compile(".*signal.*", flags=re.IGNORECASE)),
-    ],
+    Group(
+        group_names[3],
+        label=group_syms[3],
+        matches=[Match(wm_class="firefox"), Match(wm_class="Opera")],
     ),
-    Group(group_names[6], label=group_syms[6],
-          matches=[
-        Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE)),
-        Match(title=re.compile(".*spotify.*", flags=re.IGNORECASE)),
-    ],
+    Group(
+        group_names[4],
+        label=group_syms[4],
+        matches=[
+            Match(wm_class=["Mail", "Thunderbird"]),
+            Match(wm_class=["Rocket.Chat"]),
+        ],
+    ),
+    Group(
+        group_names[5],
+        label=group_syms[5],
+        matches=[
+            Match(wm_class=re.compile(".*telegram.*", flags=re.IGNORECASE)),
+            Match(wm_class=re.compile(".*whatsapp.*", flags=re.IGNORECASE)),
+            Match(wm_class=re.compile(".*signal.*", flags=re.IGNORECASE)),
+        ],
+    ),
+    Group(
+        group_names[6],
+        label=group_syms[6],
+        matches=[
+            Match(wm_class=re.compile(".*spotify.*", flags=re.IGNORECASE)),
+            Match(title=re.compile(".*spotify.*", flags=re.IGNORECASE)),
+        ],
     ),
     Group(group_names[7], label=group_syms[7]),
 ]
 
 keys = [
     # Standard window Actions
-    Key([win], "Tab", lazy.next_layout(),
-        desc="Layout: Toggle between layouts"),
-    Key([alt], "F4", lazy.window.kill(), desc="Window: Kill focused."),
-    Key([win], "w", lazy.window.kill(), desc="Window: Kill focused."),
-    Key(
-        [win],
-        "space",
-        lazy.window.toggle_fullscreen(),
-        desc="Window: Toggle fullscreen for current window.",
+    EzKey("M-<Tab>", lazy.next_layout(), desc="Layout: Toggle between layouts"),
+    EzKey("M-w", lazy.window.kill(), desc="Window: Kill focused."),
+    EzKey(
+        "M-<space>", lazy.window.toggle_fullscreen(), desc="Window: Toggle fullscreen."
     ),
-    Key(
-        [alt],
-        "Tab",
-        lazy.layout.next(),
-        desc="Window: Move window focus to other.",
-    ),
+    EzKey("A-<Tab>", lazy.layout.next(), desc="Window: Move window focus to other."),
     # Switch between windows
-    Key([win], "h", lazy.layout.left(), desc="Window: Focus left"),
-    Key([win], "l", lazy.layout.right(), desc="Window: Focus right"),
-    Key([win], "j", lazy.layout.down(), desc="Window: Focus down"),
-    Key([win], "k", lazy.layout.up(), desc="Window: Focus up"),
-    Key([win], "n", lazy.next_screen(), desc="Window: Focus next screen."),
+    EzKey("M-h", lazy.layout.left(), desc="Window: Focus left"),
+    EzKey("M-l", lazy.layout.right(), desc="Window: Focus right"),
+    EzKey("M-j", lazy.layout.down(), desc="Window: Focus down"),
+    EzKey("M-k", lazy.layout.up(), desc="Window: Focus up"),
+    EzKey("M-n", lazy.next_screen(), desc="Window: Focus next screen."),
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key(
-        [win, "shift"],
-        "h",
-        lazy.layout.shuffle_left(),
-        desc="Window: Move left",
-    ),
-    Key(
-        [win, "shift"],
-        "l",
-        lazy.layout.shuffle_right(),
-        desc="Window: Move right",
-    ),
-    Key(
-        [win, "shift"],
-        "j",
-        lazy.layout.shuffle_down(),
-        desc="Window: Move down",
-    ),
-    Key([win, "shift"], "k", lazy.layout.shuffle_up(), desc="Window: Move up"),
-    Key(
-        [win, "shift"],
-        "n",
-        lazy.function(move_to_next_screen),
-        desc="Window: move current window to next screen",
+    KeyChord(
+        [win],
+        "m",
+        [
+            EzKey("h", lazy.layout.shuffle_left(), desc="left"),
+            EzKey("l", lazy.layout.shuffle_right(), desc="right"),
+            EzKey("j", lazy.layout.shuffle_down(), desc="down"),
+            EzKey("k", lazy.layout.shuffle_up(), desc="up"),
+            EzKey("n", lazy.function(move_to_next_screen), desc="next screen"),
+        ],
+        mode="MOVE",
     ),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed Unsplit = 1 window displayed,
     # like Max layout, but still with
     # multiple stack panes
-    Key(
-        [win, alt],
-        "Return",
+    EzKey(
+        "M-A-<Return>",
         lazy.layout.toggle_split(),
         desc="Layout: Toggle stack split.",
     ),
@@ -696,12 +690,12 @@ keys = [
         [win, "shift"],
         "r",
         [
-            Key([], "h", lazy.layout.grow_left(), desc="Grow left"),
-            Key([], "l", lazy.layout.grow_right(), desc="Grow right"),
-            Key([], "j", lazy.layout.grow_down(), desc="Grow down"),
-            Key([], "k", lazy.layout.grow_up(), desc="Grow up"),
-            Key([], "n", lazy.layout.normalize(), desc="Reset sizes"),
-            Key([], "x", lazy.window.kill(), desc="Kill focused"),
+            EzKey("h", lazy.layout.grow_left(), desc="Grow left"),
+            EzKey("l", lazy.layout.grow_right(), desc="Grow right"),
+            EzKey("j", lazy.layout.grow_down(), desc="Grow down"),
+            EzKey("k", lazy.layout.grow_up(), desc="Grow up"),
+            EzKey("n", lazy.layout.normalize(), desc="Reset sizes"),
+            EzKey("x", lazy.window.kill(), desc="Kill focused"),
         ],
         name="RESIZE",
     ),
@@ -711,109 +705,38 @@ keys = [
         lazy.function(float_to_front),
         desc="Window: Bring currently focused floating window to front.",
     ),
-    # Floating Window Resizing
-    KeyChord(
-        [win, "shift", alt],
-        "r",
-        [
-            Key(
-                [],
-                "h",
-                lazy.function(change_floating_size, -FLOAT_RS_INC, 0),
-                desc="Decrease floating width",
-            ),
-            Key(
-                [],
-                "l",
-                lazy.function(change_floating_size, FLOAT_RS_INC, 0),
-                desc="Increase floating width",
-            ),
-            Key(
-                [],
-                "j",
-                lazy.function(change_floating_size, 0, FLOAT_RS_INC),
-                desc="Increase floating height",
-            ),
-            Key(
-                [],
-                "k",
-                lazy.function(change_floating_size, 0, -FLOAT_RS_INC),
-                desc="Decrease floating height",
-            ),
-            Key([], "x", lazy.window.kill(), desc="Kill focused window"),
-        ],
-        name="FLOAT RS",
-    ),
-    # Floating Window Moving
-    KeyChord(
-        [win, "shift", alt],
-        "m",
-        [
-            Key(
-                [],
-                "h",
-                lazy.function(move_floating, -FLOAT_MV_INC, 0),
-                desc="Move left",
-            ),
-            Key(
-                [],
-                "l",
-                lazy.function(move_floating, FLOAT_MV_INC, 0),
-                desc="Move right",
-            ),
-            Key(
-                [],
-                "j",
-                lazy.function(move_floating, 0, FLOAT_MV_INC),
-                desc="Move up",
-            ),
-            Key(
-                [],
-                "k",
-                lazy.function(move_floating, 0, -FLOAT_MV_INC),
-                desc="Move down",
-            ),
-            Key([], "x", lazy.window.kill(), desc="Kill focused window"),
-        ],
-        name="FLOAT MV",
-    ),
-    Key([win], "f", lazy.window.toggle_floating(),
-        desc="Window: Toggle floating status"),
-    # Qtile Management Actions
-    Key([win, "control"], "r", lazy.restart(), desc="System: Restart Qtile"),
     Key(
-        ["control", "shift"],
-        "Escape",
+        [win], "f", lazy.window.toggle_floating(), desc="Window: Toggle floating status"
+    ),
+    # Qtile Management Actions
+    EzKey("M-C-r", lazy.restart(), desc="System: Restart Qtile"),
+    EzKey(
+        "C-S-<Escape>",
         lazy.function(shutdown_reboot_menu),
         desc="System: Start Shutdown/Reboot Menu with Rofi",
     ),
-    Key(
-        [win, "control"],
-        "s",
+    EzKey(
+        "M-C-s",
         lazy.function(show_cheatsheet),
         desc="Launch: Qtile Key Map View",
     ),
-    Key(
-        ["control", win],
-        "l",
+    EzKey(
+        "M-C-l",
         lazy.spawn(f"i3lock -e -i {LOCK_WALLPAPER}"),
         desc="System: Lock Session",
     ),
-    Key(
-        [alt],
-        "minus",
+    EzKey(
+        "A-<minus>",
         lazy.spawn("/home/hawo/scripts/circ_pen_selector.sh"),
         desc="Launch: Cycle Pen Script",
     ),
     # Launch Applications
-    Key(
-        [win, "shift"],
-        "Return",
+    EzKey(
+        "M-S-Return",
         lazy.spawn(f"{terminal} -e 'tmux'"),
         desc="Launch: tmux terminal",
     ),
-    Key([win], "Return", lazy.spawn(
-        f"{terminal}"), desc=f"Launch: {terminal}"),
+    EzKey("M-<Return>", lazy.spawn(f"{terminal}"), desc=f"Launch: {terminal}"),
     Key(
         [win],
         "r",
@@ -828,8 +751,7 @@ keys = [
         [win],
         "v",
         lazy.spawn(
-            f"{terminal} -t 'openvpn_console' -e "
-            "'/home/hawo/scripts/vpn_connect.sh'"
+            f"{terminal} -t 'openvpn_console' -e " "'/home/hawo/scripts/vpn_connect.sh'"
         ),
         desc="Connections: Start VPN",
     ),
@@ -868,8 +790,7 @@ keys = [
         ),
         desc="Connections: SSH Menu",
     ),
-    Key([win, "shift"], "s", lazy.spawn(
-        "flameshot gui"), desc="Launch: Screenshot"),
+    Key([win, "shift"], "s", lazy.spawn("flameshot gui"), desc="Launch: Screenshot"),
     # Specific window Actions
     Key(
         [win],
@@ -960,29 +881,24 @@ keys = [
         lazy.spawn("/home/hawo/dotfiles/qtile/emoji_select.sh --rofi"),
         desc="Launch: Emoji Selector using rofi",
     ),
-    # Key(
-    #     ["control", alt],
-    #     "t",
-    #     lazy.spawn(
-    #         f"{terminal} -t translate " "-e '/home/hawo/scripts/translate.sh'"),
-    #     desc="Open translation terminal Interface.",
-    # ),
     Key(
         ["control", alt],
         "t",
         lazy.function(open_translate_window),
         desc="Launch: Translation terminal Interface.",
     ),
-    Key([alt, 'shift'],
+    Key(
+        [alt, "shift"],
         "s",
         lazy.function(scholar_search_cur_selection),
-        desc="Launch: Search current selection in google scholar."
-        ),
-    Key([alt, 'shift'],
+        desc="Launch: Search current selection in google scholar.",
+    ),
+    Key(
+        [alt, "shift"],
         "f",
         lazy.function(open_selection_in_firefox),
-        desc="Launch: Open current selection as URL in firefox."
-        ),
+        desc="Launch: Open current selection as URL in firefox.",
+    ),
     Key(
         [win],
         "c",
@@ -996,22 +912,21 @@ keys = [
             Key(
                 [],
                 "t",
-                lazy.function(toggle_light_group,
-                              "hawos_zimmer", "Hawos Zimmer"),
+                lazy.function(toggle_light_group, "hawos_zimmer", "Hawos Zimmer"),
                 desc="Toggle Hawos Zimmer",
             ),
             Key(
                 [],
                 "j",
-                lazy.function(inc_light_brightness,
-                              "hawos_zimmer", "Hawos Zimmer", 10),
+                lazy.function(inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", 10),
                 desc="Increment Lights by 10% Brightness",
             ),
             Key(
                 ["shift"],
                 "j",
-                lazy.function(set_brightness_group,
-                              "hawos_zimmer", "Hawos Zimmer", 100),
+                lazy.function(
+                    set_brightness_group, "hawos_zimmer", "Hawos Zimmer", 100
+                ),
                 desc="Set Room Lights to 100%",
             ),
             Key(
@@ -1025,8 +940,7 @@ keys = [
             Key(
                 ["shift"],
                 "k",
-                lazy.function(set_brightness_group,
-                              "hawos_zimmer", "Hawos Zimmer", 0),
+                lazy.function(set_brightness_group, "hawos_zimmer", "Hawos Zimmer", 0),
                 desc="Set Room Lights to 0%",
             ),
             Key(
@@ -1050,10 +964,18 @@ keys = [
         ],
         name="LIGHT CONTROL",
     ),
-    Key([win, alt], "t", lazy.function(spotify_mark),
-        desc="Audio: Mark current spotify track."),
-    Key([win, "shift"], "t", lazy.function(current_track_notification),
-        desc="Audio: Display notification with current track"),
+    Key(
+        [win, alt],
+        "t",
+        lazy.function(spotify_mark),
+        desc="Audio: Mark current spotify track.",
+    ),
+    Key(
+        [win, "shift"],
+        "t",
+        lazy.function(current_track_notification),
+        desc="Audio: Display notification with current track",
+    ),
 ]
 
 for n, grp in enumerate(groups):
@@ -1072,8 +994,7 @@ for n, grp in enumerate(groups):
                 [win, "shift"],
                 str(n + 1),
                 lazy.window.togroup(grp.name, switch_group=True),
-                desc="Group: Switch to and move focused window {}".format(
-                    grp.name),
+                desc="Group: Switch to and move focused window {}".format(grp.name),
             ),
             # Or, use below if you prefer not to switch to that group.
             # # win + shift + letter of group = move focused window to group
@@ -1084,7 +1005,7 @@ for n, grp in enumerate(groups):
 
 MARGIN = 12
 BORDER_WIDTH = 2
-FOCUS_BORDER = colors[15]
+FOCUS_BORDER = colors[3]
 NORMAL_BORDER = colors[4]
 STACK_BORDER = colors[2]
 STACK_BORDER_FOCUS = colors[10]
@@ -1120,13 +1041,21 @@ bar_height = int(px_y * 0.025)
 def spacer(fore, back, dir="l", padding=0):
     """Spacer in bar with color 'color'."""
     if dir == "l":
-        return widget.TextBox(text=u" \ue0b6", fontsize=bar_height,
-                              padding=0,
-                              foreground=fore, background=back)
+        return widget.TextBox(
+            text=" \ue0b6",
+            fontsize=bar_height,
+            padding=0,
+            foreground=fore,
+            background=back,
+        )
     else:
-        return widget.TextBox(text=u"\ue0b4 ", fontsize=bar_height,
-                              padding=0,
-                              foreground=fore, background=back)
+        return widget.TextBox(
+            text="\ue0b4 ",
+            fontsize=bar_height,
+            padding=0,
+            foreground=fore,
+            background=back,
+        )
 
 
 def gen_widgets(this_c, other_c, screen):
@@ -1135,7 +1064,7 @@ def gen_widgets(this_c, other_c, screen):
         widget.Chord(
             foreground=colors[0],
             background=this_c,
-            fmt=u"\uf085 {}  ",
+            fmt="\uf085 {}  ",
         ),
         widget.GroupBox(
             spacing=bar_margin,
@@ -1144,68 +1073,58 @@ def gen_widgets(this_c, other_c, screen):
             highlight_color=[this_c, this_c],
             background=this_c,
             foreground=colors[0],
-
             this_screen_border=colors[17],
             other_screen_border=colors[17],
-
             this_current_screen_border=colors[16],
             other_current_screen_border=colors[17],
-
             urgent_border=colors[5],
             urgent_text=colors[5],
-
             active=colors[16],
             inactive=colors[17],
             disable_drag=True,
             hide_unused=False,
         ),
         spacer(this_c, None, dir="r"),
-
         spacer(colors[0], None, dir="l"),
         widget.WindowName(
-            foreground=this_c, background=colors[0],
+            foreground=this_c,
+            background=colors[0],
         ),
         spacer(colors[0], None, dir="r"),
-
         spacer(colors[0], None, dir="l"),
         widget.Memory(
             foreground=colors[6],
             background=colors[0],
-            format="RAM: {MemUsed: .0f} MB  "),
+            format="RAM: {MemUsed: .0f} MB  ",
+        ),
         # spacer(this_c),
         widget.CPU(
             foreground=colors[11],
             background=colors[0],
-            format="CPU @ {freq_current} GHz {load_percent:3.0f}%"
+            format="CPU @ {freq_current} GHz {load_percent:3.0f}%",
         ),
-        widget.TextBox(
-            foreground=colors[16],
-            background=colors[0],
-            text=u" \uf942 "
-        ),
+        widget.TextBox(foreground=colors[16], background=colors[0], text=" \uf942 "),
         widget.ThermalSensor(
-            foreground=colors[6],
-            background=colors[0],
-            foreground_alert=colors[9]),
+            foreground=colors[6], background=colors[0], foreground_alert=colors[9]
+        ),
         spacer(colors[0], None, dir="r"),
-
         spacer(colors[0], None, dir="l"),
         widget.Net(
             format="{down:.2f} {down_suffix}",
             foreground=colors[6],
             background=colors[0],
         ),
-        widget.TextBox(text=u" \uf0ab | \uf0aa ", background=colors[0]),
-        widget.Net(format="{up:.2f} {up_suffix}", foreground=colors[11], background=colors[0]),
+        widget.TextBox(text=" \uf0ab | \uf0aa ", background=colors[0]),
+        widget.Net(
+            format="{up:.2f} {up_suffix}", foreground=colors[11], background=colors[0]
+        ),
         spacer(colors[0], None, dir="r"),
-
         spacer(this_c, None, dir="l"),
         widget.Volume(
             background=this_c,
             foreground=colors[0],
         ),
-        CapsNumLockIndicator_Nice(
-            background=this_c, foreground=colors[17]),
+        CapsNumLockIndicator_Nice(background=this_c, foreground=colors[17]),
         widget.Clock(
             format=" %H:%M %a %d.%m.%Y",
             foreground=colors[17],
@@ -1215,9 +1134,10 @@ def gen_widgets(this_c, other_c, screen):
         spacer(this_c, None, dir="r"),
     ]
     if screen == 0:
-        widgetlist.insert(-6, widget.Systray(padding=7,
-                                             icon_size=int(bar_height * 0.6),
-                                             background=None))
+        widgetlist.insert(
+            -6,
+            widget.Systray(padding=7, icon_size=int(bar_height * 0.6), background=None),
+        )
 
     return widgetlist
 
@@ -1232,8 +1152,9 @@ screens = [
             x11_drag_polling_rate=60,
         ),
     )
-    for screen, (this_c, other_c) in enumerate([(colors[3], colors[2]),
-                                                (colors[2], colors[3])])
+    for screen, (this_c, other_c) in enumerate(
+        [(colors[3], colors[2]), (colors[2], colors[3])]
+    )
 ]
 
 # Drag floating layouts.
@@ -1281,7 +1202,9 @@ floating_layout = layout.Floating(
         Match(title="Picture in Picture"),
         Match(title="Generate Fonts"),
         Match(title=re.compile("^.*settings((?!.*firefox).)*$", flags=re.IGNORECASE)),
-        Match(title=re.compile("^.*preferences((?!.*firefox).)*$", flags=re.IGNORECASE)),
+        Match(
+            title=re.compile("^.*preferences((?!.*firefox).)*$", flags=re.IGNORECASE)
+        ),
         Match(title=re.compile("Polls"), wm_class=re.compile("zoom")),
         Match(title=re.compile("Chat"), wm_class=re.compile("zoom")),
         Match(title=re.compile(""), wm_class=re.compile("zoom")),
@@ -1317,9 +1240,7 @@ wmname = "LG3D"
 def autostart():
     """Autostart functions."""
     home = os.path.expanduser("~")
-    subprocess.call([home + "/.config/qtile/autostart.sh",
-                     WALLPAPER,
-                     LOCK_WALLPAPER])
+    subprocess.call([home + "/.config/qtile/autostart.sh", WALLPAPER, LOCK_WALLPAPER])
 
 
 # @hook.subscribe.client_managed
