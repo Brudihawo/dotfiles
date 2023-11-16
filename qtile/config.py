@@ -664,18 +664,11 @@ keys = [
     EzKey("M-n", lazy.next_screen(), desc="Window: Focus next screen."),
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    KeyChord(
-        [win],
-        "m",
-        [
-            EzKey("h", lazy.layout.shuffle_left(), desc="left"),
-            EzKey("l", lazy.layout.shuffle_right(), desc="right"),
-            EzKey("j", lazy.layout.shuffle_down(), desc="down"),
-            EzKey("k", lazy.layout.shuffle_up(), desc="up"),
-            EzKey("n", lazy.function(move_to_next_screen), desc="next screen"),
-        ],
-        mode="MOVE",
-    ),
+    EzKey("M-S-h", lazy.layout.shuffle_left(), desc="left"),
+    EzKey("M-S-l", lazy.layout.shuffle_right(), desc="right"),
+    EzKey("M-S-j", lazy.layout.shuffle_down(), desc="down"),
+    EzKey("M-S-k", lazy.layout.shuffle_up(), desc="up"),
+    EzKey("M-S-n", lazy.function(move_to_next_screen), desc="next screen"),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed Unsplit = 1 window displayed,
     # like Max layout, but still with
@@ -732,7 +725,7 @@ keys = [
     ),
     # Launch Applications
     EzKey(
-        "M-S-Return",
+        "M-S-<Return>",
         lazy.spawn(f"{terminal} -e 'tmux'"),
         desc="Launch: tmux terminal",
     ),
@@ -1220,7 +1213,7 @@ floating_layout = layout.Floating(
         Match(wm_class=re.compile(".*yad.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*clocks.*", flags=re.IGNORECASE)),
     ],
-    border_width=0,
+    border_width=1,
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
