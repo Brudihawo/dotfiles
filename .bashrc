@@ -45,14 +45,14 @@ fi
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/ws/oy2699/programs/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('/home/hawo/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/ws/oy2699/programs/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/ws/oy2699/programs/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "/home/hawo/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/hawo/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/ws/oy2699/programs/miniconda3/bin:$PATH"
+        export PATH="/home/hawo/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -187,18 +187,23 @@ export EDITOR=nvim
 export NNN_PLUG='o:fzopen;v:imgview;r:renamer;d:diffs;j:autojump'
 export NNN_FIFO=/tmp/nnn.fifo
 
+source ~/dotfiles/bash_functions.sh
+source /usr/share/fzf/completion.bash
+source /usr/share/fzf/key-bindings.bash
+
 set -o vi
 
-# ALIASES
-alias ls='exa -lah --long --header --sort=name -m'
+# MY ALIASES
+alias lls='/usr/bin/ls'
+alias ls='exa --long --header --sort=name -m'
 alias env='env | fzf --multi'
-alias gst='git status'
-alias gc='git commit'
-alias gpsh='git push'
 alias batv='bat --theme=gruvbox-dark'
 alias qlog='batv ~/.local/share/qtile/qtile.log'
 alias webcamview='mpv --profile=low-latency --untimed av://v4l2:/dev/video0 --demuxer-lavf-format=video4linux2 --demuxer-lavf-o-set=input_format=mjpeg'
 alias glog="git log --pretty='%Cgreen%cs% Cred%an %Creset%s' --graph"
-. "$HOME/.cargo/env"
+
+complete -o bashdefault -o default -F _fzf_path_completion zathura
+source /usr/share/bash-completion/completions/git
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+. "$HOME/.cargo/env"

@@ -34,19 +34,19 @@ from typing import List  # noqa: F401
 
 import libqtile
 import psutil
+
 # from libqtile.utils import guess_terminal
 from libqtile import bar, hook, layout, widget
 from libqtile.config import (Click, Drag, EzKey, Group, Key, KeyChord, Match,
                              Screen)
 from libqtile.core.manager import Qtile
 from libqtile.lazy import lazy
-from libqtile.log_utils import logger
 from libqtile.widget import base
 from Xlib import X, display
 from Xlib.ext import randr
 
-LOCK_WALLPAPER = "/home/ws/oy2699/mypaint/daily_blurred.png"
-WALLPAPER = "/home/ws/oy2699/mypaint/daily.png"
+LOCK_WALLPAPER = "/usr/share/wallpapers/hex_melange_2_lock.png"
+WALLPAPER = "/usr/share/wallpapers/hex_melange_2.png"
 
 
 def send_notification(message, app, urgency="normal", icon=None):
@@ -155,23 +155,40 @@ def check_process_running(proc_name):
 
     return False
 
+def move_to_prev_screen(qtile):
+    """Move a window to the next screen."""
+    active_win = qtile.current_window
+    next_screen = (qtile.current_screen.index - 1) % len(qtile.screens)
+    active_win.cmd_toscreen(next_screen)
+    qtile.focus_screen(next_screen, warp=True)
+    active_win.focus(warp=True)
 
 def move_to_next_screen(qtile):
     """Move a window to the next screen."""
     active_win = qtile.current_window
     next_screen = (qtile.current_screen.index + 1) % len(qtile.screens)
-    active_win.toscreen(next_screen)
+    active_win.cmd_toscreen(next_screen)
     qtile.focus_screen(next_screen, warp=True)
     active_win.focus(warp=True)
 
 
-def move_to_prev_screen(qtile):
-    """Move a window to the previous screen."""
-    active_win = qtile.current_window
-    next_screen = (qtile.current_screen.index - 1) % len(qtile.screens)
-    active_win.toscreen(next_screen)
-    qtile.focus_screen(next_screen, warp=True)
-    active_win.focus(warp=True)
+def circular_selector(options):
+    """Use a circular selector for selecting one of the commands"""
+    # sel = subprocess.call(["/home/hawo/bin/selgl", "480", f"{len(options)}"],
+    #                        start_new_session=True)
+    # if sel > 0:
+    #     return options[sel]
+
+    return None
+
+
+@lazy.function
+def circ_selector_pen(qtile):
+    keystrokes = ["1", "2", "3", "K", "J", "O", "P"]
+    selected = circular_selector(keystrokes)
+    send_notification("test")
+    if selected is not None:
+        subprocess.call(["xdotool", "key", keystrokes[selected]])
 
 
 def rofi_selector(option_string, prompt):
@@ -183,20 +200,6 @@ def rofi_selector(option_string, prompt):
     )
     child_process.stdin.write(option_string.encode("utf-8"))
     return child_process.communicate()[0].decode("utf-8").strip("\n")
-
-
-def paper_selector(qtile: Qtile):
-    papers_path = os.path.expanduser("~/notes/papers/doc/")
-    try:
-        files = "\n".join(
-            os.path.basename(e.path) for e in os.scandir(papers_path) if e.is_file()
-        )
-    except FileNotFoundError:
-        send_notification("Could not open papers directory", "Paper Selector")
-        return
-
-    filename = rofi_selector(files, "Open Paper")
-    qtile.spawn(["okular", os.path.join(papers_path, filename)])
 
 
 def move_to_group_selector(qtile):
@@ -432,14 +435,14 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
         out = " "
 
         if sym[0] == "on":  # Caps Lock
-            out += "C"
+            out += "\uf55f"
         else:
             out += "\uf48b"
 
         if sym[1] == "on":  # Num Lock
             out += "\uf560"
         else:
-            out += "N"
+            out += "\uf48b"
 
         return out + " "
 
@@ -553,8 +556,7 @@ for output in res["outputs"]:
         diag = max([math.sqrt(mode.width**2 + mode.height**2) for mode in modes])
         diags.append(diag)
 
-# diag = min(diags)
-diag = math.sqrt(1440**2 + 2560**2)
+diag = min(diags)
 
 FLOAT_RS_INC = int(diag * 0.01)
 FLOAT_MV_INC = int(diag * 0.01)
@@ -563,7 +565,7 @@ FLOAT_MV_INC = int(diag * 0.01)
 win = "mod4"
 alt = "mod1"
 
-terminal = "kitty"
+terminal = "alacritty"
 
 group_names = ["main", "alt", "visu", "www", "mail", "comms", "media", "background"]
 
@@ -572,10 +574,10 @@ group_syms = [
     "\uf46d",  # Another House
     "\uf06e",  # Eye
     "\uf484",  # Globe
-    "\ueb1c",  # Mail
+    "\uf6ef",  # Mail
     "\uf0e6",  # Speech Bubbles
     "\uf26c",  # Screen
-    "\uea83",  # Folder
+    "\uf756",  # Folder
 ]
 
 groups = [
@@ -698,6 +700,11 @@ keys = [
         lazy.spawn(f"i3lock -e -i {LOCK_WALLPAPER} -t"),
         desc="System: Lock Session",
     ),
+    EzKey(
+        "A-<minus>",
+        lazy.spawn("/home/hawo/scripts/circ_pen_selector.sh"),
+        desc="Launch: Cycle Pen Script",
+    ),
     # Launch Applications
     EzKey(
         "M-S-<Return>",
@@ -780,12 +787,6 @@ keys = [
         desc="Window: Move current to group using rofi",
     ),
     Key(
-        ["control", win],
-        "p",
-        lazy.function(paper_selector),
-        desc="Open: paper selector",
-    ),
-    Key(
         [win],
         "g",
         lazy.function(group_switch_selector),
@@ -855,6 +856,12 @@ keys = [
             "-show clipboard -run-command '{cmd}'"
         ),
         desc="System: Show clipboard contents",
+    ),
+    Key(
+        ["control", alt],
+        "e",
+        lazy.spawn("/home/hawo/dotfiles/qtile/emoji_select.sh --rofi"),
+        desc="Launch: Emoji Selector using rofi",
     ),
     Key(
         [alt, "shift"],
@@ -1034,7 +1041,6 @@ def gen_widgets(this_c, screen):
             background=colors[0],
         ),
         spacer(colors[0], None, bar_height, dir="r"),
-        widget.BatteryIcon(),
         spacer(this_c, None, bar_height, dir="l"),
         widget.PulseVolume(
             background=this_c,
