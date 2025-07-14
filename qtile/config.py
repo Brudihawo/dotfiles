@@ -1,4 +1,5 @@
 """Qtile Configuration."""
+
 # Copyright (c) 2010 Aldo Cortesi
 # Copyright (c) 2010, 2014 dequis Copyright (c) 2012 Randall Ma
 # Copyright (c) 2012-2014 Tycho Andersen
@@ -24,25 +25,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import math
 import os
 import re
 import subprocess
+import time
 from typing import List  # noqa: F401
 
+import libqtile
 import psutil
-from hue_controller.hue_classes import HueBridge
-from libqtile.config import EzKey
-
 # from libqtile.utils import guess_terminal
 from libqtile import bar, hook, layout, widget
-from libqtile.config import Click, Drag, Group, Key, KeyChord, Match, Screen
+from libqtile.config import (Click, Drag, EzKey, Group, Key, KeyChord, Match,
+                             Screen)
+from libqtile.core.manager import Qtile
 from libqtile.lazy import lazy
+from libqtile.log_utils import logger
 from libqtile.widget import base
 from Xlib import X, display
 from Xlib.ext import randr
 
-LOCK_WALLPAPER = "/usr/share/wallpapers/hex_melange_2_lock.png"
-WALLPAPER = "/usr/share/wallpapers/hex_melange_2.png"
+LOCK_WALLPAPER = "/home/ws/oy2699/mypaint/daily_blurred.png"
+WALLPAPER = "/home/ws/oy2699/mypaint/daily.png"
 
 
 def send_notification(message, app, urgency="normal", icon=None):
@@ -152,113 +156,22 @@ def check_process_running(proc_name):
     return False
 
 
-def open_translate_window(qtile):
-    """Open Transation window in tmux if tmux is running else open terminal"""
-    if check_process_running("tmux"):
-        subprocess.call(["tmux", "neww", "~/scripts/translate.sh"])
-    else:
-        subprocess.call([terminal, "-e", "~/scripts/translate.sh"])
-
-
-def toggle_light_group(qtile, group, display_name):
-    """Toggle hue lights in a hue light group."""
-    BRIDGE = HueBridge("hawos_bridge")
-    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
-    if not os.path.isfile(lockfile_path):
-        with open(lockfile_path, "w+") as lck_file:
-            lck_file.write("locked")
-        BRIDGE.toggle_group(group)
-        os.remove(lockfile_path)
-        light = BRIDGE.groups[group][0]
-        status = BRIDGE.get_light_states()[light]
-        if status["on"]:
-            brightness = int(status["brightness"] / 255 * 100)
-        else:
-            brightness = 0
-        send_progress(display_name, "Lighting", brightness)
-
-
-def set_brightness_group(qtile, group, display_name, brightness):
-    """Set Group Light Brightness."""
-    BRIDGE = HueBridge("hawos_bridge")
-    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
-    if not os.path.isfile(lockfile_path):
-        with open(lockfile_path, "w+") as lck_file:
-            lck_file.write("locked")
-
-        BRIDGE.groups[group]
-        BRIDGE.group_set_bri_sat_hue(group, brightness=brightness)
-
-        os.remove(lockfile_path)
-        send_progress(display_name, "Lighting", brightness)
-
-
-def toggle_light(qtile, lights, display_name):
-    """Toggle hue lights in a hue light group."""
-    BRIDGE = HueBridge("hawos_bridge")
-    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
-    if not os.path.isfile(lockfile_path):
-        with open(lockfile_path, "w+") as lck_file:
-            lck_file.write("locked")
-        for light in lights:
-            if light not in BRIDGE.lights:
-                send_notification(
-                    f"Invalid Light Name: {light}", "light control", "HIGH"
-                )
-                return
-
-        BRIDGE.toggle_lights(lights)
-        os.remove(lockfile_path)
-        send_notification(f"Toggled {display_name}", "light control", "low")
-
-
-def inc_light_brightness(qtile, group, display_name, inc):
-    """Increment light brightness in a hue light group."""
-    BRIDGE = HueBridge("hawos_bridge")
-    lockfile_path = f"{HueBridge.HUE_FILE_LOCATION}/hawos_bridge.lck"
-    if not os.path.isfile(lockfile_path):
-        with open(lockfile_path, "w+") as lck_file:
-            lck_file.write("locked")
-
-        light = BRIDGE.groups[group][0]
-        status = BRIDGE.get_light_states()[light]
-        BRIDGE.increment_group(group, inc)
-        os.remove(lockfile_path)
-        light = BRIDGE.groups[group][0]
-        status = BRIDGE.get_light_states()[light]
-        if status["on"]:
-            brightness = int(status["brightness"] / 255 * 100)
-        else:
-            brightness = 0
-        send_progress(display_name, "Lighting", brightness)
-
-
 def move_to_next_screen(qtile):
     """Move a window to the next screen."""
     active_win = qtile.current_window
     next_screen = (qtile.current_screen.index + 1) % len(qtile.screens)
-    active_win.cmd_toscreen(next_screen)
+    active_win.toscreen(next_screen)
     qtile.focus_screen(next_screen, warp=True)
     active_win.focus(warp=True)
 
 
-def circular_selector(options):
-    """Use a circular selector for selecting one of the commands"""
-    # sel = subprocess.call(["/home/hawo/bin/selgl", "480", f"{len(options)}"],
-    #                        start_new_session=True)
-    # if sel > 0:
-    #     return options[sel]
-
-    return None
-
-
-@lazy.function
-def circ_selector_pen(qtile):
-    keystrokes = ["1", "2", "3", "K", "J", "O", "P"]
-    selected = circular_selector(keystrokes)
-    send_notification("test")
-    if selected is not None:
-        subprocess.call(["xdotool", "key", keystrokes[selected]])
+def move_to_prev_screen(qtile):
+    """Move a window to the previous screen."""
+    active_win = qtile.current_window
+    next_screen = (qtile.current_screen.index - 1) % len(qtile.screens)
+    active_win.toscreen(next_screen)
+    qtile.focus_screen(next_screen, warp=True)
+    active_win.focus(warp=True)
 
 
 def rofi_selector(option_string, prompt):
@@ -270,6 +183,20 @@ def rofi_selector(option_string, prompt):
     )
     child_process.stdin.write(option_string.encode("utf-8"))
     return child_process.communicate()[0].decode("utf-8").strip("\n")
+
+
+def paper_selector(qtile: Qtile):
+    papers_path = os.path.expanduser("~/notes/papers/doc/")
+    try:
+        files = "\n".join(
+            os.path.basename(e.path) for e in os.scandir(papers_path) if e.is_file()
+        )
+    except FileNotFoundError:
+        send_notification("Could not open papers directory", "Paper Selector")
+        return
+
+    filename = rofi_selector(files, "Open Paper")
+    qtile.spawn(["okular", os.path.join(papers_path, filename)])
 
 
 def move_to_group_selector(qtile):
@@ -312,6 +239,43 @@ def shutdown_reboot_menu(qtile):
         subprocess.call(["systemctl", "suspend"])
     else:
         send_notification("no action", "")
+
+
+def update_background():
+    subprocess.run(
+        [
+            "python3",
+            os.path.expanduser("~/dotfiles/qtile/set_lockscreen_bkg.py"),
+            os.path.expanduser("~/mypaint/daily.ora"),
+            os.path.expanduser("~/mypaint/daily_bkg.png"),
+            os.path.expanduser("~/mypaint/daily_blurred.png"),
+        ]
+    )
+
+
+def reconf_screens(data):
+    autorandr_output = (
+        subprocess.run("autorandr --change".split(), capture_output=True)
+        .stdout.decode()
+        .splitlines()
+    )
+    current = None
+    for i in autorandr_output:
+        if "(detected) (current)" in i:
+            current = i.split(" (detected) (current)")[0]
+            break
+
+    if current is None:
+        send_notification(
+            "Could not detect known screen configuration", "Reconfigure Screens"
+        )
+        return
+
+    send_notification(f"Now configuration {current}", "Reconfigure Screens")
+
+    if data is not None:
+        update_background()
+        lazy.restart()
 
 
 def change_floating_size(qtile, dw, dh, bottom_right=True):
@@ -468,14 +432,14 @@ class CapsNumLockIndicator_Nice(base.ThreadPoolText):
         out = " "
 
         if sym[0] == "on":  # Caps Lock
-            out += "\uf55f"
+            out += "C"
         else:
             out += "\uf48b"
 
         if sym[1] == "on":  # Num Lock
             out += "\uf560"
         else:
-            out += "\uf48b"
+            out += "N"
 
         return out + " "
 
@@ -578,21 +542,28 @@ res = r.xrandr_get_screen_resources()._data
 
 n_monitors = 0
 resolutions = []
+diags = []
 for output in res["outputs"]:
     mon = d.xrandr_get_output_info(output, res["config_timestamp"])._data
     if mon["num_preferred"] == 1:
         n_monitors += 1
+        modes = sum(
+            [[m for m in res["modes"] if m["id"] == mode] for mode in mon["modes"]], []
+        )
+        diag = max([math.sqrt(mode.width**2 + mode.height**2) for mode in modes])
+        diags.append(diag)
 
-px_x, px_y = res["modes"][0]["width"], res["modes"][0]["height"]
+# diag = min(diags)
+diag = math.sqrt(1440**2 + 2560**2)
 
-FLOAT_RS_INC = int(px_x * 0.01)
-FLOAT_MV_INC = int(px_x * 0.01)
+FLOAT_RS_INC = int(diag * 0.01)
+FLOAT_MV_INC = int(diag * 0.01)
 
 # keys
 win = "mod4"
 alt = "mod1"
 
-terminal = "alacritty"
+terminal = "kitty"
 
 group_names = ["main", "alt", "visu", "www", "mail", "comms", "media", "background"]
 
@@ -601,10 +572,10 @@ group_syms = [
     "\uf46d",  # Another House
     "\uf06e",  # Eye
     "\uf484",  # Globe
-    "\uf6ef",  # Mail
+    "\ueb1c",  # Mail
     "\uf0e6",  # Speech Bubbles
     "\uf26c",  # Screen
-    "\uf756",  # Folder
+    "\uea83",  # Folder
 ]
 
 groups = [
@@ -618,7 +589,9 @@ groups = [
     Group(
         group_names[3],
         label=group_syms[3],
-        matches=[Match(wm_class="firefox"), Match(wm_class="Opera")],
+        matches=[
+            Match(wm_class=w) for w in ["firefox_firefox", "Opera", "Google Chrome"]
+        ],
     ),
     Group(
         group_names[4],
@@ -661,14 +634,18 @@ keys = [
     EzKey("M-l", lazy.layout.right(), desc="Window: Focus right"),
     EzKey("M-j", lazy.layout.down(), desc="Window: Focus down"),
     EzKey("M-k", lazy.layout.up(), desc="Window: Focus up"),
-    EzKey("M-n", lazy.next_screen(), desc="Window: Focus next screen."),
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
     EzKey("M-S-h", lazy.layout.shuffle_left(), desc="left"),
     EzKey("M-S-l", lazy.layout.shuffle_right(), desc="right"),
     EzKey("M-S-j", lazy.layout.shuffle_down(), desc="down"),
     EzKey("M-S-k", lazy.layout.shuffle_up(), desc="up"),
-    EzKey("M-S-n", lazy.function(move_to_next_screen), desc="next screen"),
+    EzKey("M-n", lazy.next_layout(), desc="next layout"),
+    EzKey("M-A-h", lazy.prev_screen(), desc="Window: Focus previous screen."),
+    EzKey("M-A-l", lazy.next_screen(), desc="Window: Focus next screen."),
+    EzKey("M-d", lazy.function(reconf_screens), desc="Reconfigure Screens"),
+    EzKey("M-A-S-h", lazy.function(move_to_prev_screen), desc="prev screen"),
+    EzKey("M-A-S-l", lazy.function(move_to_next_screen), desc="next screen"),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed Unsplit = 1 window displayed,
     # like Max layout, but still with
@@ -688,9 +665,12 @@ keys = [
             EzKey("j", lazy.layout.grow_down(), desc="Grow down"),
             EzKey("k", lazy.layout.grow_up(), desc="Grow up"),
             EzKey("n", lazy.layout.normalize(), desc="Reset sizes"),
+            EzKey("i", lazy.layout.grow(), desc="Monad Grow"),
+            EzKey("m", lazy.layout.shrink(), desc="Monad Shrink"),
             EzKey("x", lazy.window.kill(), desc="Kill focused"),
         ],
         name="RESIZE",
+        mode=True,
     ),
     Key(
         [win, "shift"],
@@ -715,13 +695,8 @@ keys = [
     ),
     EzKey(
         "M-C-l",
-        lazy.spawn(f"i3lock -e -i {LOCK_WALLPAPER}"),
+        lazy.spawn(f"i3lock -e -i {LOCK_WALLPAPER} -t"),
         desc="System: Lock Session",
-    ),
-    EzKey(
-        "A-<minus>",
-        lazy.spawn("/home/hawo/scripts/circ_pen_selector.sh"),
-        desc="Launch: Cycle Pen Script",
     ),
     # Launch Applications
     EzKey(
@@ -730,6 +705,13 @@ keys = [
         desc="Launch: tmux terminal",
     ),
     EzKey("M-<Return>", lazy.spawn(f"{terminal}"), desc=f"Launch: {terminal}"),
+    EzKey(
+        "M-C-n",
+        lazy.spawn(
+            f"mypaint --fullscreen '{os.path.expanduser('~/mypaint/daily.ora')}'"
+        ),
+        desc=f"Launch: daily notes",
+    ),
     Key(
         [win],
         "r",
@@ -796,6 +778,12 @@ keys = [
         "m",
         lazy.function(move_to_group_selector),
         desc="Window: Move current to group using rofi",
+    ),
+    Key(
+        ["control", win],
+        "p",
+        lazy.function(paper_selector),
+        desc="Open: paper selector",
     ),
     Key(
         [win],
@@ -869,18 +857,6 @@ keys = [
         desc="System: Show clipboard contents",
     ),
     Key(
-        ["control", alt],
-        "e",
-        lazy.spawn("/home/hawo/dotfiles/qtile/emoji_select.sh --rofi"),
-        desc="Launch: Emoji Selector using rofi",
-    ),
-    Key(
-        ["control", alt],
-        "t",
-        lazy.function(open_translate_window),
-        desc="Launch: Translation terminal Interface.",
-    ),
-    Key(
         [alt, "shift"],
         "s",
         lazy.function(scholar_search_cur_selection),
@@ -891,71 +867,6 @@ keys = [
         "f",
         lazy.function(open_selection_in_firefox),
         desc="Launch: Open current selection as URL in firefox.",
-    ),
-    Key(
-        [win],
-        "c",
-        lazy.spawn(f"{terminal} -t 'cht.sh' -e '/home/hawo/scripts/cht.sh'"),
-        desc="Launch: Cheat Sheet terminal",
-    ),
-    KeyChord(
-        [win, alt],
-        "l",
-        [
-            Key(
-                [],
-                "t",
-                lazy.function(toggle_light_group, "hawos_zimmer", "Hawos Zimmer"),
-                desc="Toggle Hawos Zimmer",
-            ),
-            Key(
-                [],
-                "j",
-                lazy.function(inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", 10),
-                desc="Increment Lights by 10% Brightness",
-            ),
-            Key(
-                ["shift"],
-                "j",
-                lazy.function(
-                    set_brightness_group, "hawos_zimmer", "Hawos Zimmer", 100
-                ),
-                desc="Set Room Lights to 100%",
-            ),
-            Key(
-                [],
-                "k",
-                lazy.function(
-                    inc_light_brightness, "hawos_zimmer", "Hawos Zimmer", -10
-                ),
-                desc="Decrement Lights by 10% Brightness",
-            ),
-            Key(
-                ["shift"],
-                "k",
-                lazy.function(set_brightness_group, "hawos_zimmer", "Hawos Zimmer", 0),
-                desc="Set Room Lights to 0%",
-            ),
-            Key(
-                [alt],
-                "k",
-                lazy.function(toggle_light, ["Kueche", "Kueche2"], "Küche"),
-                desc="Toggle Kitchen Lights",
-            ),
-            Key(
-                [alt],
-                "f",
-                lazy.function(toggle_light, ["Flur"], "Flur"),
-                desc="Toggle Hallway Lights",
-            ),
-            Key(
-                [alt],
-                "b",
-                lazy.function(toggle_light, ["Bad"], "Bad"),
-                desc="Toggle Bathroom Lights",
-            ),
-        ],
-        name="LIGHT CONTROL",
     ),
     Key(
         [win, alt],
@@ -998,45 +909,53 @@ for n, grp in enumerate(groups):
 
 MARGIN = 12
 BORDER_WIDTH = 2
-FOCUS_BORDER = colors[3]
-NORMAL_BORDER = colors[4]
-STACK_BORDER = colors[2]
-STACK_BORDER_FOCUS = colors[10]
+
+border_cfg = {
+    "border_focus": colors[3],
+    "border_normal": colors[4],
+    "border_width": BORDER_WIDTH,
+    "border_normal_stack": colors[2],
+    "border_focus_stack": colors[10],
+    "margin": MARGIN,
+}
 
 layouts = [
     layout.Columns(
-        border_focus=FOCUS_BORDER,
-        border_normal=NORMAL_BORDER,
-        border_width=BORDER_WIDTH,
-        border_normal_stack=STACK_BORDER,
-        border_focus_stack=STACK_BORDER_FOCUS,
+        **border_cfg,
         border_on_single=True,
         grow_amount=2,
         insert_position=1,
         num_columns=2,
         fair=True,
-        margin=MARGIN,
+    ),
+    layout.MonadTall(
+        **border_cfg,
+        ratio=0.6,
+    ),
+    layout.MonadThreeCol(
+        **border_cfg,
+        ratio=0.6,
     ),
 ]
 
 widget_defaults = dict(
-    font="NotoSansMono Nerd Font Regular",
+    font="NotoSansM Nerd Font Mono",
     # font='sans',
-    fontsize=int(px_y * 0.013),
-    padding=int(px_y * 0.001),
+    fontsize=int(diag * 0.007),
+    padding=int(diag * 0.002),
 )
 
 extension_defaults = widget_defaults.copy()
-bar_margin = int(px_y * 0.006)
-bar_height = int(px_y * 0.025)
+bar_margin = int(diag * 0.002)
+bar_height = int(diag * 0.012)
 
 
-def spacer(fore, back, dir="l", padding=0):
+def spacer(fore, back, height, dir="l", padding=0):
     """Spacer in bar with color 'color'."""
     if dir == "l":
         return widget.TextBox(
             text=" \ue0b6",
-            fontsize=bar_height,
+            fontsize=height,
             padding=0,
             foreground=fore,
             background=back,
@@ -1044,16 +963,16 @@ def spacer(fore, back, dir="l", padding=0):
     else:
         return widget.TextBox(
             text="\ue0b4 ",
-            fontsize=bar_height,
+            fontsize=height,
             padding=0,
             foreground=fore,
             background=back,
         )
 
 
-def gen_widgets(this_c, other_c, screen):
+def gen_widgets(this_c, screen):
     widgetlist = [
-        spacer(this_c, None, dir="l"),
+        spacer(this_c, None, bar_height, dir="l"),
         widget.Chord(
             foreground=colors[0],
             background=this_c,
@@ -1061,7 +980,7 @@ def gen_widgets(this_c, other_c, screen):
         ),
         widget.GroupBox(
             spacing=bar_margin,
-            borderwidth=int(px_y * 0.003),
+            borderwidth=int(diag * 0.0008),
             highlight_method="line",
             highlight_color=[this_c, this_c],
             background=this_c,
@@ -1077,14 +996,15 @@ def gen_widgets(this_c, other_c, screen):
             disable_drag=True,
             hide_unused=False,
         ),
-        spacer(this_c, None, dir="r"),
-        spacer(colors[0], None, dir="l"),
+        spacer(this_c, None, bar_height, dir="r"),
+        spacer(colors[0], None, bar_height, dir="l"),
         widget.WindowName(
             foreground=this_c,
             background=colors[0],
+            font="noto sans",
         ),
-        spacer(colors[0], None, dir="r"),
-        spacer(colors[0], None, dir="l"),
+        spacer(colors[0], None, bar_height, dir="r"),
+        spacer(colors[0], None, bar_height, dir="l"),
         widget.Memory(
             foreground=colors[6],
             background=colors[0],
@@ -1096,24 +1016,27 @@ def gen_widgets(this_c, other_c, screen):
             background=colors[0],
             format="CPU @ {freq_current} GHz {load_percent:3.0f}%",
         ),
-        widget.TextBox(foreground=colors[16], background=colors[0], text=" \uf942 "),
+        widget.TextBox(foreground=colors[16], background=colors[0], text=" \ue20a "),
         widget.ThermalSensor(
             foreground=colors[6], background=colors[0], foreground_alert=colors[9]
         ),
-        spacer(colors[0], None, dir="r"),
-        spacer(colors[0], None, dir="l"),
+        spacer(colors[0], None, bar_height, dir="r"),
+        spacer(colors[0], None, bar_height, dir="l"),
         widget.Net(
-            format="{down:.2f} {down_suffix}",
+            format="{down:6.2f} {down_suffix:2}",
             foreground=colors[6],
             background=colors[0],
         ),
         widget.TextBox(text=" \uf0ab | \uf0aa ", background=colors[0]),
         widget.Net(
-            format="{up:.2f} {up_suffix}", foreground=colors[11], background=colors[0]
+            format="{up:<6.2f} {up_suffix:2}",
+            foreground=colors[11],
+            background=colors[0],
         ),
-        spacer(colors[0], None, dir="r"),
-        spacer(this_c, None, dir="l"),
-        widget.Volume(
+        spacer(colors[0], None, bar_height, dir="r"),
+        widget.BatteryIcon(),
+        spacer(this_c, None, bar_height, dir="l"),
+        widget.PulseVolume(
             background=this_c,
             foreground=colors[0],
         ),
@@ -1124,7 +1047,7 @@ def gen_widgets(this_c, other_c, screen):
             background=this_c,
         ),
         widget.CurrentLayoutIcon(scale=0.8, background=this_c),
-        spacer(this_c, None, dir="r"),
+        spacer(this_c, None, bar_height, dir="r"),
     ]
     if screen == 0:
         widgetlist.insert(
@@ -1138,16 +1061,14 @@ def gen_widgets(this_c, other_c, screen):
 screens = [
     Screen(
         top=bar.Bar(
-            gen_widgets(this_c, other_c, screen),
+            gen_widgets(this_c, screen),
             bar_height,
             margin=[bar_margin, 0, 0, 0],
             background="#00000000",
             x11_drag_polling_rate=60,
         ),
     )
-    for screen, (this_c, other_c) in enumerate(
-        [(colors[3], colors[2]), (colors[2], colors[3])]
-    )
+    for screen, this_c in enumerate([colors[3], colors[2], colors[4]])
 ]
 
 # Drag floating layouts.
@@ -1188,6 +1109,7 @@ floating_layout = layout.Floating(
         *layout.Floating.default_float_rules,
         Match(wm_class="confirmreset"),  # gitk
         Match(wm_class="makebranch"),  # gitk
+        Match(wm_class="pavucontrol"),
         Match(wm_class="maketag"),  # gitk
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
@@ -1213,10 +1135,12 @@ floating_layout = layout.Floating(
         Match(wm_class=re.compile(".*yad.*", flags=re.IGNORECASE)),
         Match(title=re.compile(".*clocks.*", flags=re.IGNORECASE)),
     ],
-    border_width=1,
+    border_width=BORDER_WIDTH,
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"
+# reconfigure_screens = True
+
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
@@ -1232,8 +1156,19 @@ wmname = "LG3D"
 @hook.subscribe.startup_once
 def autostart():
     """Autostart functions."""
-    home = os.path.expanduser("~")
-    subprocess.call([home + "/.config/qtile/autostart.sh", WALLPAPER, LOCK_WALLPAPER])
+    subprocess.Popen("dunst")
+    logger.warn("started dunst")
+    reconf_screens(None)
+    logger.warn("ran reconf_screens")
+
+    subprocess.Popen("picom -b".split())
+    logger.warn("started picom")
+    update_background()
+
+    subprocess.call(
+        [os.path.expanduser("~/.config/qtile/autostart.sh"), WALLPAPER, LOCK_WALLPAPER]
+    )
+    logger.warn("called autostart")
 
 
 # @hook.subscribe.client_managed
