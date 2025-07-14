@@ -1163,18 +1163,10 @@ wmname = "LG3D"
 def autostart():
     """Autostart functions."""
     subprocess.Popen("dunst")
-    logger.warn("started dunst")
-    reconf_screens(None)
-    logger.warn("ran reconf_screens")
-
     subprocess.Popen("picom -b".split())
-    logger.warn("started picom")
-    update_background()
-
     subprocess.call(
         [os.path.expanduser("~/.config/qtile/autostart.sh"), WALLPAPER, LOCK_WALLPAPER]
     )
-    logger.warn("called autostart")
 
 
 # @hook.subscribe.client_managed

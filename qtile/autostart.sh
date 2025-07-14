@@ -4,7 +4,7 @@ source ~/dotfiles/colors.sh
 WALLPAPER=$1
 LOCK_WALLPAPER=$2
 
-export EDITOR="$(if [[ -n $DISPLAY ]]; then echo 'alacritty -e nvim'; else echo 'nvim'; fi)"
+~/.screenlayout/default.sh &
 
 # Clipboard
 greenclip daemon &
@@ -34,7 +34,6 @@ udiskie &
 xset s 600
 setxkbmap de -variant nodeadkeys
 
-$HOME/dotfiles/qtile/watch_bkg.sh &
 $HOME/dotfiles/qtile/wacom_setup.sh &
 
 eval $(ssh-agent -t 10m) &
