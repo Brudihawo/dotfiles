@@ -10,4 +10,5 @@ configuration {
   font: "Noto Sans Nerd Font 20";
 }
 
+
 @import "~/.config/rofi/colorscheme.rasi"

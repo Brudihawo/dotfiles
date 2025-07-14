@@ -68,8 +68,10 @@
 
 #window {
     background-color: @repcolor7;
-    border:           0px;
+    border:           3px;
     padding:          0px;
+    border-radius:    20px;
+    border-color:     @repcolor3;
 }
 
 #mainbox {
@@ -88,14 +90,16 @@
   dynamic:      true;
   border:       0px 0px 0px 0px ;
   border-color: @separatorcolor;
-  spacing:      0px;
+  spacing:      2px;
   scrollbar:    true;
   padding:      0px 0px 0px;
 }
 
 #element {
+  margin: 10px;
   border:  0;
-  padding: 16px 16px 16px;
+  padding: 10px 10px 10px 10px;
+  border-radius: 15px;
 }
 
 #element.normal.normal {
@@ -146,6 +150,7 @@
   border:       0px dash 0px 0px ;
   border-color: @separatorcolor;
 }
+
 #button.selected {
   background-color: @selected-normal-background;
   text-color:       @selected-normal-foreground;
@@ -155,7 +160,9 @@
   location:   south;
   spacing:    0px;
   text-color: @input-text;
-  background-color: @input-color;
+  background-color: @repcolor10;
+  margin: 10px;
+  border-radius: 15px;
   padding:    16px 8px 16px;
   children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
 }
@@ -163,17 +170,19 @@
 #case-indicator {
   spacing:    0;
   text-color: @input-text;
-  background-color: @input-color;
+  background-color: @repcolor10;
 }
+
 #entry {
   spacing:    0;
   text-color: @input-text;
-  background-color: @input-color;
+  background-color: @repcolor10;
 }
+
 #prompt {
   spacing:    0;
   text-color: @input-text;
-  background-color: @input-color;
+  background-color: @repcolor10;
 }
 
 #textbox-prompt-colon {
@@ -181,7 +190,7 @@
   /* str:        "≫  "; */
   margin:     0px 0.3em 0em 0em ;
   text-color: @input-text;
-  background-color: @input-color;
+  background-color: @repcolor10;
 }
 
 #textbox {
