@@ -1,79 +1,63 @@
-setopt NO_CASE_GLOB
+set -o vi
 
-# History
-HISTFILE=$HOME/.zsh_history
-SAVEHIST=1000
-setopt EXTENDED_HISTORY
-setopt SHARE_HISTORY
-setopt appendhistory
-setopt INC_APPEND_HISTORY
-setopt HIST_IGNORE_DUPS
-setopt HIST_REDUCE_BLANKS
-
-# completion
-autoload -Uz compinit && compinit
-
-# colors
-autoload -U colors && colors
-
-if [[ $TERM == "linux" ]]; then
-  top_chars="┌─"
-  top_pad="n"
-  bottom_chars="└─>"
-
-  source ~/dotfiles/colors.sh
-  echo -ne "\e]P0$color0"
-  echo -ne "\e]P1$color1"
-  echo -ne "\e]P2$color2"
-  echo -ne "\e]P3$color3"
-  echo -ne "\e]P4$color4"
-  echo -ne "\e]P5$color5"
-  echo -ne "\e]P6$color6"
-  echo -ne "\e]P7$color7"
-  echo -ne "\e]P8$color8"
-  echo -ne "\e]P9$color9"
-  echo -ne "\e]PA$color10"
-  echo -ne "\e]PB$color11"
-  echo -ne "\e]PC$color12"
-  echo -ne "\e]PD$color13"
-  echo -ne "\e]PE$color14"
-  echo -ne "\e]PF$color15"
-else
-  top_chars="╭─"
-  top_pad="─"
-  bottom_chars="╰─❯"
-fi
-
-# Prompt
-# PROMPT='%K{magenta}%* %k%F{magenta}%f %B%F{red}%n@%m  %f%b'
-PROMPT=' %B%0(?.%F{green}.%F{red})'"${top_chars}"'%f%b %* %B%F{blue}%n%f%F{yellow}@%m%b:%f %~'$'\n'" %0(?.%F{green}.%F{red})${bottom_chars}%f "
-
-
-# completion
-zstyle ':completion:*' completer _extensions _complete _approximate
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "$HOME/.cache/zsh/.zcompcache"
-zstyle ':completion:*' menu select
-zstyle ':completion:*:*:*:*:descriptions' format '%F{green}-- %d --%f'
-zstyle ':completion:*:*:*:*:corrections' format '%F{yellow}-- %d (errors: %e) --%f'
-zstyle ':completion:*:warnings' format '%F{purple}-- %d --%f'
-zstyle ':completion:*:messages' format '%F{red}-- no matches --%f'
-
-export PATH="$HOME/.cargo/bin:/opt/arduino-cli/bin:/opt/arduino-language-server/bin:$HOME/.local/bin:$PATH"
-
-
-# vi mode
-bindkey -v
-
-# nvim as manpager
+export PATH="$HOME/.local/bin:/usr/local/cuda-12.8/bin/:$PATH"
+export EDITOR="nvim"
 export MANPAGER='nvim +Man!'
-export EDITOR='nvim'
-alias ls='exa -lah'
-alias gst='git status'
-alias startFoam="bash --init-file ~/.foambashrc"
-source /usr/share/fzf/key-bindings.zsh
+export LC_ALL="en_US.UTF-8"
 
 eval "$(zoxide init zsh)"
+alias gst="git status"
+source "$HOME/.cargo/env"
 
-# opam configuration
-[[ ! -r /home/hawo/.opam/opam-init/init.zsh ]] || source /home/hawo/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+function venv {
+  if [ -f ./venv/bin/activate ]; then
+    source ./venv/bin/activate  # commented out by conda initialize
+  else
+    echo "No venv present"
+  fi
+}
+
+# NNN config
+export NNN_FIFO="/tmp/nnn.fifo"
+export NNN_PLUG="p:preview-tui"
+export SPLIT='v'
+
+alias today="cd ~/notes; ~/workspace/envy/today.py"
+alias ls="exa -lah"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+alias food="$HOME/mensa_plan/main.py"
+alias new-pres="cookiecutter ~/Documents/templates/cookiecutter-beamer/"
+alias new-torch="cookiecutter ~/Documents/templates/cookiecutter-dl/"
+
+function ssh-fw () {
+  port=$1
+  remote=$2
+  ssh -NL "$port":localhost:"$port" $remote
+}
+
+eval `keychain --eval --timeout 3 -q`
+
+# # >>> conda initialize >>>
+# # !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/home/ws/oy2699/programs/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/home/ws/oy2699/programs/miniconda3/etc/profile.d/conda.sh" ]; then
+#         . "/home/ws/oy2699/programs/miniconda3/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/home/ws/oy2699/programs/miniconda3/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
+# # <<< conda initialize <<<
+
+
+# bun completions
+[ -s "/home/ws/oy2699/.local/share/reflex/bun/_bun" ] && source "/home/ws/oy2699/.local/share/reflex/bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.local/share/reflex/bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
