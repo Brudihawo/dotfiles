@@ -1,14 +1,11 @@
 #!/bin/bash
 
 config=( \
-  "awesome"
   "nvim"
   "picom"
   "rofi"
   "wal"
-  "fish"
   "qtile"
-  "termite"
   "Trolltech.conf"
   "dunst"
   "zathura"
