@@ -4,33 +4,6 @@
 
 [[ $- != *i* ]] && return
 
-colors() {
-  local fgc bgc vals seq0
-
-  printf "Color escapes are %s\n" '\e[${value};...;${value}m'
-  printf "Values 30..37 are \e[33mforeground colors\e[m\n"
-  printf "Values 40..47 are \e[43mbackground colors\e[m\n"
-  printf "Value  1 gives a  \e[1mbold-faced look\e[m\n\n"
-
-  # foreground colors
-  for fgc in {30..37}; do
-    # background colors
-    for bgc in {40..47}; do
-      fgc=${fgc#37} # white
-      bgc=${bgc#40} # black
-
-      vals="${fgc:+$fgc;}${bgc}"
-      vals=${vals%%;}
-
-      seq0="${vals:+\e[${vals}m}"
-      printf "  %-9s" "${seq0:-(default)}"
-      printf " ${seq0}TEXT\e[m"
-      printf " \e[${vals:+${vals+$vals;}}1mBOLD\e[m"
-    done
-    echo; echo
-  done
-}
-
 [ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
 
 # Change the window title of X terminals
@@ -72,14 +45,14 @@ fi
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/hawo/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('/home/ws/oy2699/programs/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/hawo/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/hawo/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "/home/ws/oy2699/programs/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/ws/oy2699/programs/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/hawo/miniconda3/bin:$PATH"
+        export PATH="/home/ws/oy2699/programs/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -214,32 +187,18 @@ export EDITOR=nvim
 export NNN_PLUG='o:fzopen;v:imgview;r:renamer;d:diffs;j:autojump'
 export NNN_FIFO=/tmp/nnn.fifo
 
-source ~/dotfiles/bash_functions.sh
-source /usr/share/fzf/completion.bash
-source /usr/share/fzf/key-bindings.bash
-
 set -o vi
 
-# MY ALIASES
-alias lls='/usr/bin/ls'
-alias ls='exa --long --header --sort=name -m'
+# ALIASES
+alias ls='exa -lah --long --header --sort=name -m'
 alias env='env | fzf --multi'
 alias gst='git status'
 alias gc='git commit'
 alias gpsh='git push'
-alias hiwicd='cd ~/workspace/hiwi/mze_files'
-alias hiwiin='hiwicd && ./connect.sh'
 alias batv='bat --theme=gruvbox-dark'
 alias qlog='batv ~/.local/share/qtile/qtile.log'
-alias zooml='batv ~/Documents/Semester\ 3/links.txt'
 alias webcamview='mpv --profile=low-latency --untimed av://v4l2:/dev/video0 --demuxer-lavf-format=video4linux2 --demuxer-lavf-o-set=input_format=mjpeg'
-alias hue='python -m hue_controller.control -b hawos_bridge'
-alias u_links='batv ~/Documents/Semester\ 3/links.txt'
-alias termdown='termdown -b -f colossal -c 10'
 alias glog="git log --pretty='%Cgreen%cs% Cred%an %Creset%s' --graph"
-
-complete -o bashdefault -o default -F _fzf_path_completion zathura
-source /usr/share/bash-completion/completions/git
-
-
 . "$HOME/.cargo/env"
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
