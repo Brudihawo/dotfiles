@@ -62,7 +62,7 @@
     separatorcolor:              @repcolor3;
     background-color:            @background;
 
-    input-color:                 @repcolor14;
+    input-color:                 @repcolor3;
     input-text:                  @background;
 }
 
@@ -160,7 +160,7 @@
   location:   south;
   spacing:    0px;
   text-color: @input-text;
-  background-color: @repcolor10;
+  background-color: @input-color;
   margin: 10px;
   border-radius: 15px;
   padding:    16px 8px 16px;
@@ -170,19 +170,19 @@
 #case-indicator {
   spacing:    0;
   text-color: @input-text;
-  background-color: @repcolor10;
+  background-color: @input-color;
 }
 
 #entry {
   spacing:    0;
   text-color: @input-text;
-  background-color: @repcolor10;
+  background-color: @input-color;
 }
 
 #prompt {
   spacing:    0;
   text-color: @input-text;
-  background-color: @repcolor10;
+  background-color: @input-color;
 }
 
 #textbox-prompt-colon {
@@ -190,7 +190,7 @@
   /* str:        "≫  "; */
   margin:     0px 0.3em 0em 0em ;
   text-color: @input-text;
-  background-color: @repcolor10;
+  background-color: @input-color;
 }
 
 #textbox {
